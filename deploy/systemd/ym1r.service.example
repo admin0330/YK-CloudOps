@@ -1,0 +1,15 @@
+[Unit]
+Description=ym1r Web Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/ym1r
+EnvironmentFile=/opt/ym1r/.env
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+User=claude
+
+[Install]
+WantedBy=multi-user.target

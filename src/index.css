@@ -1,0 +1,1187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   CSS Custom Properties — Light (default)
+   ============================================================ */
+:root,
+[data-theme="light"] {
+  --bg: #f7f4ef;
+  --bg-soft: #ffffff;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-strong: rgba(255, 255, 255, 0.88);
+  --text: #27231f;
+  --text-main: #24211d;
+  --text-primary: #24211d;
+  --text-muted: #726b63;
+  --text-secondary: #6b645b;
+  --text-weak: #9c9790;
+  --border: rgba(40, 35, 30, 0.08);
+  --border-strong: rgba(40, 35, 30, 0.14);
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(40, 35, 30, 0.10);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 8px 32px rgba(40, 35, 30, 0.08);
+  --glass-shadow-lg: 0 16px 48px rgba(40, 35, 30, 0.12);
+  --accent: #5b8fd4;
+  --accent-soft: #6aad9f;
+  --accent-warm: #c48a50;
+  --danger: #dc2626;
+  --danger-bg: rgba(239, 68, 68, 0.08);
+  --code-bg: #ede8e0;
+  --code-border: rgba(40, 35, 30, 0.08);
+  --scrollbar-thumb: rgba(40, 35, 30, 0.15);
+  --btn-primary-bg: #27231f;
+  --btn-primary-text: #f7f4ef;
+  --btn-secondary-bg: rgba(40, 35, 30, 0.04);
+  --btn-secondary-border: rgba(40, 35, 30, 0.1);
+  --input-bg: rgba(40, 35, 30, 0.03);
+  --input-border: rgba(40, 35, 30, 0.1);
+  --input-focus-ring: rgba(91, 143, 212, 0.15);
+  --spinner-track: rgba(40, 35, 30, 0.15);
+  --spinner-color: #f7f4ef;
+  --overlay-bg: rgba(40, 35, 30, 0.35);
+  --active-bg: rgba(40, 35, 30, 0.06);
+  --hover-bg: rgba(40, 35, 30, 0.03);
+  --dot-color: #a09890;
+  --me-bg: #f7f4ef;
+  --me-text: #27231f;
+  --me-text-secondary: #5c5752;
+  --me-muted: #7a746d;
+  --me-border: rgba(40, 35, 30, 0.08);
+  --me-card: rgba(255, 255, 255, 0.75);
+  --me-tag-bg: rgba(40, 35, 30, 0.05);
+  --me-accent: #b86e1a;
+
+  --page-gradient: radial-gradient(circle at 20% 10%, rgba(196,154,88,0.15), transparent 32%), radial-gradient(circle at 80% 20%, rgba(120,146,168,0.12), transparent 34%), linear-gradient(180deg, #f7f4ef 0%, #ece6dc 100%);
+
+  /* Aliases */
+  --page-bg: var(--bg);
+  --page-bg-soft: var(--bg-soft);
+  --surface: var(--card);
+  --surface-strong: var(--card-strong);
+  --surface-muted: rgba(255, 255, 255, 0.55);
+  --border-soft: var(--border);
+}
+
+/* ============================================================
+   CSS Custom Properties — Dark
+   ============================================================ */
+[data-theme="dark"] {
+  --bg: #050507;
+  --bg-soft: #0b0d12;
+  --card: rgba(255, 255, 255, 0.05);
+  --card-strong: rgba(255, 255, 255, 0.09);
+  --text: rgba(255, 255, 255, 0.9);
+  --text-main: #f4f4f5;
+  --text-primary: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --text-secondary: #a1a1aa;
+  --text-weak: rgba(255, 255, 255, 0.36);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.11);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.32);
+  --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+  --glass-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.40);
+  --page-gradient: radial-gradient(circle at 20% 10%, rgba(138,180,255,0.13), transparent 32%), radial-gradient(circle at 80% 20%, rgba(183,156,255,0.10), transparent 34%), linear-gradient(180deg, #050507 0%, #0b0d12 100%);
+  --accent: #6aa6ff;
+  --accent-soft: #8ecfc9;
+  --accent-warm: #f2b880;
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --code-bg: rgba(255, 255, 255, 0.06);
+  --code-border: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.14);
+  --btn-primary-bg: rgba(255, 255, 255, 0.9);
+  --btn-primary-text: #08080a;
+  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-border: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-focus-ring: rgba(106, 166, 255, 0.18);
+  --spinner-track: rgba(255, 255, 255, 0.2);
+  --spinner-color: #08080a;
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+  --active-bg: rgba(255, 255, 255, 0.1);
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --dot-color: rgba(255, 255, 255, 0.35);
+  --me-bg: #0c0c0f;
+  --me-text: rgba(255, 255, 255, 0.88);
+  --me-text-secondary: rgba(255, 255, 255, 0.62);
+  --me-muted: rgba(255, 255, 255, 0.45);
+  --me-border: rgba(255, 255, 255, 0.08);
+  --me-card: rgba(255, 255, 255, 0.06);
+  --me-tag-bg: rgba(255, 255, 255, 0.08);
+  --me-accent: #fbbf24;
+
+  /* Aliases */
+  --page-bg: var(--bg);
+  --page-bg-soft: var(--bg-soft);
+  --surface: var(--card);
+  --surface-strong: var(--card-strong);
+  --surface-muted: rgba(255, 255, 255, 0.045);
+  --border-soft: var(--border);
+}
+
+/* ============================================================
+   Liquid Glass Design Tokens
+   ============================================================ */
+:root {
+  --lg-bg: #050507;
+  --lg-bg-soft: #0b0d12;
+  --lg-text: #f4f4f5;
+  --lg-text-muted: #9ca3af;
+  --lg-text-secondary: #d1d5db;
+  --lg-glass-bg: rgba(255, 255, 255, 0.05);
+  --lg-glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --lg-glass-border: rgba(255, 255, 255, 0.1);
+  --lg-glass-border-hover: rgba(255, 255, 255, 0.2);
+  --lg-glass-highlight: rgba(255, 255, 255, 0.35);
+  --accent-blue: #8ab4ff;
+  --accent-purple: #b79cff;
+  --accent-green: #9fffd1;
+  --lg-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --lg-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+/* ============================================================
+   Global Reset
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  height: 100%;
+  height: 100dvh;
+  background: var(--page-gradient);
+  color: var(--text-main);
+  font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   Liquid Glass System
+   ============================================================ */
+
+/* Base glass — frosted translucent panel */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-light {
+  background: var(--card);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--border);
+}
+
+/* Glass panel — card with shadow and rounded corners */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Glass card — slightly elevated */
+.glass-card {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+}
+
+/* Subtle top-left highlight */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--glass-highlight) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Glass chip — small pill/tag */
+.glass-chip {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  transition: all 280ms ease-in-out;
+}
+.glass-chip:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--glass-bg-strong);
+}
+
+/* Glass input */
+.glass-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease, background 0.28s ease;
+  width: 100%;
+}
+.glass-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  background: var(--glass-bg);
+}
+.glass-input::placeholder {
+  color: var(--text-weak);
+}
+
+/* Glass icon button */
+.glass-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 280ms ease-in-out;
+}
+.glass-icon-btn:hover {
+  background: var(--glass-bg-strong);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+/* ============================================================
+   Unified Interactive Behavior
+   ============================================================ */
+
+/* All interactive elements get subtle lift on hover, sink on press */
+.glass-interactive {
+  transition: transform 0.28s ease-in-out, box-shadow 0.28s ease-in-out, border-color 0.28s ease-in-out, background 0.28s ease-in-out;
+  cursor: pointer;
+}
+.glass-interactive:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--glass-shadow-lg);
+  border-color: var(--border-strong);
+}
+.glass-interactive:active {
+  transform: scale(0.985);
+  box-shadow: var(--glass-shadow);
+  transition-duration: 0.16s;
+}
+
+/* For link-style hover on text */
+.hover-lift {
+  transition: opacity 280ms linear, transform 280ms ease-in-out;
+  cursor: pointer;
+}
+.hover-lift:hover {
+  opacity: 0.78;
+  transform: translateY(-1px);
+}
+.hover-lift:active {
+  transform: scale(0.985);
+}
+
+/* ============================================================
+   Classic utility classes (keep backward compat)
+   ============================================================ */
+
+/* Markdown */
+.prose { line-height: 1.7; color: var(--text); }
+.prose pre {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  position: relative;
+}
+.prose code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85em;
+}
+.prose p { margin: 0.5rem 0; }
+.prose ul, .prose ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { color: var(--text); margin: 1rem 0 0.5rem; }
+.prose a { color: var(--accent); }
+.prose blockquote { border-left: 3px solid var(--border-strong); padding-left: 1rem; color: var(--text-secondary); margin: 0.75rem 0; }
+.prose strong { color: var(--text); }
+.prose table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+.prose th, .prose td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+.prose th { background: var(--hover-bg); }
+.prose li::marker { color: var(--text-muted); }
+.prose hr { border-color: var(--border); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 2px;
+}
+
+/* Copy button */
+.copy-btn {
+  position: absolute;
+  top: 0.5rem; right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: all 0.24s ease-in-out;
+}
+.copy-btn:hover {
+  background: rgba(127, 127, 127, 0.2);
+  color: var(--text);
+}
+
+/* Input / textarea / select base */
+input, textarea, select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-weak);
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.28s ease-in-out;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.32s ease-in-out;
+}
+.btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 16px rgba(31, 41, 51, 0.15);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+  filter: brightness(0.96);
+  transition-duration: 0.14s;
+}
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  filter: none;
+}
+
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--text);
+  border: 1px solid var(--btn-secondary-border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  transition: all 0.32s ease-in-out;
+}
+.btn-secondary:hover {
+  background: var(--hover-bg);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.btn-secondary:active {
+  transform: scale(0.98);
+  transition-duration: 0.14s;
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  transition: all 0.28s ease-in-out;
+}
+.btn-danger:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.btn-danger:active {
+  transform: scale(0.98);
+  transition-duration: 0.14s;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+}
+
+/* ============================================================
+   Header Actions — unified top-right controls container
+   ============================================================ */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.header-actions > button {
+  position: static;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    gap: 6px;
+  }
+
+  .header-actions > button {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+
+/* Logo breathing glow */
+@keyframes logoBreath {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(106, 166, 255, 0.15)); }
+  50% { filter: drop-shadow(0 0 14px rgba(106, 166, 255, 0.28)); }
+}
+.logo-glow { animation: logoBreath 3s ease-in-out infinite; }
+
+/* Input focus glow */
+.input-glow:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
+  transition: border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+/* Card hover lift */
+.card-lift {
+  transition: transform 0.34s ease-in-out, box-shadow 0.34s ease-in-out;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* Image thumbnails */
+.img-thumb {
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.32s ease-in-out, transform 0.32s ease-in-out;
+  max-width: 240px;
+  max-height: 200px;
+  object-fit: cover;
+  box-shadow: 0 2px 12px rgba(31, 41, 51, 0.08);
+}
+.img-thumb:hover {
+  opacity: 0.88;
+  transform: scale(1.02);
+}
+
+/* Progress */
+@keyframes progressIndeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-progress { animation: progressIndeterminate 1.8s ease-in-out infinite; }
+
+/* Dot typing */
+@keyframes pulse-dot {
+  0%, 80%, 100% { opacity: 0.18; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+.dot-typing { display: flex; gap: 4px; padding: 0.5rem 0; }
+.dot-typing span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--dot-color);
+  animation: pulse-dot 1.4s infinite;
+}
+.dot-typing span:nth-child(2) { animation-delay: 0.2s; }
+.dot-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Shake */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+.animate-shake { animation: shake 0.4s ease-out; }
+
+/* ============================================================
+   Mobile optimizations
+   ============================================================ */
+@media (max-width: 640px) {
+  input, textarea, select {
+    font-size: 16px;
+    padding: 0.625rem 0.875rem;
+  }
+  .btn-primary, .btn-secondary {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  .btn-sm {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    min-height: 40px;
+  }
+}
+
+/* Safe area */
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ============================================================
+   Liquid Glass Homepage Styles
+   ============================================================ */
+
+/* ============================================================
+   Premium Liquid Glass — Homepage Root
+   ============================================================ */
+
+.home-root {
+  min-height: 100vh;
+  background: var(--page-gradient);
+  color: var(--text-main);
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
+  --vignette: radial-gradient(ellipse 80% 60% at 50% 40%, transparent 30%, rgba(3,4,5,0.15) 65%, rgba(3,4,5,0.35) 100%);
+}
+
+[data-theme="light"] .home-root {
+  --vignette: radial-gradient(ellipse 80% 60% at 50% 40%, transparent 30%, rgba(80,70,55,0.08) 65%, rgba(80,70,55,0.2) 100%);
+}
+
+.home-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--vignette);
+}
+
+/* Noise overlay — SVG data URI for film grain */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* Typography */
+.home-root h1,
+.home-root h2,
+.home-root h3 {
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.home-root p,
+.home-root span,
+.home-root a,
+.home-root button {
+  line-height: 1.65;
+}
+
+@media (max-width: 640px) {
+  .home-root h1 {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  .home-root p {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Navbar — glass */
+.home-nav {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease;
+}
+.home-nav.scrolled {
+  background: rgba(5, 5, 7, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Glass card v2 — premium */
+.glass-card-v2 {
+  background: rgba(255, 255, 255, 0.035);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.5s ease, background 0.5s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+.glass-card-v2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+.glass-card-v2::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(ellipse at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(138,180,255,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.6s ease;
+}
+.glass-card-v2:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.04);
+}
+.glass-card-v2:hover::after {
+  opacity: 1;
+}
+.glass-card-v2 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Primary glass button — premium */
+.btn-glass-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.75rem;
+  border-radius: 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.btn-glass-primary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 32px rgba(138, 180, 255, 0.15), 0 0 0 1px rgba(138,180,255,0.08);
+  transform: translateY(-1px);
+}
+.btn-glass-primary:active {
+  transform: scale(0.985);
+  transition-duration: 0.15s;
+}
+.btn-glass-primary .btn-shine {
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.12) 55%, transparent 100%);
+  transition: left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glass-primary:hover .btn-shine {
+  left: 100%;
+}
+
+/* Secondary glass button — premium */
+.btn-glass-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.75rem;
+  border-radius: 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--lg-text);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glass-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 24px rgba(138, 180, 255, 0.06);
+  transform: translateY(-1px);
+}
+.btn-glass-secondary:active {
+  transform: scale(0.985);
+  transition-duration: 0.15s;
+}
+
+/* ============================================================
+   Navbar & BackNav (existing)
+   ============================================================ */
+
+/* BackNav button hover states */
+.backnav-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 280ms ease-in-out;
+}
+.backnav-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* Dark mode overrides for GitHub-style button */
+[data-theme="dark"] .github-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .github-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .logo-glow { animation: none; }
+  .dot-typing span { animation: none; opacity: 1; }
+  .animate-shake { animation: none; }
+  .animate-progress { animation: none; }
+}
+
+/* ============================================================
+   📱 Mobile-First Optimizations
+   ============================================================ */
+
+/* Mobile device detection helper — use via JS, but we can also style broadly */
+@media (max-width: 768px) {
+  /* ── Performance: reduce expensive effects ── */
+  .glass, .glass-panel, .glass-card, .glass-card-v2 {
+    backdrop-filter: blur(12px) saturate(120%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(120%) !important;
+  }
+
+  /* Disable hover-based effects on mobile */
+  .glass-interactive:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .card-lift:hover {
+    transform: none !important;
+  }
+
+  /* ── Touch targets: ensure minimum 44px tap area ── */
+  button, a[role="button"], [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* ── Better scrolling ── */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Prevent iOS input zoom ── */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+
+  /* ── Full-width forms on mobile ── */
+  .glass form,
+  .glass-card form,
+  form.glass {
+    padding: 1rem !important;
+  }
+
+  /* ── Modal sizing ── */
+  .glass.rounded-2xl.p-5,
+  .glass-card.p-5 {
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+
+  /* ── Tables: horizontal scroll ── */
+  table {
+    font-size: 0.8125rem;
+  }
+
+  th, td {
+    padding: 0.5rem 0.625rem !important;
+    white-space: nowrap;
+  }
+
+  /* ── Header/Navbar adjustments ── */
+  .home-nav .btn-glass-primary {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  /* ── Page padding ── */
+  .max-w-6xl {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* ── Grid collapse ── */
+  .grid.sm\\:grid-cols-2,
+  .grid.sm\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* ── Spacing reduction ── */
+  .py-20, .py-24, .py-28 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+
+  .py-12, .py-16 {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  /* ── Text sizing ── */
+  h1 { font-size: 1.5rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  .text-2xl { font-size: 1.375rem !important; }
+  .text-3xl { font-size: 1.5rem !important; }
+  .text-4xl { font-size: 1.75rem !important; }
+
+  /* ── Landing page cards ── */
+  .glass-card.p-6, .glass-card.p-7 {
+    padding: 1.25rem !important;
+  }
+
+  /* ── ORB performance ── */
+  .w-\\[600px\\].h-\\[600px\\],
+  .w-\\[500px\\].h-\\[500px\\],
+  .w-\\[300px\\].h-\\[300px\\] {
+    opacity: 0.5 !important;
+    animation: none !important;
+  }
+}
+
+/* Extra small devices (phones < 400px) */
+@media (max-width: 400px) {
+  /* Tighter padding */
+  .px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+
+  /* Navbar items */
+  .home-nav .px-3 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Smaller buttons on navbar */
+  .home-nav button.text-xs {
+    font-size: 0.6875rem !important;
+  }
+
+  /* Admin sidebar narrower */
+  .w-64, .w-72 {
+    width: 85vw !important;
+  }
+}
+
+/* ── Safe area insets for notched phones ── */
+@supports (padding-bottom: env(safe-area-inset-bottom, 0px)) {
+  .safe-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Navbar safe top */
+  nav.fixed.top-0 {
+    padding-top: max(0px, env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* Form safe bottom */
+  .chat-input-area {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Mobile sidebar overlay ── */
+.mobile-sidebar-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ── Scroll-to-bottom FAB ── */
+.scroll-fab {
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Message bubble mobile tweaks ── */
+@media (max-width: 640px) {
+  .prose {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+  }
+
+  .prose pre {
+    padding: 0.75rem;
+    font-size: 0.8125rem;
+    margin: 0.5rem 0;
+    border-radius: 0.625rem;
+  }
+
+  .prose code {
+    font-size: 0.8em;
+  }
+
+  /* Message bubble widths */
+  .max-w-\\[88\\%\\] {
+    max-width: 92% !important;
+  }
+
+  /* Chat message spacing */
+  .space-y-4 > * + * {
+    margin-top: 0.75rem !important;
+  }
+}
+
+/* ── Admin mobile optimizations ── */
+@media (max-width: 640px) {
+  /* Dashboard stats: 2 columns */
+  .grid.grid-cols-2.sm\\:grid-cols-3 {
+    gap: 0.5rem !important;
+  }
+
+  /* Stat card */
+  .stat-card-mobile {
+    padding: 0.75rem !important;
+  }
+
+  /* Status badges */
+  .text-xs.px-2.py-0\\.5.rounded-full {
+    font-size: 0.6875rem !important;
+    padding: 0.125rem 0.5rem !important;
+  }
+
+  /* Server/User mobile cards */
+  .glass.rounded-xl.p-3 {
+    padding: 0.875rem !important;
+  }
+}
+
+/* ── CloudOps mobile ── */
+@media (max-width: 640px) {
+  /* Terminal output */
+  .cloudops-terminal {
+    font-size: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .cloudops-terminal pre {
+    font-size: 0.6875rem !important;
+    white-space: pre-wrap !important;
+    word-break: break-all;
+  }
+}
+
+/* ── Disable complex animations on mobile for performance ── */
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .particle-sphere canvas {
+    opacity: 0.6;
+  }
+
+  .mouse-glow {
+    display: none !important;
+  }
+}
+
+
+/* ============================================================
+   🖥️ Terminal Output — theme adaptive
+   ============================================================ */
+.terminal-output {
+  background: var(--code-bg);
+}
+
+.terminal-header {
+  background: var(--hover-bg);
+}
+
+.terminal-body {
+  color: var(--text-primary);
+}
+
+.terminal-code {
+  color: var(--text-primary);
+}
+
+.terminal-meta {
+  color: var(--text-muted);
+}
+
+.terminal-dim {
+  color: var(--text-weak);
+}
+
+.terminal-error {
+  color: var(--danger);
+}
+
+/* Dark mode: true terminal feel */
+[data-theme="dark"] .terminal-output {
+  background: #0d1117;
+}
+
+[data-theme="dark"] .terminal-header {
+  background: #161b22;
+}
+
+[data-theme="dark"] .terminal-body {
+  color: #c9d1d9;
+}
+
+[data-theme="dark"] .terminal-code {
+  color: rgba(255,255,255,0.8);
+}
+
+[data-theme="dark"] .terminal-meta {
+  color: rgba(255,255,255,0.4);
+}
+
+[data-theme="dark"] .terminal-dim {
+  color: #484f58;
+}
+
+[data-theme="dark"] .terminal-error {
+  color: #f87171;
+}
+
+/* ============================================================
+   ☀️ Light mode overrides for glass elements
+   ============================================================ */
+[data-theme="light"] .home-nav.scrolled {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(40, 35, 30, 0.1);
+}
+
+[data-theme="light"] .glass-card-v2 {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(40, 35, 30, 0.1);
+}
+
+[data-theme="light"] .glass-card-v2:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(40, 35, 30, 0.2);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .btn-glass-primary {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .btn-glass-primary:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.06);
+}
+
