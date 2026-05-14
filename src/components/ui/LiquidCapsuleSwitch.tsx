@@ -86,7 +86,7 @@ export default function LiquidCapsuleSwitch({
     <div
       role="radiogroup"
       aria-label={ariaLabel || 'Options'}
-      className={`inline-flex ${fullWidth ? 'w-full' : ''} ${s.px} ${s.py} ${s.gap} rounded-full select-none ${manyOptions ? 'max-w-full overflow-x-auto' : ''} ${className}`}
+      className={`${manyOptions ? 'flex w-full justify-start' : 'inline-flex'} ${fullWidth ? 'w-full' : ''} ${s.px} ${s.py} ${s.gap} rounded-full select-none ${manyOptions ? 'max-w-full overflow-x-auto' : ''} ${className}`}
       style={{
         background: 'rgba(255,255,255,0.05)',
         border: '0.5px solid rgba(255,255,255,0.1)',

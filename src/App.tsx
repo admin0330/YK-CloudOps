@@ -13,7 +13,6 @@ import CloudOpsPage from './pages/CloudOpsPage';
 import DashboardPage from './pages/DashboardPage';
 import ServerDetailPage from './pages/ServerDetailPage';
 import { pageTransition } from './lib/motion';
-import ParticleTransitionProvider from './effects/ParticleTransitionProvider';
 import { TransitionProvider } from './effects/TransitionContext';
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
@@ -56,10 +55,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <TransitionProvider>
-      <ParticleTransitionProvider>
-        <AppRoutes />
-      </ParticleTransitionProvider>
-    </TransitionProvider>
+    <div className="relative isolate min-h-screen">
+      <div className="relative z-10 min-h-screen">
+        <TransitionProvider>
+          <AppRoutes />
+        </TransitionProvider>
+      </div>
+    </div>
   );
 }

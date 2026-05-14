@@ -178,7 +178,7 @@ export default function ParticleRevealTransition({
       ref={canvasRef}
       className="fixed inset-0 z-[9999] pointer-events-none"
       aria-hidden="true"
-      style={{ width: '100vw', height: '100vh' }}
+      style={{ width: '100%', height: '100%' }}
     />
   );
 }

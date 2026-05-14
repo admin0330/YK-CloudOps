@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, ArrowDown, Paperclip, X, FileText, Zap, Image, Loader2, CloudSun, Sparkles } from 'lucide-react';
+import { Send, ArrowDown, Paperclip, X, FileText, Zap, Image, Loader2, CloudSun, Sparkles, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from './MessageBubble';
 import { useLanguage } from '../context/LanguageContext';
@@ -12,7 +12,7 @@ const MODELS = [
   { key: 'pro', label: 'Pro' },
 ];
 
-export default function ChatArea({ conversation, messages, onSend, loading, error, model, onModelChange }) {
+export default function ChatArea({ conversation, messages, onSend, loading, error, model, onModelChange, onOpenSidebar }) {
   const { t } = useLanguage();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -81,12 +81,23 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
   const canSend = (input.trim() || pendingAttachments.length > 0) && !loading;
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full min-h-0 relative">
       {/* Header */}
-      <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-[var(--border)] glass shrink-0 flex items-center justify-between gap-2">
-        <h2 className="text-xs sm:text-sm font-medium truncate text-apple-text">
-          {conversation?.title || t('newChat')}
-        </h2>
+      <div className="px-4 sm:px-5 py-3 sm:py-3.5 border-b border-[var(--border)] glass shrink-0 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          {onOpenSidebar && (
+            <button
+              onClick={onOpenSidebar}
+              className="sm:hidden p-2 -ml-1.5 rounded-xl hover:bg-[var(--hover-bg)] text-apple-muted shrink-0"
+              aria-label="Open conversations"
+            >
+              <Menu size={18} />
+            </button>
+          )}
+          <h2 className="text-xs sm:text-sm font-medium truncate text-apple-text">
+            {conversation?.title || t('newChat')}
+          </h2>
+        </div>
         <div className="hidden sm:flex items-center gap-1 shrink-0">
           <LiquidCapsuleSwitch
             options={[
@@ -102,49 +113,27 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
       </div>
 
       {/* Messages */}
-      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto px-2 sm:px-3 py-3 sm:py-4 space-y-3 sm:space-y-4">
+      <div ref={containerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto min-h-0 px-3 sm:px-5 py-4 sm:py-5 space-y-4 sm:space-y-5">
         {(!messages || messages.length === 0) && (
           <motion.div
-            className="flex flex-col items-center justify-center h-full text-apple-muted px-4"
+            className="flex flex-col items-center justify-center h-full text-apple-muted px-4 max-w-xl mx-auto min-h-[20rem]"
             initial="hidden" animate="visible"
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.14 } } }}
           >
-            <motion.img
-              src="/apple-logo.png" alt="YK Logo"
-              className="w-12 h-12 mb-4 opacity-40 rounded-xl logo-glow"
-              variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 0.4, y: 0 } }}
-              transition={{ duration: 0.52, ease: [0.25, 0.1, 0.25, 1] }}
-            />
             <motion.h1
-              className="text-xl sm:text-2xl font-semibold mb-2 text-apple-text text-center"
+              className="text-lg sm:text-2xl font-semibold mb-2 text-apple-text text-center tracking-tight"
               variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }}
               transition={{ duration: 0.52, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {t('appleIntelligence')}
             </motion.h1>
             <motion.p
-              className="text-sm text-center mb-4"
+              className="text-sm text-center mb-4 max-w-sm"
               variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }}
               transition={{ duration: 0.52, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {t('askMeAnything')}
             </motion.p>
-            <motion.div
-              className="flex items-center gap-1"
-              variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }}
-              transition={{ duration: 0.52, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <LiquidCapsuleSwitch
-                options={[
-                  { id: 'flash', label: t('fastMode'), icon: Zap, tone: 'var(--accent-green)' },
-                  { id: 'pro', label: t('proMode'), icon: Sparkles, tone: 'var(--accent-blue)' },
-                ]}
-                value={model}
-                onChange={onModelChange}
-                size="md"
-                ariaLabel={t('askAppleIntelligence') + ' model'}
-              />
-            </motion.div>
           </motion.div>
         )}
         {messages?.map((m) => (
@@ -288,7 +277,7 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
       </AnimatePresence>
 
       {/* Weather quick button */}
-      <div className="px-3 sm:px-4 pb-1 shrink-0">
+      <div className="px-4 sm:px-5 pb-1 shrink-0">
         <button
           type="button"
           onClick={() => {
@@ -317,14 +306,14 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
       </div>
 
       {/* Input bar */}
-      <div className="p-2 sm:p-3 border-t border-[var(--border)] shrink-0 chat-input-area" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+      <div className="p-3 sm:p-4 border-t border-[var(--border)] shrink-0 chat-input-area" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+        <form onSubmit={handleSubmit} className="flex gap-2.5 items-end">
           <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
           <motion.button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="p-3 rounded-xl bg-[var(--hover-bg)] hover:bg-[var(--active-bg)] text-apple-muted hover:text-[var(--text)] shrink-0 disabled:opacity-40"
+            className="p-3 rounded-2xl bg-[var(--hover-bg)] hover:bg-[var(--active-bg)] text-apple-muted hover:text-[var(--text)] shrink-0 disabled:opacity-40"
             title={t('attachFile')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.9 }}
@@ -335,13 +324,13 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={pendingAttachments.length > 0 ? t('askAboutFile') : t('typeMessage')}
-            className="flex-1 min-w-0 input-glow"
+            className="flex-1 min-w-0 input-glow rounded-2xl"
             disabled={loading}
           />
           <motion.button
             type="submit"
             disabled={!canSend}
-            className="p-3 rounded-xl bg-[var(--active-bg)] hover:bg-[var(--active-bg)] disabled:opacity-30 disabled:cursor-not-allowed text-apple-text shrink-0"
+            className="p-3 rounded-2xl bg-[var(--active-bg)] hover:bg-[var(--active-bg)] disabled:opacity-30 disabled:cursor-not-allowed text-apple-text shrink-0"
             whileHover={canSend ? { scale: 1.05 } : {}}
             whileTap={canSend ? { scale: 0.92 } : {}}
           >

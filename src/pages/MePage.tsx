@@ -28,7 +28,7 @@ export default function MePage() {
       const sections = NAV.map(n => document.getElementById(`section-${n.key}`)).filter(Boolean);
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = sections[i];
-        if (el && el.getBoundingClientRect().top <= 140) {
+        if (el && el.getBoundingClientRect().top <= 160) {
           setActive(NAV[i].key);
           break;
         }
@@ -45,12 +45,12 @@ export default function MePage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--me-bg)', color: 'var(--me-text)' }}>
+    <div className="min-h-screen pt-[6.4rem] sm:pt-[5.85rem]" style={{ background: 'var(--me-bg)', color: 'var(--me-text)' }}>
       <Navbar />
 
       {/* Section nav — sticky below Navbar, horizontally scrollable on mobile */}
       <nav
-        className={`sticky top-12 z-30 transition-all ${
+        className={`sticky top-[5.9rem] sm:top-[5.35rem] z-30 transition-all ${
           scrolled ? 'bg-[var(--me-bg)]/80 backdrop-blur-xl border-b border-[var(--me-border)]' : 'bg-transparent'
         }`}
         style={{ transitionDuration: '400ms' }}
@@ -97,7 +97,7 @@ export default function MePage() {
       </nav>
 
       {/* Hero */}
-      <section id="section-hero" className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-8 sm:pb-12">
+      <section id="section-hero" className="scroll-mt-[8rem] max-w-4xl mx-auto px-4 sm:px-6 pt-12 sm:pt-14 pb-8 sm:pb-12">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

@@ -78,7 +78,7 @@ export default function HomeLoader({ onComplete }: Props) {
                 WebkitTextFillColor: 'var(--text-main)',
                 color: 'var(--text-main)',
                 width: `${fillProgress * 100}%`,
-                maxWidth: '100vw',
+                maxWidth: '100%',
                 letterSpacing: '-0.02em',
                 lineHeight: 1.1,
                 whiteSpace: 'nowrap',

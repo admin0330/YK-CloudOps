@@ -32,6 +32,7 @@ export default function AdminPage() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tab, setTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   useEffect(() => {
     api.adminGetMe().then((d) => setAdmin(d.user)).catch(() => navigate('/admin-login')).finally(() => setAuthChecked(true));
@@ -48,62 +49,85 @@ export default function AdminPage() {
   const TAB_LABELS = { dashboard: t('dashboard'), servers: t('serverManagement'), users: t('userManagement'), files: t('fileTransfer'), persona: t('persona') };
 
   return (
-    <div className="h-full flex bg-apple-bg">
+    <div className="min-h-screen flex flex-col bg-apple-bg">
       <Navbar />
-      <div className="lg:hidden fixed top-12 inset-x-0 z-30 glass border-b border-[var(--border)] px-4 py-3 flex items-center justify-between">
-        <motion.button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 -ml-1.5" whileTap={{ scale: 0.85 }}>
-          {sidebarOpen ? <XIcon size={20} /> : <Menu size={20} />}
-        </motion.button>
-        <span className="text-sm font-semibold">{TAB_LABELS[tab]}</span>
-        <div className="w-8" />
-      </div>
 
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 glass border-r border-[var(--border)] flex flex-col lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ transitionDuration: '320ms', transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }}>
-        <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
-          <span className="text-lg font-semibold tracking-tight">
-            <Link to="/me" aria-label="Open personal blog" className="cursor-pointer hover:opacity-75" style={{ transition: 'opacity 280ms linear' }}>
-              <span className="text-apple-blue2">{''}</span>
+      <div className="flex flex-1 min-h-0 pt-[5.85rem] overflow-hidden">
+        <aside
+          className={`hidden lg:flex shrink-0 min-h-0 flex-col glass border-r border-[var(--border)] transition-[width] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${sidebarExpanded ? 'w-52' : 'w-[4.75rem]'}`}
+          onFocusCapture={() => setSidebarExpanded(true)}
+          onBlurCapture={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setSidebarExpanded(false);
+          }}
+        >
+          <div className="p-4 border-b border-[var(--border)] flex items-center justify-between gap-2">
+            <Link to="/me" aria-label="Open personal blog" className="cursor-pointer hover:opacity-75 shrink-0" style={{ transition: 'opacity 280ms linear' }}>
+              <span className="text-apple-blue2 text-lg font-semibold">{'\uF8FF'}</span>
             </Link>
-            {' '}Admin
-          </span>
-          <motion.button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg hover:bg-[var(--active-bg)] lg:hidden" whileTap={{ scale: 0.85 }}><XIcon size={16} /></motion.button>
-        </div>
-        <nav className="flex-1 p-2 space-y-0.5">
-          {TABS.map(({ key, icon: Icon }) => (
-            <motion.button
-              key={key}
-              onClick={() => switchTab(key)}
-              className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm ${tab === key ? 'bg-[var(--active-bg)] text-apple-text' : 'text-apple-muted hover:bg-[var(--hover-bg)] hover:text-[var(--text)]'}`}
-              whileHover={{ x: 2 }} whileTap={{ scale: 0.97 }}
+            <div className={`min-w-0 overflow-hidden transition-all duration-300 ${sidebarExpanded ? 'max-w-[10rem] opacity-100' : 'max-w-0 opacity-0'}`}>
+              <span className="text-lg font-semibold tracking-tight whitespace-nowrap">Admin</span>
+            </div>
+            <button
+              type="button"
+              className="ml-auto p-2 rounded-xl hover:bg-[var(--hover-bg)] text-apple-muted"
+              aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+              onClick={() => setSidebarExpanded((v) => !v)}
             >
-              <Icon size={16} />{TAB_LABELS[key]}
+              <Menu size={16} />
+            </button>
+          </div>
+          <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
+            {TABS.map(({ key, icon: Icon }) => (
+              <motion.button
+                key={key}
+                onClick={() => switchTab(key)}
+                className={`apple-pill w-full ${tab === key ? 'is-active' : ''} ${sidebarExpanded ? 'justify-start px-3' : 'justify-center px-0'}`}
+                whileHover={{ x: sidebarExpanded ? 2 : 0 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Icon size={16} />
+                <span className={`${sidebarExpanded ? 'inline' : 'hidden'}`}>{TAB_LABELS[key]}</span>
+              </motion.button>
+            ))}
+          </nav>
+          <div className="p-3 border-t border-[var(--border)] space-y-1.5">
+            <motion.button onClick={handleLogout} className={`flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-apple-muted hover:bg-[var(--hover-bg)] hover:text-[var(--text)] ${sidebarExpanded ? 'justify-start' : 'justify-center'}`} whileTap={{ scale: 0.97 }}>
+              <LogOut size={14} />
+              <span className={`${sidebarExpanded ? 'inline' : 'hidden'}`}>{t('signOut')}</span>
             </motion.button>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-[var(--border)] space-y-1.5">
-          <motion.button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-apple-muted hover:bg-[var(--hover-bg)] hover:text-[var(--text)]" whileTap={{ scale: 0.97 }}>
-            <LogOut size={14} />{t('signOut')}
-          </motion.button>
-        </div>
-      </div>
+          </div>
+        </aside>
 
-      <AnimatePresence>
-        {sidebarOpen && <motion.div className="fixed inset-0 z-40 bg-[var(--overlay-bg)] lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSidebarOpen(false)} />}
-      </AnimatePresence>
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto p-4 lg:p-6 pb-8">
+          <div className="flex items-center justify-between gap-3 mb-4 lg:mb-6">
+            <motion.h1 className="text-xl font-semibold hidden lg:block" variants={fadeUp} initial="hidden" animate="visible" transition={appleEase}>{TAB_LABELS[tab]}</motion.h1>
+            <div className="lg:hidden flex-1" />
+            <div className="lg:hidden mb-0 glass rounded-2xl p-1.5 border border-[var(--border)] overflow-x-auto max-w-full">
+              <div className="flex items-center gap-2 min-w-max">
+                {TABS.map(({ key, icon: Icon }) => (
+                  <motion.button
+                    key={key}
+                    onClick={() => switchTab(key)}
+                    className={`apple-pill ${tab === key ? 'is-active' : ''}`}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <Icon size={15} />{TAB_LABELS[key]}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div key={tab} variants={fadeUp} initial="hidden" animate="visible" exit={{ opacity: 0, y: -8 }} transition={appleEase}>
+              {tab === 'dashboard' && <DashboardTab />}
+              {tab === 'users' && <UsersTab />}
+              {tab === 'files' && <FilesTab />}
+              {tab === 'persona' && <PersonaTab />}
 
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-16 lg:pt-6">
-        <motion.h1 className="text-xl font-semibold mb-6 hidden lg:block" variants={fadeUp} initial="hidden" animate="visible" transition={appleEase}>{TAB_LABELS[tab]}</motion.h1>
-        <AnimatePresence mode="wait">
-          <motion.div key={tab} variants={fadeUp} initial="hidden" animate="visible" exit={{ opacity: 0, y: -8 }} transition={appleEase}>
-            {tab === 'dashboard' && <DashboardTab />}
-            {tab === 'users' && <UsersTab />}
-            {tab === 'files' && <FilesTab />}
-            {tab === 'persona' && <PersonaTab />}
-
-            {tab === 'servers' && <ServersTab />}
-          </motion.div>
-        </AnimatePresence>
+              {tab === 'servers' && <ServersTab />}
+            </motion.div>
+          </AnimatePresence>
+        </main>
       </div>
     </div>
   );
@@ -111,7 +135,7 @@ export default function AdminPage() {
 
 function StatCard({ label, value }) {
   return (
-    <motion.div className="glass rounded-xl p-4 card-lift" variants={staggerItem} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+    <motion.div className="glass rounded-2xl p-5 sm:p-5 card-lift" variants={staggerItem} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
       <div className="text-apple-muted text-xs uppercase tracking-wide">{label}</div>
       <div className="text-2xl font-semibold mt-1">{value}</div>
     </motion.div>
@@ -125,7 +149,7 @@ function DashboardTab() {
   if (!stats) return <div className="text-apple-muted">{t('loading')}</div>;
 
   return (
-    <motion.div className="grid grid-cols-2 sm:grid-cols-3 gap-3" variants={staggerContainer} initial="hidden" animate="visible">
+    <motion.div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5" variants={staggerContainer} initial="hidden" animate="visible">
       <StatCard label={t('totalUsers')} value={stats.totalUsers} />
       <StatCard label={t('activeUsers')} value={stats.activeUsers} />
       <StatCard label={t('pendingUsers')} value={stats.pendingUsers} />
@@ -187,7 +211,7 @@ function UsersTab() {
       <AnimatePresence>
         {toast && (
           <motion.div
-            className="fixed bottom-20 right-4 z-[100] px-4 py-3 rounded-xl shadow-2xl border text-sm font-medium bg-green-500/90 text-white border-green-400/30"
+            className="fixed bottom-6 right-4 sm:bottom-20 z-[100] px-4 py-3 rounded-xl shadow-2xl border text-sm font-medium bg-green-500/90 text-white border-green-400/30"
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -198,7 +222,7 @@ function UsersTab() {
         )}
       </AnimatePresence>
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-3">
         <motion.button onClick={() => setShowCreate(!showCreate)} className="btn-secondary btn-sm flex items-center gap-1.5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}><Plus size={14} /> {t('newUser')}</motion.button>
       </div>
 
@@ -221,7 +245,7 @@ function UsersTab() {
       {/* Mobile cards */}
       <motion.div className="sm:hidden space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
         {users.map((u, i) => (
-          <motion.div key={u.id} className="glass rounded-xl p-3 space-y-3 card-lift" variants={staggerItem} custom={i}>
+          <motion.div key={u.id} className="glass rounded-2xl p-4 space-y-3.5 card-lift" variants={staggerItem} custom={i}>
             <div className="flex items-center justify-between">
               <span className="font-medium text-sm">{u.username}</span>
               <span className={`text-xs px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-blue-500/20 text-blue-400' : 'bg-[var(--active-bg)] text-apple-muted'}`}>{u.role === 'admin' ? t('admin') : t('user')}</span>
@@ -270,7 +294,7 @@ function UsersTab() {
       </motion.div>
 
       {/* Desktop table */}
-      <motion.div className="hidden sm:block glass rounded-xl overflow-x-auto" variants={fadeUp} initial="hidden" animate="visible">
+      <motion.div className="hidden sm:block glass rounded-2xl overflow-x-auto" variants={fadeUp} initial="hidden" animate="visible">
         <table className="w-full text-sm min-w-[700px]">
           <thead><tr className="border-b border-[var(--border)]">
             <th className="text-left p-3 text-apple-muted font-medium">{t('username')}</th>
@@ -355,7 +379,7 @@ function EditUsernameModal({ user, t, onDone, onCancel, setError }) {
   return (
     <>
       <motion.div className="fixed inset-0 z-50 bg-[var(--overlay-bg)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} />
-      <motion.div className="fixed inset-x-4 top-[20%] z-50 max-w-sm mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
+      <motion.div className="fixed inset-x-4 top-24 z-50 max-w-sm mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl max-h-[calc(100dvh-8rem)] overflow-y-auto" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
         <h3 className="text-sm font-medium mb-1">{t('editUsername')}</h3>
         <p className="text-xs text-apple-muted mb-4">{user.username} → ?</p>
         <input value={value} onChange={(e) => setValue(e.target.value)} placeholder={t('enterNewUsername')} className="mb-3" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSave()} />
@@ -390,7 +414,7 @@ function ChangePasswordModal({ user, t, onDone, onCancel, setError }) {
   return (
     <>
       <motion.div className="fixed inset-0 z-50 bg-[var(--overlay-bg)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} />
-      <motion.div className="fixed inset-x-4 top-[20%] z-50 max-w-sm mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
+      <motion.div className="fixed inset-x-4 top-24 z-50 max-w-sm mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl max-h-[calc(100dvh-8rem)] overflow-y-auto" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
         <h3 className="text-sm font-medium mb-1">{t('changePassword')}</h3>
         <p className="text-xs text-apple-muted mb-4">{user.username}</p>
         <input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder={t('enterNewPassword')} className="mb-3" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSave()} />
@@ -417,7 +441,7 @@ function CreateUserForm({ onDone, onCancel }) {
   };
 
   return (
-    <motion.form onSubmit={handleSubmit} className="glass rounded-xl p-4 mb-4 space-y-3" variants={scaleIn} initial="hidden" animate="visible" exit="hidden">
+    <motion.form onSubmit={handleSubmit} className="glass rounded-2xl p-5 mb-5 space-y-4" variants={scaleIn} initial="hidden" animate="visible" exit="hidden">
       <div className="flex flex-col sm:flex-row gap-3">
         <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t('username')} className="flex-1" required />
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('password')} className="flex-1" required />
@@ -481,7 +505,7 @@ function PersonaTab() {
 
   return (
     <motion.div className="max-w-2xl" variants={fadeUp} initial="hidden" animate="visible" transition={{ ...appleEase, duration: 0.6 }}>
-      <div className="glass rounded-2xl p-5 space-y-4 border border-[var(--border)]">
+      <div className="glass rounded-2xl p-6 space-y-5 border border-[var(--border)]">
 
         <div className="flex items-center justify-between">
           <div>
@@ -597,7 +621,7 @@ function FilesTab() {
     <div>
       <AnimatePresence>{error && <motion.div className="mb-4 text-red-400 text-sm py-2 px-3 bg-red-500/10 rounded-xl border border-red-500/20" variants={fadeUp} initial="hidden" animate="visible" exit="hidden">{error}</motion.div>}</AnimatePresence>
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-3">
         <input ref={fileInputRef} type="file" onChange={handleUpload} className="hidden" accept=".png,.jpg,.jpeg,.webp,.gif,.zip,.txt,.md,.json,.pdf,.docx,.xlsx,.csv" />
         <motion.button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="btn-secondary btn-sm flex items-center gap-1.5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
           <Upload size={14} />{uploading ? t('uploading') : t('uploadFile')}
@@ -606,7 +630,7 @@ function FilesTab() {
 
       <AnimatePresence>
         {uploadProgress > 0 && (
-          <motion.div className="mb-4 glass rounded-xl p-1 overflow-hidden" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+          <motion.div className="mb-5 glass rounded-2xl p-1 overflow-hidden" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
             <motion.div className="h-1.5 rounded-lg bg-apple-blue2" initial={{ width: '0%' }} animate={{ width: `${uploadProgress * 100}%` }} transition={{ duration: 0.28 }} />
           </motion.div>
         )}
@@ -616,7 +640,7 @@ function FilesTab() {
       <motion.div className="sm:hidden space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
         {files.length === 0 && <motion.div className="glass rounded-xl p-8 text-center text-apple-muted" variants={staggerItem}><FileText size={24} className="mx-auto mb-2 opacity-30" />{t('noFilesYet')}</motion.div>}
         {files.map((f, i) => (
-          <motion.div key={f.id} className="glass rounded-xl p-3 space-y-2 card-lift" variants={staggerItem} custom={i}>
+          <motion.div key={f.id} className="glass rounded-2xl p-4 space-y-2.5 card-lift" variants={staggerItem} custom={i}>
             {(f.mimeType || '').startsWith('image/') && (
               <img src={api.getFilePreviewUrl(f.id)} alt={f.originalName} className="img-thumb w-full max-h-40 object-cover cursor-pointer mb-2" onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} />
             )}
@@ -640,7 +664,7 @@ function FilesTab() {
       </motion.div>
 
       {/* Desktop table */}
-      <motion.div className="hidden sm:block glass rounded-xl overflow-x-auto" variants={fadeUp} initial="hidden" animate="visible">
+      <motion.div className="hidden sm:block glass rounded-2xl overflow-x-auto" variants={fadeUp} initial="hidden" animate="visible">
         <table className="w-full text-sm min-w-[500px]">
           <thead><tr className="border-b border-[var(--border)]">
             <th className="text-left p-3 text-apple-muted font-medium">{t('fileName')}</th>
@@ -712,7 +736,7 @@ function ServersTab() {
         )}
       </AnimatePresence>
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-3">
         <motion.button onClick={() => setShowAdd(true)} className="btn-primary btn-sm flex items-center gap-1.5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
           <Plus size={14} /> {t('addServer')}
         </motion.button>
@@ -726,7 +750,7 @@ function ServersTab() {
       {/* Mobile cards */}
       <div className="sm:hidden space-y-3">
         {servers.map((s) => (
-          <div key={s.id} className="glass rounded-xl p-3 space-y-2 card-lift">
+          <div key={s.id} className="glass rounded-2xl p-4 space-y-2.5 card-lift">
             <div className="flex items-center justify-between">
               <Link to={`/servers/${s.id}`} className="font-medium text-sm no-underline hover:text-[var(--accent)]" style={{ color: 'inherit', transition: 'color 200ms' }}>{s.name}</Link>
               <span className="text-xs text-apple-muted">{s.username}@{s.ip}:{s.port}</span>
@@ -749,7 +773,7 @@ function ServersTab() {
       </div>
 
       {/* Desktop table */}
-      <div className="hidden sm:block glass rounded-xl overflow-x-auto">
+      <div className="hidden sm:block glass rounded-2xl overflow-x-auto">
         <table className="w-full text-sm min-w-[600px]">
           <thead><tr className="border-b border-[var(--border)]">
             <th className="text-left p-3 text-apple-muted font-medium">{t('serverName')}</th>
@@ -821,7 +845,7 @@ function ServerFormModal({ server, t, onDone, onCancel, setError }) {
   return (
     <>
       <motion.div className="fixed inset-0 z-50 bg-[var(--overlay-bg)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} />
-      <motion.div className="fixed inset-x-4 top-[10%] z-50 max-w-md mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
+      <motion.div className="fixed inset-x-4 top-24 z-50 max-w-md mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl max-h-[calc(100dvh-8rem)] overflow-y-auto" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
         <h3 className="text-sm font-medium mb-4">{server ? t('editServer') : t('addServer')}</h3>
         <div className="space-y-3">
           <div>

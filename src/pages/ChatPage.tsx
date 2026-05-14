@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatSidebar from '../components/ChatSidebar';
 import ChatArea from '../components/ChatArea';
@@ -130,23 +129,22 @@ export default function ChatPage() {
   if (!user) return null;
 
   return (
-    <div className="h-full flex" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen pt-[5.85rem] overflow-hidden" style={{ background: 'var(--bg)' }}>
       <Navbar />
-      <div className="lg:hidden fixed top-12 inset-x-0 z-30 glass border-b border-[var(--border)] px-4 py-3 flex items-center justify-between">
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 -ml-1.5"><Menu size={20} /></button>
-        <span className="text-sm font-semibold truncate mx-2">{activeConv?.title || 'ym1r'}</span>
-        <div className="w-8" />
-      </div>
 
-      <div className={`fixed inset-y-0 left-0 z-50 w-[85vw] sm:w-72 lg:w-64 transform transition-transform lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ transitionDuration: '320ms', transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }}>
-        <ChatSidebar conversations={conversations} activeId={activeConv?.id} onSelect={handleSelect} onNew={handleNew} onDelete={handleDelete} user={user} onLogout={handleLogout} onToggle={() => setSidebarOpen(false)} onPersona={handlePersonaOpen} />
-      </div>
+      <div className="flex h-[calc(100dvh-5.85rem)] min-h-0 overflow-hidden">
+        <div className={`fixed left-3 top-[5.85rem] bottom-3 z-50 w-[85vw] sm:w-72 lg:relative lg:left-auto lg:top-auto lg:bottom-auto lg:w-64 transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          style={{ transitionDuration: '320ms', transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }}>
+          <div className="h-full min-h-0 lg:rounded-[1.75rem] lg:overflow-hidden lg:glass lg:border lg:border-[var(--border)]">
+            <ChatSidebar conversations={conversations} activeId={activeConv?.id} onSelect={handleSelect} onNew={handleNew} onDelete={handleDelete} user={user} onLogout={handleLogout} onToggle={() => setSidebarOpen(false)} onPersona={handlePersonaOpen} />
+          </div>
+        </div>
 
-      {sidebarOpen && <div className="fixed inset-0 z-40 bg-[var(--overlay-bg)] lg:hidden" onClick={() => setSidebarOpen(false)} />}
+        {sidebarOpen && <div className="fixed inset-0 z-40 bg-[var(--overlay-bg)] lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      <div className="flex-1 flex flex-col min-w-0 relative pt-14 lg:pt-12">
-        <ChatArea conversation={activeConv} messages={messages} onSend={handleSend} loading={loading} error={error} model={model} onModelChange={handleModelChange} />
+        <div className="flex-1 min-w-0 flex flex-col">
+          <ChatArea conversation={activeConv} messages={messages} onSend={handleSend} loading={loading} error={error} model={model} onModelChange={handleModelChange} onOpenSidebar={() => setSidebarOpen((v) => !v)} />
+        </div>
       </div>
 
       <AnimatePresence>

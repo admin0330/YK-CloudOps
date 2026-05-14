@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -14,6 +14,9 @@ const ThemeContext = createContext<ThemeCtx>({
 });
 
 const STORAGE_KEY = 'yk-intelligence-theme';
+const THEME_TRANSITION_MS = 420;
+
+let themeTransitionTimer: number | undefined;
 
 function getStoredTheme(): Theme {
   if (typeof window === 'undefined') return 'dark';
@@ -22,19 +25,34 @@ function getStoredTheme(): Theme {
   return 'dark';
 }
 
-function applyTheme(theme: Theme) {
+function syncTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#050507' : '#f7f4ef');
+  const meta = document.querySelector('meta[name=\'theme-color\']');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1220' : '#f5f7fb');
   try { localStorage.setItem(STORAGE_KEY, theme); } catch {}
+}
+
+function triggerThemeTransition() {
+  document.documentElement.setAttribute('data-theme-transitioning', 'true');
+  window.clearTimeout(themeTransitionTimer);
+  themeTransitionTimer = window.setTimeout(() => {
+    document.documentElement.removeAttribute('data-theme-transitioning');
+  }, THEME_TRANSITION_MS);
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(getStoredTheme);
+  const mountedRef = useRef(false);
 
   // Sync theme to DOM on mount + changes
   useEffect(() => {
-    applyTheme(theme);
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      syncTheme(theme);
+      return;
+    }
+    triggerThemeTransition();
+    syncTheme(theme);
   }, [theme]);
 
   const toggleTheme = useCallback(() => {

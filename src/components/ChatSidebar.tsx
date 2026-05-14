@@ -9,18 +9,13 @@ export default function ChatSidebar({ conversations, activeId, onSelect, onNew, 
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col h-full glass border-r border-[var(--border)]">
+    <div className="flex flex-col h-full min-h-0 glass border-r border-[var(--border)] lg:rounded-[1.75rem]">
       <div className="p-4 border-b border-[var(--border)]">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-lg font-semibold tracking-tight flex items-center gap-2">
-            <Link to="/me" aria-label="Open personal blog" className="cursor-pointer hover:opacity-75 shrink-0" style={{ transition: 'opacity 280ms linear' }}>
-              <img src="/apple-logo.png" alt="YK Logo" className="w-6 h-6 rounded-md" />
-            </Link>
-            Intelligence
-          </span>
+        <div className="flex items-center justify-between mb-3 gap-3">
+          <span className="text-lg font-semibold tracking-tight">Intelligence</span>
           <motion.button
             onClick={onToggle}
-            className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] transition-colors lg:hidden text-apple-muted"
+            className="p-2 rounded-xl hover:bg-[var(--hover-bg)] transition-colors lg:hidden text-apple-muted"
             whileTap={{ scale: 0.85 }}
           >
             <X size={18} />
@@ -28,7 +23,7 @@ export default function ChatSidebar({ conversations, activeId, onSelect, onNew, 
         </div>
         <motion.button
           onClick={onNew}
-          className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-[var(--hover-bg)] hover:bg-[var(--hover-bg)] text-sm font-medium"
+          className="ct-control w-full justify-start px-3 py-2.5 rounded-2xl text-sm font-medium"
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.97 }}
           style={{ transitionDuration: '280ms' }}
@@ -38,13 +33,13 @@ export default function ChatSidebar({ conversations, activeId, onSelect, onNew, 
         </motion.button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2 space-y-0.5" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-0.5" style={{ WebkitOverflowScrolling: 'touch' }}>
         <AnimatePresence>
           {conversations.map((c, i) => (
             <motion.div
               key={c.id}
               onClick={() => onSelect(c)}
-              className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer text-sm ${
+              className={`group flex items-center gap-2 px-3 py-2.5 rounded-2xl cursor-pointer text-sm ${
                 activeId === c.id ? 'bg-[var(--active-bg)] text-[var(--text)] font-medium' : 'text-apple-muted hover:bg-[var(--hover-bg)] hover:text-[var(--text)]'
               }`}
               initial={{ opacity: 0, x: -12 }}
@@ -95,7 +90,7 @@ export default function ChatSidebar({ conversations, activeId, onSelect, onNew, 
             <ThemeToggle />
             <motion.button
               onClick={onPersona}
-              className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] text-apple-muted shrink-0"
+              className="p-2 rounded-xl hover:bg-[var(--hover-bg)] text-apple-muted shrink-0"
               title={t('personaSettings')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
@@ -105,7 +100,7 @@ export default function ChatSidebar({ conversations, activeId, onSelect, onNew, 
             </motion.button>
             <motion.button
               onClick={onLogout}
-              className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] text-apple-muted shrink-0"
+              className="p-2 rounded-xl hover:bg-[var(--hover-bg)] text-apple-muted shrink-0"
               title={t('logout')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
