@@ -13,7 +13,7 @@ const NAV = [
   { key: 'tech', zh: '技术栈', en: 'Tech Stack' },
   { key: 'projects', zh: '项目', en: 'Projects' },
   { key: 'roadmap', zh: '路线', en: 'Roadmap' },
-  { key: 'serverlab', zh: 'Server Lab', en: 'Server Lab' },
+  { key: 'serverlab', zh: '服务器实验室', en: 'Server Lab' },
   { key: 'contact', zh: '联系', en: 'Contact' },
 ];
 
@@ -188,7 +188,7 @@ export default function MePage() {
               onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
               onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
             >
-              <Terminal size={15} /> Back to AI Chat
+              <Terminal size={15} /> {lang === 'zh' ? '返回 AI 对话' : 'Back to AI Chat'}
             </Link>
             <a
               href="https://github.com/admin0330"
@@ -212,7 +212,7 @@ export default function MePage() {
 
       {/* About Me */}
       <section id="section-about" className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[var(--me-border)]">
-        <SectionHeading title={lang === 'zh' ? 'About Me' : 'About Me'} />
+        <SectionHeading title={lang === 'zh' ? '关于我' : 'About Me'} />
         <motion.div
           className="max-w-2xl mx-auto space-y-4 text-sm text-[var(--me-text-secondary)] leading-relaxed"
           initial="hidden"
@@ -228,13 +228,13 @@ export default function MePage() {
 
       {/* Tech Stack */}
       <section id="section-tech" className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[var(--me-border)]">
-        <SectionHeading title={lang === 'zh' ? 'Tech Stack' : 'Tech Stack'} />
+        <SectionHeading title={lang === 'zh' ? '技术栈' : 'Tech Stack'} />
         <div className="max-w-xl mx-auto space-y-5">
           {[
             { cat: lang === 'zh' ? '语言 & 框架' : 'Languages & Frameworks', items: ['JavaScript', 'TypeScript', 'Python (basic)', 'React', 'Express', 'Node.js'] },
             { cat: lang === 'zh' ? '基础设施 & 运维' : 'Infra & DevOps', items: ['Linux', 'Nginx', 'systemd', 'SSH', 'Ubuntu Server', 'DNS'] },
             { cat: lang === 'zh' ? '网络' : 'Networking', items: ['TCP/IP', 'OpenWrt', 'Routing', 'Switching', 'DHCP', 'Firewall'] },
-            { cat: lang === 'zh' ? 'AI & 工具' : 'AI & Tools', items: ['DeepSeek API', 'Claude Code', 'Prompt Engineering', 'Git', 'SQLite', 'tmux'] },
+            { cat: lang === 'zh' ? 'AI 与工具' : 'AI & Tools', items: ['DeepSeek API', 'Claude Code', 'Prompt Engineering', 'Git', 'SQLite', 'tmux'] },
           ].map((group, gi) => (
             <motion.div
               key={group.cat}
@@ -275,45 +275,48 @@ export default function MePage() {
 
       {/* Selected Projects */}
       <section id="section-projects" className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[var(--me-border)]">
-        <SectionHeading title={lang === 'zh' ? 'Selected Projects' : 'Selected Projects'} />
+        <SectionHeading title={lang === 'zh' ? '精选项目' : 'Selected Projects'} />
         <div className="grid sm:grid-cols-3 gap-4">
           <MeProjectCard
             i={0}
             icon={<Bot size={20} />}
             title="ym1r"
             status="Active"
-            desc={lang === 'zh' ? '多用户 AI 对话平台，DeepSeek + Claude，附件上传，人设系统。' : 'Multi-user AI chat with DeepSeek + Claude, attachments, persona system.'}
+            desc={lang === 'zh' ? '多用户 AI 对话平台，接入 DeepSeek + Claude，支持附件上传和人设系统。' : 'Multi-user AI chat with DeepSeek + Claude, attachments, persona system.'}
             stack={['React', 'Express', 'SQLite', 'DeepSeek']}
             link="/chat"
+            lang={lang}
           />
           <MeProjectCard
             i={1}
             icon={<Server size={20} />}
             title="ym1r CloudOps"
             status="Building"
-            desc={lang === 'zh' ? '云服务器运维平台，SSH 远程执行，系统监控，命令日志。' : 'Cloud server ops with SSH execution, system monitoring, command logging.'}
+            desc={lang === 'zh' ? '云服务器运维平台，支持 SSH 远程执行、系统监控和命令日志。' : 'Cloud server ops with SSH execution, system monitoring, command logging.'}
             stack={['Node.js', 'ssh2', 'Linux', 'systemd']}
+            lang={lang}
           />
           <MeProjectCard
             i={2}
             icon={<Globe size={20} />}
             title="Personal Website"
             status="Active"
-            desc={lang === 'zh' ? '个人品牌网站，craftz.dog 风格，Liquid Glass 设计。' : 'Personal brand site with craftz.dog style and Liquid Glass design.'}
+            desc={lang === 'zh' ? '个人品牌网站，采用更克制的展示风格和 Liquid Glass 设计。' : 'Personal brand site with a more restrained showcase style and Liquid Glass design.'}
             stack={['React', 'Framer Motion', 'Tailwind CSS']}
             link="/"
+            lang={lang}
           />
         </div>
       </section>
 
       {/* Learning Roadmap */}
       <section id="section-roadmap" className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[var(--me-border)]">
-        <SectionHeading title={lang === 'zh' ? 'Learning Roadmap' : 'Learning Roadmap'} />
+        <SectionHeading title={lang === 'zh' ? '学习路线' : 'Learning Roadmap'} />
         <div className="max-w-lg mx-auto space-y-0">
           {[
-            { year: '2026', title: lang === 'zh' ? '打磨 ym1r' : 'Polish ym1r', desc: lang === 'zh' ? '完善全栈能力和 AI 集成，强化 Linux 服务器部署技能。' : 'Refine full-stack skills and AI integration. Strengthen Linux server deployment.' },
-            { year: '2027', title: lang === 'zh' ? '深化技术基础' : 'Deepen Foundations', desc: lang === 'zh' ? 'Linux 系统管理、Docker/K8s、网络安全、英语能力提升。' : 'Linux sysadmin, Docker/K8s, network security, English improvement.' },
-            { year: '2028+', title: lang === 'zh' ? '走向世界' : 'Go Global', desc: lang === 'zh' ? '争取新加坡云网络/运维方向工作，在国际平台发展。' : 'Target Singapore for cloud networking/DevOps roles on an international stage.' },
+            { year: '2026', title: lang === 'zh' ? '打磨 ym1r' : 'Polish ym1r', desc: lang === 'zh' ? '继续完善全栈能力和 AI 集成，强化 Linux 服务器部署与运维技能。' : 'Refine full-stack skills and AI integration. Strengthen Linux server deployment and ops skills.' },
+            { year: '2027', title: lang === 'zh' ? '深化技术基础' : 'Deepen Foundations', desc: lang === 'zh' ? '继续加深 Linux 系统管理、Docker/K8s、网络安全和英语能力。' : 'Continue deepening Linux sysadmin, Docker/K8s, network security, and English.' },
+            { year: '2028+', title: lang === 'zh' ? '走向世界' : 'Go Global', desc: lang === 'zh' ? '争取去新加坡做云网络或运维方向的工作，在国际平台发展。' : 'Target Singapore for cloud networking / DevOps roles on an international stage.' },
           ].map((item, i) => (
             <motion.div
               key={item.year}
@@ -335,7 +338,7 @@ export default function MePage() {
 
       {/* Server Lab */}
       <section id="section-serverlab" className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[var(--me-border)]">
-        <SectionHeading title={lang === 'zh' ? 'Server Lab' : 'Server Lab'} />
+        <SectionHeading title={lang === 'zh' ? '服务器实验室' : 'Server Lab'} />
         <motion.div
           className="max-w-lg mx-auto grid sm:grid-cols-2 gap-3"
           initial="hidden"
@@ -344,10 +347,10 @@ export default function MePage() {
           variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
         >
           {[
-            { icon: Cpu, label: 'Ubuntu 22.04 VPS', desc: 'Production server for all web apps' },
-            { icon: Router, label: 'Nginx Reverse Proxy', desc: 'SSL termination, domain routing' },
-            { icon: Terminal, label: 'systemd Services', desc: 'yk-intelligence service supervision' },
-            { icon: Server, label: 'OpenWrt Router', desc: 'Campus/home network gateway' },
+            { icon: Cpu, label: lang === 'zh' ? 'Ubuntu 22.04 VPS' : 'Ubuntu 22.04 VPS', desc: lang === 'zh' ? '承载所有站点与服务的生产服务器。' : 'Production server for all web apps.' },
+            { icon: Router, label: lang === 'zh' ? 'Nginx 反向代理' : 'Nginx Reverse Proxy', desc: lang === 'zh' ? '负责 SSL 终止与域名路由。' : 'SSL termination and domain routing.' },
+            { icon: Terminal, label: lang === 'zh' ? 'systemd 服务' : 'systemd Services', desc: lang === 'zh' ? '用于监督 yk-intelligence 等后台服务。' : 'Service supervision for yk-intelligence and related processes.' },
+            { icon: Server, label: lang === 'zh' ? 'OpenWrt 路由器' : 'OpenWrt Router', desc: lang === 'zh' ? '校园 / 家庭网络网关。' : 'Campus/home network gateway.' },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -381,7 +384,7 @@ export default function MePage() {
 
       {/* Contact */}
       <section id="section-contact" className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-[var(--me-border)]">
-        <SectionHeading title={lang === 'zh' ? 'Contact' : 'Contact'} />
+        <SectionHeading title={lang === 'zh' ? '联系' : 'Contact'} />
         <motion.div
           className="max-w-sm mx-auto space-y-3"
           initial={{ opacity: 0, y: 12 }}
@@ -405,7 +408,7 @@ export default function MePage() {
           >
             <Github size={18} style={{ color: 'var(--me-text-secondary)' }} />
             <div>
-              <div className="text-sm font-medium">GitHub</div>
+              <div className="text-sm font-medium">{lang === 'zh' ? 'GitHub' : 'GitHub'}</div>
               <div className="text-xs text-[var(--me-muted)]">github.com/admin0330</div>
             </div>
             <ExternalLink size={12} className="ml-auto" style={{ color: 'var(--me-muted)' }} />
@@ -452,7 +455,7 @@ export default function MePage() {
             <MapPin size={18} style={{ color: 'var(--me-text-secondary)' }} />
             <div>
               <div className="text-sm font-medium">{lang === 'zh' ? '位置' : 'Location'}</div>
-              <div className="text-xs text-[var(--me-muted)]">Changsha, China · Targeting Singapore</div>
+              <div className="text-xs text-[var(--me-muted)]">{lang === 'zh' ? '长沙，中国 · 目标新加坡' : 'Changsha, China · Targeting Singapore'}</div>
             </div>
           </div>
         </motion.div>
@@ -461,12 +464,12 @@ export default function MePage() {
       {/* Footer */}
       <footer className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-12 border-t border-[var(--me-border)]">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--me-muted)]">
-          <p>Made by ym1r · Changsha</p>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>Home</Link>
-            <Link to="/chat" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>AI Chat</Link>
+            <p>{lang === 'zh' ? '由 ym1r 制作 · 长沙' : 'Made by ym1r · Changsha'}</p>
+            <div className="flex items-center gap-4">
+            <Link to="/" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>{lang === 'zh' ? '首页' : 'Home'}</Link>
+            <Link to="/chat" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>{lang === 'zh' ? 'AI 对话' : 'AI Chat'}</Link>
             <a href="https://github.com/admin0330" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>GitHub</a>
-          </div>
+            </div>
         </div>
       </footer>
     </div>
@@ -489,10 +492,13 @@ function SectionHeading({ title }: { title: string }) {
   );
 }
 
-function MeProjectCard({ title, desc, stack, link, i, icon, status }: {
-  title: string; desc: string; stack: string[]; icon: React.ReactNode; status: string; link?: string; i: number;
+function MeProjectCard({ title, desc, stack, link, i, icon, status, lang }: {
+  title: string; desc: string; stack: string[]; icon: React.ReactNode; status: string; link?: string; i: number; lang: string;
 }) {
   const stColor = status === 'Active' ? 'text-emerald-500' : status === 'Building' ? 'text-amber-500' : 'text-blue-500';
+  const statusLabel = lang === 'zh'
+    ? (status === 'Active' ? '进行中' : status === 'Building' ? '构建中' : '学习中')
+    : status;
   return (
     <motion.div
       className="p-5 rounded-2xl h-full cursor-default"
@@ -516,7 +522,7 @@ function MeProjectCard({ title, desc, stack, link, i, icon, status }: {
     >
       <div className="flex items-center gap-2 mb-2" style={{ color: 'var(--me-accent)' }}>
         {icon}
-        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${stColor} bg-current/10`}>{status}</span>
+        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${stColor} bg-current/10`}>{statusLabel}</span>
       </div>
       <h3 className="text-sm font-medium text-[var(--me-text)] mb-1.5">{title}</h3>
       <p className="text-xs text-[var(--me-text-secondary)] leading-relaxed mb-4">{desc}</p>
@@ -527,8 +533,8 @@ function MeProjectCard({ title, desc, stack, link, i, icon, status }: {
       </div>
       {link && (
         <div className="mt-4">
-          <Link to={link} className="inline-flex items-center gap-1 text-xs font-medium no-underline hover:gap-1.5" style={{ color: 'var(--me-accent)', transition: 'gap 280ms ease' }}>
-            View <ArrowRight size={11} />
+            <Link to={link} className="inline-flex items-center gap-1 text-xs font-medium no-underline hover:gap-1.5" style={{ color: 'var(--me-accent)', transition: 'gap 280ms ease' }}>
+            {lang === 'zh' ? '查看' : 'View'} <ArrowRight size={11} />
           </Link>
         </div>
       )}

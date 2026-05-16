@@ -157,7 +157,7 @@ export default function HeroSection() {
               <div className="flex items-center justify-between gap-3 pb-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
-                    {lang === 'zh' ? 'Ops Snapshot' : 'Ops Snapshot'}
+                    {lang === 'zh' ? '运维概览' : 'Ops Snapshot'}
                   </p>
                   <h3 className="mt-1 text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
                     {lang === 'zh' ? '实时状态' : 'Live Status'}
@@ -205,7 +205,7 @@ export default function HeroSection() {
                 >
                   <div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {lang === 'zh' ? '个人与项目入口' : 'Profile & Projects'}
+                    {lang === 'zh' ? '个人与项目入口' : 'Profile & Projects'}
                     </div>
                     <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                       {lang === 'zh' ? '个人主页、项目和 GitHub 都在次级页面。' : 'Profile, projects, and GitHub live in the secondary page.'}

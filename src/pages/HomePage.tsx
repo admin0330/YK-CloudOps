@@ -184,7 +184,7 @@ export default function HomePage() {
             <div className="p-6 sm:p-7 lg:p-8 grid gap-6 lg:grid-cols-[1fr_auto] items-center">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
-                  {lang === 'zh' ? 'Secondary Entry' : 'Secondary Entry'}
+                  {lang === 'zh' ? '次级入口' : 'Secondary Entry'}
                 </div>
                 <h3 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
                   {lang === 'zh' ? '个人主页、项目和 GitHub 都收在这里。' : 'Profile, projects, and GitHub live here.'}
@@ -193,9 +193,9 @@ export default function HomePage() {
                   {lang === 'zh' ? '主站只保留运维焦点，其余内容进入新的补充页面。' : 'The main site stays ops-focused; everything else moves to the new companion page.'}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="ct-nav-pill ct-nav-pill--mobile is-active">Profile</span>
-                  <span className="ct-nav-pill ct-nav-pill--mobile">Projects</span>
-                  <span className="ct-nav-pill ct-nav-pill--mobile">GitHub</span>
+                  <span className="ct-nav-pill ct-nav-pill--mobile is-active">{lang === 'zh' ? '个人主页' : 'Profile'}</span>
+                  <span className="ct-nav-pill ct-nav-pill--mobile">{lang === 'zh' ? '项目' : 'Projects'}</span>
+                  <span className="ct-nav-pill ct-nav-pill--mobile">{lang === 'zh' ? 'GitHub' : 'GitHub'}</span>
                 </div>
               </div>
               <div className="flex items-center justify-start lg:justify-end">
