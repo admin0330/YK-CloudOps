@@ -7,11 +7,11 @@ import { useLanguage } from '../context/LanguageContext';
 import NavbarControls from './NavbarControls';
 
 const NAV_ITEMS = [
-  { path: '/',    zh: '首页',     en: 'Home' },
-  { path: '/me',  zh: '个人主页', en: 'Profile' },
+  { path: '/', zh: '首页', en: 'Home' },
+  { path: '/me', zh: '个人主页', en: 'Profile' },
   { path: '/projects', zh: '项目', en: 'Projects' },
-  { path: '/chat', zh: 'AI',     en: 'AI' },
-  { path: '/ask-me', zh: '问我', en: 'Ask Me' },
+  { path: '/cloudops', zh: '运维', en: 'Ops' },
+  { path: '/chat', zh: 'AI', en: 'AI' },
 ];
 
 export default function Navbar() {
@@ -61,21 +61,15 @@ export default function Navbar() {
       paddingTop: 'env(safe-area-inset-top, 0px)',
     }}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
-
-        {/* LEFT */}
         <div className="flex items-center gap-1 shrink-0">
           {!isHome && (
-            <button onClick={handleBack}
-              className="ct-control ct-control--nav"
-              aria-label="Back">
+            <button onClick={handleBack} className="ct-control ct-control--nav" aria-label="Back">
               <ArrowLeft size={13} />
               <span className="hidden sm:inline">Back</span>
             </button>
           )}
           {!isHome && (
-            <button onClick={handleHome}
-              className="ct-control ct-control--nav"
-              aria-label="Home">
+            <button onClick={handleHome} className="ct-control ct-control--nav" aria-label="Home">
               <Home size={13} />
               <span className="hidden sm:inline">Home</span>
             </button>
@@ -83,12 +77,11 @@ export default function Navbar() {
           <Link to="/" className="hidden md:block text-sm font-semibold tracking-tight no-underline ml-2 shrink-0" style={{ color: 'var(--text-primary)' }}>ym1r</Link>
         </div>
 
-        {/* CENTER */}
         <div className="flex-1 md:hidden" aria-hidden="true" />
 
-        {/* RIGHT — Desktop */}
         <div className="hidden md:flex items-center gap-0.5 shrink-0">
-          {NAV_ITEMS.map((item) => (<button
+          {NAV_ITEMS.map((item) => (
+            <button
               key={item.path}
               onClick={() => navWithTransition(item.path)}
               className={`ct-nav-pill ${isActive(item.path) ? 'is-active' : ''}`}
@@ -97,7 +90,8 @@ export default function Navbar() {
             </button>
           ))}
           {isAdmin && (
-            <><button onClick={() => navWithTransition('/admin')} className={`ct-nav-pill ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
+            <>
+              <button onClick={() => navWithTransition('/admin')} className={`ct-nav-pill ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
               <button onClick={() => navWithTransition('/cloudops')} className={`ct-nav-pill ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
             </>
           )}
@@ -106,24 +100,24 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* RIGHT — Mobile */}
         <div className="flex md:hidden items-center gap-1 shrink-0">
           <NavbarControls />
-          <button onClick={() => setMobileOpen(!mobileOpen)}
-            className="ct-control ct-control--icon"
-            aria-label="Menu">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="ct-control ct-control--icon" aria-label="Menu">
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div className="md:hidden border-t px-3 py-2.5 space-y-1 ct-surface-panel"
+          <motion.div
+            className="md:hidden border-t px-3 py-2.5 space-y-1 ct-surface-panel"
             style={{ margin: '0.5rem 0.75rem 0.75rem' }}
-            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}>
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+          >
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.path}

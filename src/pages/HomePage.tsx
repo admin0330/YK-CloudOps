@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Github, Menu, X, Cpu, Globe, Layers, Sparkles, MessageCircle, Shield } from 'lucide-react';
+import { ArrowRight, Github, Menu, X, Cpu, Globe, Layers, MessageCircle, Shield, Server } from 'lucide-react';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import HeroSection from '../components/HeroSection';
 import NavbarControls from '../components/NavbarControls';
 import GlassCard from '../components/GlassCard';
 import ScrollSection, { SectionHeading, SectionSub } from '../components/ScrollSection';
-import { getHomeLang, t } from '../data/homeI18n';
+import { t } from '../data/homeI18n';
 
 export default function HomePage() {
   const [user, setUser] = useState<any>(null);
@@ -16,9 +16,10 @@ export default function HomePage() {
   const [mobileNav, setMobileNav] = useState(false);
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    api.getMe().then(d => setUser(d.user)).catch(() => setUser(null));
+    api.getMe().then((d) => setUser(d.user)).catch(() => setUser(null));
   }, []);
 
   useEffect(() => {
@@ -26,12 +27,6 @@ export default function HomePage() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-
-  const enter = useCallback(async (path: string) => {
-    try { await api.setFromHome(); } catch { /* */ }
-    navigate(path);
-  }, [navigate]);
 
   const navigateWithHome = useCallback(async (path: string) => {
     try { await api.setFromHome(); } catch { /* */ }
@@ -41,29 +36,29 @@ export default function HomePage() {
   const isAdmin = user?.role === 'admin';
   const currentPath = location.pathname;
 
+  const navItems = [
+    { key: 'navHome', path: '/' },
+    { key: 'navAbout', path: '/me' },
+    { key: 'navWorks', path: '/projects' },
+    { key: 'navOps', path: '/cloudops' },
+    { key: 'navChat', path: '/chat' },
+  ];
+
   return (
     <div className="home-root">
-
-      {/* Navbar */}
       <nav className={`home-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
           <Link to="/" className="text-sm font-semibold tracking-tight no-underline shrink-0" style={{ color: 'var(--text-primary)' }}>
             {t(lang, 'siteName')}
           </Link>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1.5">
-            {[
-              { key: 'navHome',   path: '/' },
-              { key: 'navAbout',  path: '/me' },
-              { key: 'navWorks',  path: '/projects' },
-              { key: 'navChat',   path: '/chat' },
-              { key: 'navAskMe',  path: '/ask-me' },
-            ].map(item => (
+            {navItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigateWithHome(item.path)}
-                className={`ct-nav-pill ${currentPath === item.path ? 'is-active' : ''}`}>
+                className={`ct-nav-pill ${currentPath === item.path ? 'is-active' : ''}`}
+              >
                 {t(lang, item.key)}
               </button>
             ))}
@@ -76,13 +71,12 @@ export default function HomePage() {
             <span className="ml-1.5 flex items-center gap-1.5">
               <NavbarControls />
             </span>
-            <button onClick={() => navigateWithHome('/chat')} className="btn-primary ml-1 text-xs py-1.5 px-4 group">
-              <span>{t(lang, 'navLaunch')}</span>
+            <button onClick={() => navigateWithHome('/cloudops')} className="btn-primary ml-1 text-xs py-1.5 px-4 group">
+              <span>{t(lang, 'navOps')}</span>
               <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
 
-          {/* Mobile */}
           <div className="flex items-center gap-1 md:hidden">
             <button onClick={() => setMobileNav(!mobileNav)} className="ct-control ct-control--icon" aria-label="Open menu">
               {mobileNav ? <X size={18} /> : <Menu size={18} />}
@@ -103,20 +97,18 @@ export default function HomePage() {
           >
             <div className="ct-surface-panel p-3 space-y-3 overflow-hidden">
               <div className="flex items-center justify-between gap-2 pb-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>菜单</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{lang === 'zh' ? '导航' : 'Navigation'}</span>
                 <div className="flex items-center gap-1.5 overflow-x-auto pr-1">
                   <NavbarControls />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {[
-                  { key: 'navHome', path: '/' },
-                  { key: 'navAbout', path: '/me' },
-                  { key: 'navWorks', path: '/projects' },
-                  { key: 'navChat', path: '/chat' },
-                  { key: 'navAskMe', path: '/ask-me' },
-                ].map(item => (
-                  <button key={item.path} onClick={() => { navigateWithHome(item.path); setMobileNav(false); }} className={`text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}>
+                {navItems.map((item) => (
+                  <button
+                    key={item.path}
+                    onClick={() => { navigateWithHome(item.path); setMobileNav(false); }}
+                    className={`text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}
+                  >
                     {t(lang, item.key)}
                   </button>
                 ))}
@@ -131,19 +123,18 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Hero */}
+
       <HeroSection />
 
-      {/* Section 2 */}
       <ScrollSection className="py-24 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <SectionHeading>{t(lang, 's2Title')}</SectionHeading>
           <SectionSub>{t(lang, 's2Sub')}</SectionSub>
           <div className="grid sm:grid-cols-3 gap-5 sm:gap-8 mt-12">
             {[
-              { icon: MessageCircle, titleKey: 's2Card1Title', descKey: 's2Card1Desc', path: '/chat' },
-              { icon: Layers, titleKey: 's2Card2Title', descKey: 's2Card2Desc', path: '/projects' },
-              { icon: Sparkles, titleKey: 's2Card3Title', descKey: 's2Card3Desc', path: '/me' },
+              { icon: Server, titleKey: 's2Card1Title', descKey: 's2Card1Desc', path: '/cloudops' },
+              { icon: Shield, titleKey: 's2Card2Title', descKey: 's2Card2Desc', path: '/admin' },
+              { icon: MessageCircle, titleKey: 's2Card3Title', descKey: 's2Card3Desc', path: '/chat' },
             ].map((card, i) => (
               <GlassCard key={i} onClick={() => navigateWithHome(card.path)}>
                 <div className="p-5 sm:p-6">
@@ -162,47 +153,47 @@ export default function HomePage() {
         </div>
       </ScrollSection>
 
-      {/* Section 3 */}
       <ScrollSection className="py-24 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-4xl mx-auto">
-          <SectionHeading>{t(lang, 's3Title')}</SectionHeading>
-          <div className="grid sm:grid-cols-2 gap-10 sm:gap-16 items-center">
-            <div className="space-y-4">
-              <motion.p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }}>
-                {t(lang, 's3P1')}
-              </motion.p>
-              <motion.p className="text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: 0.1 }}>
-                {t(lang, 's3P2')}
-              </motion.p>
+        <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-10 sm:gap-16 items-center">
+          <div className="space-y-4">
+            <SectionHeading>{t(lang, 's3Title')}</SectionHeading>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+              {t(lang, 's3P1')}
+            </p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
+              {t(lang, 's3P2')}
+            </p>
+          </div>
+          <div className="glass-card p-6 sm:p-8 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+              <Server size={16} style={{ color: 'var(--accent-blue)' }} />
+              {lang === 'zh' ? '运维优先' : 'Ops First'}
             </div>
-            <div className="relative h-56 sm:h-72 hidden sm:flex items-center justify-center">
-              <div className="w-48 h-32 rounded-2xl relative" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)' }}>
-                <div className="absolute top-3 left-0 right-0 flex justify-center">
-                  <div className="w-16 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
-                </div>
-              </div>
+            <div className="space-y-3 text-xs sm:text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
+              <p>{lang === 'zh' ? '把服务器管理、日志分析、权限审计和 AI 排障放到同一个入口。' : 'Server management, log analysis, permission audit, and AI troubleshooting live in one entry point.'}</p>
+              <p>{lang === 'zh' ? 'AI 只作为运维助手，帮你解释错误并给出修复建议。' : 'AI works only as an ops assistant, helping explain errors and suggest fixes.'}</p>
+              <p>{lang === 'zh' ? '个人主页和项目页放在底部，作为次级入口。' : 'Personal and project pages move to the bottom as secondary entry points.'}</p>
             </div>
           </div>
         </div>
       </ScrollSection>
 
-      {/* Section 4 */}
       <ScrollSection className="py-24 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <SectionHeading>{t(lang, 's4Title')}</SectionHeading>
           <SectionSub>{t(lang, 's4Sub')}</SectionSub>
           <div className="grid sm:grid-cols-3 gap-5 sm:gap-8 mt-12">
             {[
-              { icon: Cpu, titleKey: 's4Proj1Title', descKey: 's4Proj1Desc', statusKey: 's4StatusActive', active: true, link: '/chat' },
-              { icon: Shield, titleKey: 's4Proj2Title', descKey: 's4Proj2Desc', statusKey: 's4StatusBuilding', active: false, link: '/cloudops' },
-              { icon: Globe, titleKey: 's4Proj3Title', descKey: 's4Proj3Desc', statusKey: 's4StatusActive', active: true, link: '/' },
+              { icon: Globe, titleKey: 's4Proj1Title', descKey: 's4Proj1Desc', link: '/me' },
+              { icon: Layers, titleKey: 's4Proj2Title', descKey: 's4Proj2Desc', link: '/projects' },
+              { icon: Github, titleKey: 's4Proj3Title', descKey: 's4Proj3Desc', link: 'https://github.com/admin0330', external: true },
             ].map((proj, i) => (
-              <GlassCard key={i} onClick={() => navigateWithHome(proj.link)}>
+              <GlassCard key={i} onClick={() => proj.external ? window.open(proj.link, '_blank', 'noopener') : navigateWithHome(proj.link)}>
                 <div className="p-5 sm:p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <proj.icon size={16} style={{ color: 'var(--accent-blue)' }} />
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${proj.active ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}`}>
-                      {t(lang, proj.statusKey)}
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium text-emerald-400 bg-emerald-500/10">
+                      {lang === 'zh' ? '入口' : 'Entry'}
                     </span>
                   </div>
                   <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)', lineHeight: 1.6 }}>{t(lang, proj.titleKey)}</h3>
@@ -214,12 +205,11 @@ export default function HomePage() {
         </div>
       </ScrollSection>
 
-      {/* Footer */}
       <footer className="relative z-10 py-16 px-4 sm:px-8 lg:px-16 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerTagline')}</p>
           <div className="flex items-center gap-4 text-xs">
-            <button onClick={() => navigateWithHome('/chat')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerChat')}</button>
+            <button onClick={() => navigateWithHome('/cloudops')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerChat')}</button>
             <button onClick={() => navigateWithHome('/me')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerAbout')}</button>
             <a href="https://github.com/admin0330" target="_blank" rel="noopener noreferrer" className="transition-colors no-underline flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
               <Github size={12} /> GitHub

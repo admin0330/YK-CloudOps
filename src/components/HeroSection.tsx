@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Github, User, FolderOpen, HelpCircle, MessageCircle } from 'lucide-react';
+import { Github, User, FolderOpen, HelpCircle, Server } from 'lucide-react';
 import { api } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import { getHomeLang, t } from '../data/homeI18n';
@@ -28,7 +28,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1, ease }}
         >
-          {lang === 'zh' ? '\u4e2a\u4eba\u4e3b\u9875 / \u9996\u9875' : 'Profile / Home'}
+          {lang === 'zh' ? '主页 / 运维' : 'Home / Ops'}
         </motion.p>
 
         <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 xl:gap-16 items-center">
@@ -52,7 +52,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.2, ease }}
             >
-              I'am living a life by design.
+              {lang === 'zh' ? '运维管理中心。' : 'Server Management Center.'}
             </motion.h2>
 
             <motion.p
@@ -83,11 +83,11 @@ export default function HeroSection() {
             >
               <LiquidCapsuleSwitch
                 options={[
-                  { id: 'chat', label: t(lang, 'ctaPrimary'), icon: MessageCircle, tone: 'var(--accent-blue)' },
+                  { id: 'ops', label: t(lang, 'ctaPrimary'), icon: Server, tone: 'var(--accent-blue)' },
                   { id: 'me', label: t(lang, 'ctaSecondary'), icon: User },
                 ]}
-                value="chat"
-                onChange={(id) => enter(id === 'chat' ? '/chat' : '/me')}
+                value="ops"
+                onChange={(id) => enter(id === 'ops' ? '/cloudops' : '/me')}
                 size="lg"
                 ariaLabel="Entry selector"
               />
@@ -108,7 +108,7 @@ export default function HeroSection() {
                 {t(lang, 'linkProjects')}
               </button>
               <button
-                onClick={() => enter('/ask-me')}
+                onClick={() => enter('/me')}
                 className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
               >
                 <HelpCircle size={13} />
@@ -136,7 +136,7 @@ export default function HeroSection() {
               <img
                 src="/home-bg-portrait.jpg"
                 alt=""
-                className="absolute inset-0 h-full w-full object-cover object-[58%_40%] select-none pointer-events-none opacity-95"
+                className="absolute inset-0 h-full w-full object-cover object-[46%_34%] select-none pointer-events-none opacity-95"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
               <div className="absolute inset-0 rounded-[2rem] ring-1 ring-white/10" />

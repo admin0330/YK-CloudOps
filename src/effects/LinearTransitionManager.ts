@@ -42,15 +42,12 @@ export async function runTopDownWipeTransition({
     });
   });
 
-  const actionTimer = window.setTimeout(() => {
-    Promise.resolve(action()).catch((err) => console.error('[LinearTransition]', err));
-  }, Math.round(duration * 0.38));
+  await Promise.resolve(action()).catch((err) => console.error('[LinearTransition]', err));
 
   await new Promise((resolve) => window.setTimeout(resolve, duration + 40));
   overlay.style.opacity = '0';
   await new Promise((resolve) => window.setTimeout(resolve, 180));
 
-  window.clearTimeout(actionTimer);
   document.documentElement.removeAttribute('data-transitioning-mode');
   if (overlay.parentElement) overlay.parentElement.removeChild(overlay);
   active = false;

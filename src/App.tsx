@@ -4,7 +4,6 @@ import HomePage from './pages/HomePage';
 import MePage from './pages/MePage';
 import ProjectsPage from './pages/ProjectsPage';
 import ChatPage from './pages/ChatPage';
-import AskMePage from './pages/AskMePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -39,7 +38,7 @@ function AppRoutes() {
         <Route path="/me" element={<PageWrapper><MePage /></PageWrapper>} />
         <Route path="/projects" element={<PageWrapper><ProjectsPage /></PageWrapper>} />
         <Route path="/chat" element={<PageWrapper><ChatPage /></PageWrapper>} />
-        <Route path="/ask-me" element={<PageWrapper><AskMePage /></PageWrapper>} />
+        <Route path="/ask-me" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
         <Route path="/register" element={<PageWrapper><RegisterPage /></PageWrapper>} />
         <Route path="/admin-login" element={<PageWrapper><AdminLoginPage /></PageWrapper>} />
