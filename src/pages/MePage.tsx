@@ -5,6 +5,7 @@ import { ArrowRight, Github, Mail, MessageCircle, Server, ExternalLink, Cpu, Glo
 import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/Navbar';
 import { fadeUp } from '../lib/motion';
+import { useIsMobile } from '../lib/useIsMobile';
 
 const ease = [0.25, 0.1, 0.25, 1];
 
@@ -21,6 +22,7 @@ export default function MePage() {
   const { lang, t } = useLanguage();
   const [active, setActive] = useState('about');
   const [scrolled, setScrolled] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const onScroll = () => {
@@ -48,14 +50,14 @@ export default function MePage() {
     <div className="min-h-screen pt-[6.4rem] sm:pt-[5.85rem]" style={{ background: 'var(--me-bg)', color: 'var(--me-text)' }}>
       <Navbar />
 
-      {/* Section nav — sticky below Navbar, horizontally scrollable on mobile */}
+      {/* Section nav — sticky below Navbar, simplified on mobile */}
       <nav
         className={`sticky top-[5.9rem] sm:top-[5.35rem] z-30 transition-all ${
           scrolled ? 'bg-[var(--me-bg)]/80 backdrop-blur-xl border-b border-[var(--me-border)]' : 'bg-transparent'
         }`}
         style={{ transitionDuration: '400ms' }}
       >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 h-12 flex items-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-2 sm:py-0 min-h-12 flex items-center">
           {/* Desktop: centered tabs */}
           <div className="hidden sm:flex items-center gap-0.5 flex-1 justify-center">
             {NAV.map((n) => (
@@ -73,16 +75,13 @@ export default function MePage() {
               </button>
             ))}
           </div>
-          {/* Mobile: horizontally scrollable tabs */}
-          <div
-            className="flex sm:hidden items-center gap-0.5 overflow-x-auto flex-1"
-            style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
-          >
+          {/* Mobile: compact wrapped tabs */}
+          <div className="grid sm:hidden grid-cols-2 gap-1.5 flex-1">
             {NAV.map((n) => (
               <button
                 key={n.key}
                 onClick={() => scrollTo(n.key)}
-                className={`px-3 py-1.5 rounded-full text-xs cursor-pointer transition-all shrink-0 whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-full text-xs cursor-pointer transition-all ${
                   active === n.key
                     ? 'bg-[var(--me-text)]/8 text-[var(--me-text)] font-medium'
                     : 'text-[var(--me-muted)] hover:text-[var(--me-text)] hover:bg-[var(--me-text)]/4'
@@ -108,14 +107,35 @@ export default function MePage() {
             className="mb-6 inline-block"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.1, ease }}
+            transition={{ duration: isMobile ? 0.22 : 0.8, delay: isMobile ? 0 : 0.1, ease }}
           >
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto">
-              {/* Decorative rotated border rings */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--me-accent)]/20 via-transparent to-[var(--accent-soft)]/20 border border-[var(--me-border)] backdrop-blur-sm"
-                style={{ transform: 'rotate(6deg)' }} />
-              <div className="absolute inset-1 rounded-xl bg-[var(--me-card)] border border-[var(--me-border)] overflow-hidden"
-                style={{ transform: 'rotate(-3deg)' }}>
+            <div className={isMobile ? 'relative w-16 h-16 mx-auto' : 'relative w-20 h-20 sm:w-24 sm:h-24 mx-auto'}>
+              {isMobile ? (
+                <div className="absolute inset-0 rounded-2xl bg-[var(--me-card)] border border-[var(--me-border)] overflow-hidden">
+                  <img
+                    src="/assets/logo.png"
+                    alt="Ym1r"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <span
+                    className="absolute inset-0 items-center justify-center text-lg font-bold tracking-tight"
+                    style={{ display: 'none', color: 'var(--me-accent)' }}
+                  >
+                    Ym1r
+                  </span>
+                </div>
+              ) : (
+                <>
+                  {/* Decorative rotated border rings */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--me-accent)]/20 via-transparent to-[var(--accent-soft)]/20 border border-[var(--me-border)] backdrop-blur-sm"
+                    style={{ transform: 'rotate(6deg)' }} />
+                  <div className="absolute inset-1 rounded-xl bg-[var(--me-card)] border border-[var(--me-border)] overflow-hidden"
+                    style={{ transform: 'rotate(-3deg)' }}>
                 <img
                   src="/assets/logo.png"
                   alt="Ym1r"
@@ -132,7 +152,9 @@ export default function MePage() {
                 >
                   Ym1r
                 </span>
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </motion.div>
 

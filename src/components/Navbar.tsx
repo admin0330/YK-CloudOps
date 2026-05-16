@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import NavbarControls from './NavbarControls';
+import { useIsMobile } from '../lib/useIsMobile';
 
 const NAV_ITEMS = [
   { path: '/', zh: '首页', en: 'Home' },
@@ -18,10 +19,15 @@ export default function Navbar() {
   const { lang } = useLanguage();
   const [user, setUser] = useState<any>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     api.getMe().then((d) => setUser(d.user)).catch(() => setUser(null));
   }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   const isAdmin = user?.role === 'admin';
   const isActive = (path: string) => location.pathname === path;
@@ -41,6 +47,10 @@ export default function Navbar() {
   };
 
   const closeMenu = () => setMobileOpen(false);
+  const openPath = (path: string) => {
+    closeMenu();
+    window.requestAnimationFrame(() => navWithTransition(path));
+  };
 
   return (
     <nav className="fixed top-0 inset-x-0 z-40 border-b" style={{
@@ -50,12 +60,12 @@ export default function Navbar() {
       width: 'auto',
       maxWidth: 'min(1240px, calc(100% - 1.5rem))',
       margin: '0 auto',
-      background: 'rgba(255,255,255,0.08)',
+      background: isMobile ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.08)',
       borderColor: 'rgba(255,255,255,0.14)',
-      borderRadius: '1.5rem',
-      boxShadow: '0 18px 56px rgba(0, 0, 0, 0.24)',
-      backdropFilter: 'blur(28px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+      borderRadius: isMobile ? '1.25rem' : '1.5rem',
+      boxShadow: isMobile ? '0 10px 30px rgba(0, 0, 0, 0.16)' : '0 18px 56px rgba(0, 0, 0, 0.24)',
+      backdropFilter: isMobile ? 'blur(14px) saturate(140%)' : 'blur(28px) saturate(180%)',
+      WebkitBackdropFilter: isMobile ? 'blur(14px) saturate(140%)' : 'blur(28px) saturate(180%)',
       paddingTop: 'env(safe-area-inset-top, 0px)',
     }}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
@@ -81,7 +91,7 @@ export default function Navbar() {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.path}
-              onClick={() => navWithTransition(item.path)}
+              onClick={() => openPath(item.path)}
               className={`ct-nav-pill ${isActive(item.path) ? 'is-active' : ''}`}
             >
               {item[lang]}
@@ -89,8 +99,8 @@ export default function Navbar() {
           ))}
           {isAdmin && (
             <>
-              <button onClick={() => navWithTransition('/admin')} className={`ct-nav-pill ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
-              <button onClick={() => navWithTransition('/cloudops')} className={`ct-nav-pill ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
+              <button onClick={() => openPath('/admin')} className={`ct-nav-pill ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
+              <button onClick={() => openPath('/cloudops')} className={`ct-nav-pill ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
             </>
           )}
           <span className="ml-2 flex items-center gap-1.5">
@@ -110,16 +120,21 @@ export default function Navbar() {
         {mobileOpen && (
           <motion.div
             className="md:hidden border-t px-3 py-2.5 space-y-1 ct-surface-panel"
-            style={{ margin: '0.5rem 0.75rem 0.75rem' }}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{
+              margin: '0.5rem 0.75rem 0.75rem',
+              boxShadow: 'none',
+              backdropFilter: 'blur(10px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+            }}
+            initial={{ opacity: 0, y: -6, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -4, height: 0 }}
+            transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
           >
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.path}
-                onClick={() => { closeMenu(); navWithTransition(item.path); }}
+                onClick={() => { openPath(item.path); }}
                 className={`ct-nav-pill ct-nav-pill--mobile ${isActive(item.path) ? 'is-active' : ''}`}
               >
                 {item[lang]}
@@ -128,8 +143,8 @@ export default function Navbar() {
             {isAdmin && (
               <>
                 <div className="border-t my-1" style={{ borderColor: 'var(--glass-border)' }} />
-                <button onClick={() => { closeMenu(); navWithTransition('/admin'); }} className={`ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
-                <button onClick={() => { closeMenu(); navWithTransition('/cloudops'); }} className={`ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
+                <button onClick={() => { openPath('/admin'); }} className={`ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
+                <button onClick={() => { openPath('/cloudops'); }} className={`ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
               </>
             )}
           </motion.div>

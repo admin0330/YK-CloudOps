@@ -6,10 +6,12 @@ import ChatArea from '../components/ChatArea';
 import Navbar from '../components/Navbar';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
+import { useIsMobile } from '../lib/useIsMobile';
 
 export default function ChatPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [conversations, setConversations] = useState([]);
@@ -133,8 +135,8 @@ export default function ChatPage() {
       <Navbar />
 
       <div className="flex h-[calc(100dvh-5.85rem)] min-h-0 overflow-hidden">
-        <div className={`fixed left-3 top-[5.85rem] bottom-3 z-50 w-[85vw] sm:w-72 lg:relative lg:left-auto lg:top-auto lg:bottom-auto lg:w-64 transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-          style={{ transitionDuration: '320ms', transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }}>
+        <div className={`fixed left-3 top-[5.85rem] bottom-3 z-50 w-[78vw] sm:w-72 lg:relative lg:left-auto lg:top-auto lg:bottom-auto lg:w-64 transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          style={{ transitionDuration: isMobile ? '220ms' : '320ms', transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }}>
           <div className="h-full min-h-0 lg:rounded-[1.75rem] lg:overflow-hidden lg:glass lg:border lg:border-[var(--border)]">
             <ChatSidebar conversations={conversations} activeId={activeConv?.id} onSelect={handleSelect} onNew={handleNew} onDelete={handleDelete} user={user} onLogout={handleLogout} onToggle={() => setSidebarOpen(false)} onPersona={handlePersonaOpen} />
           </div>
@@ -153,7 +155,7 @@ export default function ChatPage() {
             <motion.div
               className="fixed inset-0 z-50 bg-[var(--overlay-bg)]"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
+              transition={{ duration: isMobile ? 0.22 : 0.42, ease: [0.25, 0.1, 0.25, 1] }}
               onClick={() => setPersonaOpen(false)}
             />
             <motion.div
@@ -161,7 +163,7 @@ export default function ChatPage() {
               initial={{ opacity: 0, y: 16, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 12, scale: 0.97 }}
-              transition={{ duration: 0.44, ease: [0.25, 0.1, 0.25, 1] }}
+              transition={{ duration: isMobile ? 0.24 : 0.44, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <div className="flex items-center justify-between mb-4">
                 <div>

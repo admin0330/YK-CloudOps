@@ -598,6 +598,72 @@ button {
   }
 }
 
+@media (max-width: 768px) {
+  .glass,
+  .glass-panel,
+  .glass-card,
+  .glass-card-v2,
+  .glass-light,
+  .glass-chip,
+  .glass-icon-btn,
+  .ct-surface-panel,
+  .ct-control,
+  .ct-nav-pill,
+  .btn-primary,
+  .btn-secondary,
+  .btn-glass-primary {
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+  }
+
+  .glass,
+  .glass-panel,
+  .glass-card,
+  .glass-card-v2,
+  .glass-light,
+  .glass-chip,
+  .glass-icon-btn,
+  .ct-surface-panel {
+    box-shadow: none;
+  }
+
+  .glass-card-v2::after,
+  .home-root::before,
+  .noise-overlay {
+    opacity: 0.012;
+  }
+
+  .glass-card-v2:hover,
+  .glass-interactive:hover,
+  .card-lift:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .glass-chip:hover,
+  .glass-icon-btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .home-nav.scrolled {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-interactive,
+  .hover-lift,
+  .card-lift,
+  .glass-chip,
+  .glass-icon-btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-glass-primary,
+  .ct-control,
+  .ct-nav-pill {
+    transition-duration: 0.18s !important;
+  }
+}
+
 /* Safe area */
 .safe-top { padding-top: env(safe-area-inset-top, 0px); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }

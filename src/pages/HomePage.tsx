@@ -9,6 +9,7 @@ import NavbarControls from '../components/NavbarControls';
 import GlassCard from '../components/GlassCard';
 import ScrollSection, { SectionHeading, SectionSub } from '../components/ScrollSection';
 import { t } from '../data/homeI18n';
+import { useIsMobile } from '../lib/useIsMobile';
 
 export default function HomePage() {
   const [user, setUser] = useState<any>(null);
@@ -17,6 +18,7 @@ export default function HomePage() {
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     api.getMe().then((d) => setUser(d.user)).catch(() => setUser(null));
@@ -27,6 +29,10 @@ export default function HomePage() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    setMobileNav(false);
+  }, [location.pathname]);
 
   const navigateWithHome = useCallback(async (path: string) => {
     try { await api.setFromHome(); } catch {}
@@ -40,6 +46,11 @@ export default function HomePage() {
     { key: 'navPortal', path: '/portal' },
     { key: 'navCloudOps', path: '/cloudops' },
   ];
+  const openPath = useCallback(async (path: string) => {
+    try { await api.setFromHome(); } catch {}
+    setMobileNav(false);
+    window.requestAnimationFrame(() => navigate(path));
+  }, [navigate]);
 
   return (
     <div className="home-root">
@@ -87,23 +98,26 @@ export default function HomePage() {
           <motion.div
             key="mobile-menu"
             className="md:hidden relative z-40 px-4 pt-3"
-            initial={{ opacity: 0, y: -10, height: 0 }}
+            initial={{ opacity: 0, y: -6, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -8, height: 0 }}
-            transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+            exit={{ opacity: 0, y: -4, height: 0 }}
+            transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            <div className="ct-surface-panel p-3 space-y-3 overflow-hidden">
+            <div
+              className="ct-surface-panel p-3 space-y-3 overflow-hidden"
+              style={isMobile ? { boxShadow: 'none', backdropFilter: 'blur(10px) saturate(120%)', WebkitBackdropFilter: 'blur(10px) saturate(120%)' } : undefined}
+            >
               <div className="flex items-center justify-between gap-2 pb-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{lang === 'zh' ? '导航' : 'Navigation'}</span>
                 <div className="flex items-center gap-1.5 overflow-x-auto pr-1">
                   <NavbarControls />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {navItems.map((item) => (
                   <button
                     key={item.path}
-                    onClick={() => { navigateWithHome(item.path); setMobileNav(false); }}
+                    onClick={() => { openPath(item.path); }}
                     className={`text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}
                   >
                     {t(lang, item.key)}
@@ -111,8 +125,8 @@ export default function HomePage() {
                 ))}
                 {isAdmin && (
                   <>
-                    <button onClick={() => { navigateWithHome('/admin'); setMobileNav(false); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent">Admin</button>
-                    <button onClick={() => { navigateWithHome('/cloudops'); setMobileNav(false); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue">CloudOps</button>
+                    <button onClick={() => { openPath('/admin'); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent">Admin</button>
+                    <button onClick={() => { openPath('/cloudops'); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue">CloudOps</button>
                   </>
                 )}
               </div>

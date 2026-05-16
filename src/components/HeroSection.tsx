@@ -4,13 +4,20 @@ import { api } from '../api/client';
 import { useNavigate } from 'react-router-dom';
 import { getHomeLang, t } from '../data/homeI18n';
 import LiquidCapsuleSwitch from './ui/LiquidCapsuleSwitch';
+import { useIsMobile } from '../lib/useIsMobile';
 
 const ease = [0.16, 1, 0.3, 1];
 
 export default function HeroSection() {
   const navigate = useNavigate();
   const lang = getHomeLang();
+  const isMobile = useIsMobile();
   const siteName = t(lang, 'siteName');
+  const heroEase = [0.25, 0.1, 0.25, 1] as const;
+  const baseDelay = isMobile ? 0 : 0.1;
+  const fastDelay = isMobile ? 0 : 0.2;
+  const midDelay = isMobile ? 0 : 0.32;
+  const btnDelay = isMobile ? 0 : 0.54;
 
   const enter = async (path: string) => {
     try {
@@ -26,58 +33,58 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative z-10 overflow-x-hidden px-4 sm:px-8 lg:px-16 pt-[6.75rem] sm:pt-[7.5rem] pb-16 sm:pb-24">
+    <section className="relative z-10 overflow-x-hidden px-4 sm:px-8 lg:px-16 pt-[6.2rem] sm:pt-[7.5rem] pb-14 sm:pb-24">
       <div className="max-w-7xl mx-auto w-full">
         <motion.p
           className="text-[0.7rem] uppercase tracking-[0.35em] text-[var(--text-muted)] text-center lg:text-left mb-6"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.1, ease }}
+          transition={{ duration: isMobile ? 0.22 : 0.45, delay: baseDelay, ease: heroEase }}
         >
           {lang === 'zh' ? '首页 / 运维' : 'Home / Ops'}
         </motion.p>
 
         <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 xl:gap-16 items-center">
           <motion.div
-            className="min-w-0 text-center lg:text-left"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.12, ease }}
-          >
+          className="min-w-0 text-center lg:text-left"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: isMobile ? 0.24 : 0.7, delay: baseDelay + 0.02, ease: heroEase }}
+        >
             <h1
               className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight"
-              style={{ color: 'var(--text-primary)', lineHeight: 1.02, letterSpacing: '-0.04em' }}
-            >
-              {siteName}
-            </h1>
+            style={{ color: 'var(--text-primary)', lineHeight: 1.02, letterSpacing: '-0.04em' }}
+          >
+            {siteName}
+          </h1>
 
             <motion.h2
               className="mt-5 text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight"
-              style={{ color: 'var(--text-primary)', lineHeight: 1.1 }}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.2, ease }}
-            >
+            style={{ color: 'var(--text-primary)', lineHeight: 1.1 }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: isMobile ? 0.22 : 0.55, delay: fastDelay, ease: heroEase }}
+          >
               {lang === 'zh' ? '运维管理中心。' : 'Server Management Center.'}
             </motion.h2>
 
             <motion.p
               className="mt-5 text-base sm:text-lg lg:text-xl max-w-xl mx-auto lg:mx-0"
-              style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.32, ease }}
-            >
+            style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: isMobile ? 0.22 : 0.55, delay: midDelay, ease: heroEase }}
+          >
               {t(lang, 'heroSubtitle')}
             </motion.p>
 
             <motion.p
               className="mt-3 text-sm sm:text-base max-w-md mx-auto lg:mx-0"
-              style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.42, ease }}
-            >
+            style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: isMobile ? 0.2 : 0.5, delay: midDelay + 0.08, ease: heroEase }}
+          >
               {t(lang, 'heroDescription')}
             </motion.p>
 
@@ -85,27 +92,40 @@ export default function HeroSection() {
               className="mt-8 flex flex-wrap gap-3 justify-center lg:justify-start"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.54, ease }}
+              transition={{ duration: isMobile ? 0.2 : 0.5, delay: btnDelay, ease: heroEase }}
             >
-              <LiquidCapsuleSwitch
-                options={[
-                  { id: 'ops', label: t(lang, 'ctaPrimary'), icon: Server, tone: 'var(--accent-blue)' },
-                  { id: 'portal', label: t(lang, 'ctaSecondary'), icon: FolderOpen },
-                ]}
-                value="ops"
-                onChange={(id) => enter(id === 'ops' ? '/cloudops' : '/portal')}
-                size="lg"
-                ariaLabel="Entry selector"
-              />
+              {isMobile ? (
+                <div className="grid grid-cols-1 gap-2 w-full max-w-sm">
+                  <button onClick={() => enter('/cloudops')} className="btn-primary w-full justify-center">
+                    <Server size={14} />
+                    {t(lang, 'ctaPrimary')}
+                  </button>
+                  <button onClick={() => enter('/portal')} className="btn-secondary w-full justify-center">
+                    <FolderOpen size={14} />
+                    {t(lang, 'ctaSecondary')}
+                  </button>
+                </div>
+              ) : (
+                <LiquidCapsuleSwitch
+                  options={[
+                    { id: 'ops', label: t(lang, 'ctaPrimary'), icon: Server, tone: 'var(--accent-blue)' },
+                    { id: 'portal', label: t(lang, 'ctaSecondary'), icon: FolderOpen },
+                  ]}
+                  value="ops"
+                  onChange={(id) => enter(id === 'ops' ? '/cloudops' : '/portal')}
+                  size="lg"
+                  ariaLabel="Entry selector"
+                />
+              )}
             </motion.div>
 
             <motion.div
-              className="mt-8 flex flex-wrap items-center gap-5 text-xs justify-center lg:justify-start"
-              style={{ color: 'var(--text-muted)' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.45, delay: 0.72 }}
-            >
+            className="mt-8 flex flex-wrap items-center gap-5 text-xs justify-center lg:justify-start"
+            style={{ color: 'var(--text-muted)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: isMobile ? 0.18 : 0.45, delay: isMobile ? 0.02 : 0.72 }}
+          >
               <button
                 onClick={() => enter('/portal')}
                 className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
