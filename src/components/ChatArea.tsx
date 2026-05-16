@@ -313,12 +313,12 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="p-3 rounded-2xl bg-[var(--hover-bg)] hover:bg-[var(--active-bg)] text-apple-muted hover:text-[var(--text)] shrink-0 disabled:opacity-40"
+            className="p-2.5 sm:p-3 rounded-2xl bg-[var(--hover-bg)] hover:bg-[var(--active-bg)] text-apple-muted hover:text-[var(--text)] shrink-0 disabled:opacity-40"
             title={t('attachFile')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.9 }}
           >
-            <Paperclip size={18} />
+            <Paperclip size={16} />
           </motion.button>
           <input
             value={input}
@@ -330,11 +330,11 @@ export default function ChatArea({ conversation, messages, onSend, loading, erro
           <motion.button
             type="submit"
             disabled={!canSend}
-            className="p-3 rounded-2xl bg-[var(--active-bg)] hover:bg-[var(--active-bg)] disabled:opacity-30 disabled:cursor-not-allowed text-apple-text shrink-0"
+            className="p-2.5 sm:p-3 rounded-2xl bg-[var(--active-bg)] hover:bg-[var(--active-bg)] disabled:opacity-30 disabled:cursor-not-allowed text-apple-text shrink-0"
             whileHover={canSend ? { scale: 1.05 } : {}}
             whileTap={canSend ? { scale: 0.92 } : {}}
           >
-            <Send size={18} />
+            <Send size={16} />
           </motion.button>
         </form>
       </div>

@@ -587,14 +587,14 @@ button {
     padding: 0.625rem 0.875rem;
   }
   .btn-primary, .btn-secondary {
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    min-height: 44px;
+    padding: 0.7rem 1.1rem;
+    font-size: 0.95rem;
+    min-height: 40px;
   }
   .btn-sm {
-    padding: 0.5rem 0.875rem;
-    font-size: 0.875rem;
-    min-height: 40px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+    min-height: 34px;
   }
 }
 
@@ -1070,7 +1070,7 @@ button {
 
   /* Form safe bottom */
   .chat-input-area {
-    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -1112,6 +1112,23 @@ button {
   /* Chat message spacing */
   .space-y-4 > * + * {
     margin-top: 0.75rem !important;
+  }
+
+  /* Mobile chat bottom controls */
+  .scroll-fab {
+    bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .chat-input-area {
+    padding-top: 0.65rem;
+  }
+
+  .chat-input-area input {
+    min-height: 42px;
+  }
+
+  .chat-input-area button {
+    min-height: 42px;
   }
 }
 
