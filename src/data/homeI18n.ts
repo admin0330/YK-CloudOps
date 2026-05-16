@@ -11,7 +11,7 @@ const translations: Record<string, Record<Lang, string>> = {
   ctaSecondary: { zh: '次级入口', en: 'Secondary Entry' },
   navHome: { zh: '首页', en: 'Home' },
   navPortal: { zh: '入口', en: 'Portal' },
-  navCloudOps: { zh: '运维助手', en: 'CloudOps' },
+  navCloudOps: { zh: '运维助手', en: 'Assistant' },
   linkGitHub: { zh: 'GitHub', en: 'GitHub' },
   footerTagline: {
     zh: '主页聚焦运维，次级入口承载个人与项目。',
@@ -25,11 +25,11 @@ const translations: Record<string, Record<Lang, string>> = {
   },
   s2Explore: { zh: '查看运维中心', en: 'Explore Ops Center' },
   s2Card1Title: { zh: '服务器管理', en: 'Server Management' },
-  s2Card1Desc: { zh: '集中查看服务器状态、连接与关键告警。', en: 'View server status, connections, and key alerts in one place.' },
+  s2Card1Desc: { zh: '集中查看服务器状态、连接和关键告警。', en: 'View server status, connections, and key alerts in one place.' },
   s2Card2Title: { zh: '权限与审计', en: 'Permissions & Audit' },
   s2Card2Desc: { zh: '统一管理账号、权限和执行记录。', en: 'Manage accounts, permissions, and execution logs together.' },
-  s2Card3Title: { zh: 'AI 运维辅助', en: 'AI Ops Assistant' },
-  s2Card3Desc: { zh: '协助排障、解释报错和生成安全建议。', en: 'Help troubleshoot, explain errors, and generate safe suggestions.' },
+  s2Card3Title: { zh: 'AI 运维助手', en: 'AI Ops Assistant' },
+  s2Card3Desc: { zh: '协助排障、解释报错并生成安全建议。', en: 'Help troubleshoot, explain errors, and generate safe suggestions.' },
   s3Title: { zh: '运维概览', en: 'Ops Snapshot' },
   s3P1: {
     zh: '把服务器管理、日志分析、权限审计和 AI 排障放在同一个入口。',
@@ -41,6 +41,12 @@ const translations: Record<string, Record<Lang, string>> = {
   },
   s4Title: { zh: '次级入口', en: 'Secondary Entry' },
   s4Sub: { zh: '个人主页、项目和 GitHub 都收在这里。', en: 'Profile, projects, and GitHub live here.' },
+  s4Proj1Title: { zh: '个人主页', en: 'Profile' },
+  s4Proj1Desc: { zh: '查看我的个人介绍、背景和相关记录。', en: 'My profile, background, and a few notes.' },
+  s4Proj2Title: { zh: '项目', en: 'Projects' },
+  s4Proj2Desc: { zh: '查看我在做的项目、工具和可扩展内容。', en: 'Active projects, tools, and extendable work.' },
+  s4Proj3Title: { zh: 'GitHub', en: 'GitHub' },
+  s4Proj3Desc: { zh: '查看源码、演示和开源内容。', en: 'Source code, demos, and open-source work.' },
 };
 
 export function t(lang: Lang, key: string) {

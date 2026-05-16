@@ -38,8 +38,7 @@ export default function Navbar() {
   }, [navigate]);
 
   const handleBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate('/');
+    window.history.back();
   };
 
   const handleHome = () => {
