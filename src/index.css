@@ -1070,7 +1070,7 @@ button {
 
   /* Form safe bottom */
   .chat-input-area {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(0.3rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -1116,19 +1116,22 @@ button {
 
   /* Mobile chat bottom controls */
   .scroll-fab {
-    bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .chat-input-area {
-    padding-top: 0.65rem;
+    padding-top: 0.5rem;
   }
 
   .chat-input-area input {
-    min-height: 42px;
+    min-height: 38px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .chat-input-area button {
-    min-height: 42px;
+    min-height: 38px;
+    min-width: 38px;
   }
 }
 
