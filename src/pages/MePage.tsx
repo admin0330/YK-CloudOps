@@ -464,12 +464,13 @@ export default function MePage() {
       {/* Footer */}
       <footer className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-12 border-t border-[var(--me-border)]">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--me-muted)]">
-            <p>{lang === 'zh' ? '由 ym1r 制作 · 长沙' : 'Made by ym1r · Changsha'}</p>
-            <div className="flex items-center gap-4">
+          <p>{lang === 'zh' ? '由 ym1r 制作 · 长沙' : 'Made by ym1r · Changsha'}</p>
+          <div className="flex items-center gap-4">
             <Link to="/" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>{lang === 'zh' ? '首页' : 'Home'}</Link>
             <Link to="/chat" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>{lang === 'zh' ? 'AI 对话' : 'AI Chat'}</Link>
             <a href="https://github.com/admin0330" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>GitHub</a>
-            </div>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--me-text)] cursor-pointer no-underline" style={{ color: 'inherit', transition: 'color 280ms' }}>湘ICP备2026017602号</a>
+          </div>
         </div>
       </footer>
     </div>

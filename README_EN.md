@@ -1,78 +1,49 @@
 # ym1r
 
-`ym1r` is a showcase-oriented site that combines operations, personal pages, and project entry points into one cohesive product. The homepage is ops-first, while profile and project content are moved into a secondary entry page. The visual language follows an Apple / Liquid Glass direction and is designed to feel polished on both desktop and mobile.
+`ym1r` is an ops-first personal website. The homepage acts as an operations introduction page with server status and an AI ops assistant, while profile and project content live in a secondary entry page.
 
-Live site: <http://8.162.24.188:3001>
+Live site:
+- [https://ym3861.cn](https://ym3861.cn)
+- [https://www.ym3861.cn](https://www.ym3861.cn)
 
-## What This Repository Shows
+ICP filing:
+- [湘ICP备2026017602号](https://beian.miit.gov.cn/)
 
-- An operations-first homepage instead of a chat-first landing page
-- A dedicated secondary entry page for profile, projects, and GitHub
-- An AI ops assistant entry for troubleshooting and command guidance
-- Unified Chinese / English switching and light / dark themes
-- Responsive layouts for desktop and mobile browsers
+## Product Focus
+
+- The homepage highlights server operations, permission auditing, log analysis, and AI-assisted troubleshooting
+- Profile, projects, and GitHub are moved into a separate secondary entry
+- AI stays in an assistant role rather than becoming the main entry
+- The visual style follows a restrained Apple / Liquid Glass direction
 
 ## Page Map
 
-### `/` Ops Homepage
+### `/`
 
-- The homepage opens with an operations center, not a chat box
-- Navigation stays focused on the core product paths
-- The hero gives a clear product identity and visual hierarchy
-- The middle sections highlight server management, access control, and AI-assisted ops
-- The lower section introduces the secondary entry page
+- Ops introduction page
+- Shows the main operations-focused identity of the site
 
-### `/portal` Secondary Entry
+### `/portal`
 
-- Profile, projects, and GitHub are grouped into one companion page
-- This page supports browsing, not the main homepage narrative
-- It is a cleaner path for visitors who want to learn more about the person and the work
+- Secondary entry page for profile and project content
 
-### `/cloudops` Ops Assistant
+### `/cloudops`
 
-- AI is used as an operations helper
-- It is intended for log reading, error explanation, and troubleshooting guidance
-- It stays in an assistant role rather than becoming the main site focus
+- AI ops assistant for logs, troubleshooting, and command suggestions
 
-### `/admin` Admin Area
+### `/admin`
 
-- A separate management-focused page
-- Used for user, file, server, and data tasks
-- Mobile spacing is kept tighter to avoid overlap and clutter
+- Management interface for users, files, servers, and backend data
 
-## Design Language
+## Design Notes
 
-- Apple-inspired Liquid Glass styling
-- Consistent pill buttons, glass cards, and soft shadows
-- Strong spacing rhythm and clear hierarchy
-- Reduced visual noise on mobile
-- A polished product-like feel rather than a generic blog or dashboard template
+- Apple-like spacing and hierarchy
+- Liquid Glass buttons and cards
+- Immediate bilingual switching
+- Mobile and desktop layouts are both tuned for production use
 
-## Interaction Notes
+## Deployment Notes
 
-- Language switching updates the whole site immediately
-- Theme switching uses a linear transition
-- The main homepage and the secondary entry page are intentionally separated
-- Mobile navigation is compact and avoids covering page content
-- The site is tuned to feel like a real product, not a mixed collection of pages
-
-## Audience
-
-- People who want to see an operations-centric personal website
-- People who want to reuse a clean split between ops and secondary content
-- People who want an Apple-style visual system
-- People who want AI assistive features without making chat the main story
-
-## Highlights
-
-- Showcase-style homepage
-- Companion portal page
-- AI ops assistant
-- Responsive navigation
-- Bilingual UI
-- Theme switching
-- Production-ready build output
-
-## Notes
-
-This repository intentionally balances clarity and detail. It shows enough structure to understand the product immediately, while still leaving room for further customization.
+- The site is deployed on `ym3861.cn`
+- The footer includes the ICP link
+- The repository is intentionally concise and easy to reproduce

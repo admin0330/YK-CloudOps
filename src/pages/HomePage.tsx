@@ -217,6 +217,9 @@ export default function HomePage() {
             <a href="https://github.com/admin0330" target="_blank" rel="noopener noreferrer" className="transition-colors no-underline flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
               <Github size={12} /> GitHub
             </a>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="transition-colors no-underline" style={{ color: 'var(--text-muted)' }}>
+              湘ICP备2026017602号
+            </a>
           </div>
         </div>
       </footer>
