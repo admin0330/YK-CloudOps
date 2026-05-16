@@ -120,7 +120,7 @@ export default function HeroSection() {
             </motion.div>
 
             <motion.div
-            className="mt-3 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-5 text-xs justify-center lg:justify-start"
+            className="mt-1.5 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-5 text-xs justify-center lg:justify-start"
             style={{ color: 'var(--text-muted)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
