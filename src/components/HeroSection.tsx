@@ -20,24 +20,9 @@ export default function HeroSection() {
   };
 
   const stats = [
-    {
-      title: lang === 'zh' ? '服务器在线' : 'Servers online',
-      value: '04',
-      note: lang === 'zh' ? '实时连接' : 'Live links',
-      icon: Server,
-    },
-    {
-      title: lang === 'zh' ? '审计待处理' : 'Audits pending',
-      value: '00',
-      note: lang === 'zh' ? '当前为空' : 'None pending',
-      icon: Shield,
-    },
-    {
-      title: lang === 'zh' ? 'AI 助手' : 'AI assistant',
-      value: lang === 'zh' ? '就绪' : 'Ready',
-      note: lang === 'zh' ? '只做辅助' : 'Assist only',
-      icon: Bot,
-    },
+    { title: lang === 'zh' ? '服务器在线' : 'Servers online', value: '04', note: lang === 'zh' ? '实时连接' : 'Live links', icon: Server },
+    { title: lang === 'zh' ? '待审计项' : 'Audits pending', value: '00', note: lang === 'zh' ? '当前为空' : 'None pending', icon: Shield },
+    { title: lang === 'zh' ? 'AI 运维助手' : 'AI assistant', value: lang === 'zh' ? '就绪' : 'Ready', note: lang === 'zh' ? '只做辅助' : 'Assist only', icon: Bot },
   ];
 
   return (
@@ -49,7 +34,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1, ease }}
         >
-          {lang === 'zh' ? '主页 / 运维' : 'Home / Ops'}
+          {lang === 'zh' ? '首页 / 运维' : 'Home / Ops'}
         </motion.p>
 
         <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 xl:gap-16 items-center">
@@ -205,7 +190,7 @@ export default function HeroSection() {
                 >
                   <div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                    {lang === 'zh' ? '个人与项目入口' : 'Profile & Projects'}
+                      {lang === 'zh' ? '个人与项目入口' : 'Profile & Projects'}
                     </div>
                     <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                       {lang === 'zh' ? '个人主页、项目和 GitHub 都在次级页面。' : 'Profile, projects, and GitHub live in the secondary page.'}

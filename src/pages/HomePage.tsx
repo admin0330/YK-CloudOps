@@ -29,17 +29,16 @@ export default function HomePage() {
   }, []);
 
   const navigateWithHome = useCallback(async (path: string) => {
-    try { await api.setFromHome(); } catch { /* */ }
+    try { await api.setFromHome(); } catch {}
     navigate(path);
   }, [navigate]);
 
   const isAdmin = user?.role === 'admin';
   const currentPath = location.pathname;
-
   const navItems = [
     { key: 'navHome', path: '/' },
     { key: 'navPortal', path: '/portal' },
-    { key: 'navOps', path: '/cloudops' },
+    { key: 'navCloudOps', path: '/cloudops' },
   ];
 
   return (
@@ -70,7 +69,7 @@ export default function HomePage() {
               <NavbarControls />
             </span>
             <button onClick={() => navigateWithHome('/cloudops')} className="btn-primary ml-1 text-xs py-1.5 px-4 group">
-              <span>{lang === 'zh' ? '进入助手' : 'Open Assistant'}</span>
+              <span>{lang === 'zh' ? '打开运维助手' : 'Open Assistant'}</span>
               <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
@@ -184,7 +183,7 @@ export default function HomePage() {
             <div className="p-6 sm:p-7 lg:p-8 grid gap-6 lg:grid-cols-[1fr_auto] items-center">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
-                  {lang === 'zh' ? '次级入口' : 'Secondary Entry'}
+                  {t(lang, 's4Title')}
                 </div>
                 <h3 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
                   {lang === 'zh' ? '个人主页、项目和 GitHub 都收在这里。' : 'Profile, projects, and GitHub live here.'}
