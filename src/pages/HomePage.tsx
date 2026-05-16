@@ -55,7 +55,7 @@ export default function HomePage() {
   return (
     <div className="home-root">
       <nav className={`home-nav ${scrolled ? 'scrolled' : ''}`}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-12 sm:h-14 flex items-center justify-between gap-2.5">
           <Link to="/" className="hidden sm:block text-sm font-semibold tracking-tight no-underline shrink-0" style={{ color: 'var(--text-primary)' }}>
             {t(lang, 'siteName')}
           </Link>
@@ -97,28 +97,28 @@ export default function HomePage() {
         {mobileNav && (
           <motion.div
             key="mobile-menu"
-            className="md:hidden relative z-40 px-4 pt-3"
+            className="md:hidden relative z-40 px-3 pt-2"
             initial={{ opacity: 0, y: -6, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, y: -4, height: 0 }}
             transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <div
-              className="ct-surface-panel p-3 space-y-3 overflow-hidden"
+              className="ct-surface-panel p-2.5 space-y-2.5 overflow-hidden"
               style={isMobile ? { boxShadow: 'none', backdropFilter: 'blur(10px) saturate(120%)', WebkitBackdropFilter: 'blur(10px) saturate(120%)' } : undefined}
             >
-              <div className="flex items-center justify-between gap-2 pb-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+              <div className="flex items-center justify-between gap-2 pb-1.5 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{lang === 'zh' ? '导航' : 'Navigation'}</span>
                 <div className="flex items-center gap-1.5 overflow-x-auto pr-1">
                   <NavbarControls />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {navItems.map((item) => (
                   <button
                     key={item.path}
                     onClick={() => { openPath(item.path); }}
-                    className={`text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}
+                    className={`text-left px-3 py-2.5 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}
                   >
                     {t(lang, item.key)}
                   </button>
@@ -137,11 +137,11 @@ export default function HomePage() {
 
       <HeroSection />
 
-      <ScrollSection className="py-24 sm:py-32 px-4 sm:px-8 lg:px-16">
+      <ScrollSection className="py-16 sm:py-32 px-4 sm:px-8 lg:px-16">
         <div className="max-w-5xl mx-auto">
           <SectionHeading>{t(lang, 's2Title')}</SectionHeading>
           <SectionSub>{t(lang, 's2Sub')}</SectionSub>
-          <div className="grid sm:grid-cols-3 gap-5 sm:gap-8 mt-12">
+          <div className="grid sm:grid-cols-3 gap-4 sm:gap-8 mt-8 sm:mt-12">
             {[
               { icon: Server, titleKey: 's2Card1Title', descKey: 's2Card1Desc', path: '/cloudops' },
               { icon: Shield, titleKey: 's2Card2Title', descKey: 's2Card2Desc', path: '/admin' },
@@ -164,8 +164,8 @@ export default function HomePage() {
         </div>
       </ScrollSection>
 
-      <ScrollSection className="py-24 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-10 sm:gap-16 items-center">
+      <ScrollSection className="py-16 sm:py-32 px-4 sm:px-8 lg:px-16">
+        <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-8 sm:gap-16 items-center">
           <div className="space-y-4">
             <SectionHeading>{t(lang, 's3Title')}</SectionHeading>
             <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
@@ -189,12 +189,12 @@ export default function HomePage() {
         </div>
       </ScrollSection>
 
-      <ScrollSection className="py-24 sm:py-32 px-4 sm:px-8 lg:px-16">
+      <ScrollSection className="py-16 sm:py-32 px-4 sm:px-8 lg:px-16">
         <div className="max-w-5xl mx-auto">
           <SectionHeading>{t(lang, 's4Title')}</SectionHeading>
           <SectionSub>{t(lang, 's4Sub')}</SectionSub>
-          <GlassCard onClick={() => navigateWithHome('/portal')} className="mt-10 overflow-hidden">
-            <div className="p-6 sm:p-7 lg:p-8 grid gap-6 lg:grid-cols-[1fr_auto] items-center">
+          <GlassCard onClick={() => navigateWithHome('/portal')} className="mt-8 sm:mt-10 overflow-hidden">
+            <div className="p-5 sm:p-7 lg:p-8 grid gap-5 lg:grid-cols-[1fr_auto] items-center">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
                   {t(lang, 's4Title')}
@@ -222,7 +222,7 @@ export default function HomePage() {
         </div>
       </ScrollSection>
 
-      <footer className="relative z-10 py-16 px-4 sm:px-8 lg:px-16 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+      <footer className="relative z-10 py-10 sm:py-16 px-4 sm:px-8 lg:px-16 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerTagline')}</p>
           <div className="flex items-center gap-4 text-xs">
