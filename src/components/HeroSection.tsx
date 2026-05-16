@@ -96,12 +96,12 @@ export default function HeroSection() {
             >
               {isMobile ? (
                 <div className="grid grid-cols-1 gap-1.5 w-full max-w-sm">
-                  <button onClick={() => enter('/cloudops')} className="btn-primary w-full justify-center h-12 text-sm gap-2">
-                    <Server size={16} />
+                  <button onClick={() => enter('/cloudops')} className="btn-primary w-full justify-center h-12 text-base gap-2.5">
+                    <Server size={18} strokeWidth={2.3} />
                     {t(lang, 'ctaPrimary')}
                   </button>
-                  <button onClick={() => enter('/portal')} className="btn-secondary w-full justify-center h-12 text-sm gap-2">
-                    <FolderOpen size={16} />
+                  <button onClick={() => enter('/portal')} className="btn-secondary w-full justify-center h-12 text-base gap-2.5">
+                    <FolderOpen size={18} strokeWidth={2.3} />
                     {t(lang, 'ctaSecondary')}
                   </button>
                 </div>

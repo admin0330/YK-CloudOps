@@ -111,7 +111,7 @@ export default function Navbar() {
         <div className="flex md:hidden items-center gap-1 shrink-0">
           <NavbarControls />
           <button onClick={() => setMobileOpen(!mobileOpen)} className="ct-control ct-control--icon" aria-label="Menu">
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={24} strokeWidth={2.4} /> : <Menu size={24} strokeWidth={2.4} />}
           </button>
         </div>
       </div>
