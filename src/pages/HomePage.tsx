@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Github, Menu, X, Cpu, Globe, Layers, MessageCircle, Shield, Server } from 'lucide-react';
+import { ArrowRight, Github, Menu, X, Cpu, Shield, Server } from 'lucide-react';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import HeroSection from '../components/HeroSection';
@@ -38,17 +38,15 @@ export default function HomePage() {
 
   const navItems = [
     { key: 'navHome', path: '/' },
-    { key: 'navAbout', path: '/me' },
-    { key: 'navWorks', path: '/projects' },
+    { key: 'navPortal', path: '/portal' },
     { key: 'navOps', path: '/cloudops' },
-    { key: 'navChat', path: '/chat' },
   ];
 
   return (
     <div className="home-root">
       <nav className={`home-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <Link to="/" className="text-sm font-semibold tracking-tight no-underline shrink-0" style={{ color: 'var(--text-primary)' }}>
+          <Link to="/" className="hidden sm:block text-sm font-semibold tracking-tight no-underline shrink-0" style={{ color: 'var(--text-primary)' }}>
             {t(lang, 'siteName')}
           </Link>
 
@@ -72,7 +70,7 @@ export default function HomePage() {
               <NavbarControls />
             </span>
             <button onClick={() => navigateWithHome('/cloudops')} className="btn-primary ml-1 text-xs py-1.5 px-4 group">
-              <span>{t(lang, 'navOps')}</span>
+              <span>{lang === 'zh' ? '进入助手' : 'Open Assistant'}</span>
               <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
@@ -134,7 +132,7 @@ export default function HomePage() {
             {[
               { icon: Server, titleKey: 's2Card1Title', descKey: 's2Card1Desc', path: '/cloudops' },
               { icon: Shield, titleKey: 's2Card2Title', descKey: 's2Card2Desc', path: '/admin' },
-              { icon: MessageCircle, titleKey: 's2Card3Title', descKey: 's2Card3Desc', path: '/chat' },
+              { icon: Cpu, titleKey: 's2Card3Title', descKey: 's2Card3Desc', path: '/cloudops' },
             ].map((card, i) => (
               <GlassCard key={i} onClick={() => navigateWithHome(card.path)}>
                 <div className="p-5 sm:p-6">
@@ -170,9 +168,9 @@ export default function HomePage() {
               {lang === 'zh' ? '运维优先' : 'Ops First'}
             </div>
             <div className="space-y-3 text-xs sm:text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              <p>{lang === 'zh' ? '把服务器管理、日志分析、权限审计和 AI 排障放到同一个入口。' : 'Server management, log analysis, permission audit, and AI troubleshooting live in one entry point.'}</p>
+              <p>{lang === 'zh' ? '把服务器管理、日志分析、权限审计和 AI 排障放到同一个入口。' : 'Server management, log analysis, permission auditing, and AI troubleshooting live in one entry point.'}</p>
               <p>{lang === 'zh' ? 'AI 只作为运维助手，帮你解释错误并给出修复建议。' : 'AI works only as an ops assistant, helping explain errors and suggest fixes.'}</p>
-              <p>{lang === 'zh' ? '个人主页和项目页放在底部，作为次级入口。' : 'Personal and project pages move to the bottom as secondary entry points.'}</p>
+              <p>{lang === 'zh' ? '个人主页和项目页移到次级入口，作为补充页面。' : 'Profile and project pages move to the secondary entry as a companion page.'}</p>
             </div>
           </div>
         </div>
@@ -182,26 +180,32 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <SectionHeading>{t(lang, 's4Title')}</SectionHeading>
           <SectionSub>{t(lang, 's4Sub')}</SectionSub>
-          <div className="grid sm:grid-cols-3 gap-5 sm:gap-8 mt-12">
-            {[
-              { icon: Globe, titleKey: 's4Proj1Title', descKey: 's4Proj1Desc', link: '/me' },
-              { icon: Layers, titleKey: 's4Proj2Title', descKey: 's4Proj2Desc', link: '/projects' },
-              { icon: Github, titleKey: 's4Proj3Title', descKey: 's4Proj3Desc', link: 'https://github.com/admin0330', external: true },
-            ].map((proj, i) => (
-              <GlassCard key={i} onClick={() => proj.external ? window.open(proj.link, '_blank', 'noopener') : navigateWithHome(proj.link)}>
-                <div className="p-5 sm:p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <proj.icon size={16} style={{ color: 'var(--accent-blue)' }} />
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium text-emerald-400 bg-emerald-500/10">
-                      {lang === 'zh' ? '入口' : 'Entry'}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)', lineHeight: 1.6 }}>{t(lang, proj.titleKey)}</h3>
-                  <p className="text-xs mb-5" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>{t(lang, proj.descKey)}</p>
+          <GlassCard onClick={() => navigateWithHome('/portal')} className="mt-10 overflow-hidden">
+            <div className="p-6 sm:p-7 lg:p-8 grid gap-6 lg:grid-cols-[1fr_auto] items-center">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'zh' ? 'Secondary Entry' : 'Secondary Entry'}
                 </div>
-              </GlassCard>
-            ))}
-          </div>
+                <h3 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
+                  {lang === 'zh' ? '个人主页、项目和 GitHub 都收在这里。' : 'Profile, projects, and GitHub live here.'}
+                </h3>
+                <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
+                  {lang === 'zh' ? '主站只保留运维焦点，其余内容进入新的补充页面。' : 'The main site stays ops-focused; everything else moves to the new companion page.'}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <span className="ct-nav-pill ct-nav-pill--mobile is-active">Profile</span>
+                  <span className="ct-nav-pill ct-nav-pill--mobile">Projects</span>
+                  <span className="ct-nav-pill ct-nav-pill--mobile">GitHub</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-start lg:justify-end">
+                <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium" style={{ color: 'var(--text-primary)', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                  {t(lang, 'navPortal')}
+                  <ArrowRight size={13} />
+                </span>
+              </div>
+            </div>
+          </GlassCard>
         </div>
       </ScrollSection>
 
@@ -209,8 +213,8 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerTagline')}</p>
           <div className="flex items-center gap-4 text-xs">
+            <button onClick={() => navigateWithHome('/portal')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'navPortal')}</button>
             <button onClick={() => navigateWithHome('/cloudops')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerChat')}</button>
-            <button onClick={() => navigateWithHome('/me')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerAbout')}</button>
             <a href="https://github.com/admin0330" target="_blank" rel="noopener noreferrer" className="transition-colors no-underline flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
               <Github size={12} /> GitHub
             </a>

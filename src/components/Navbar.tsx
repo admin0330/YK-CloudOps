@@ -8,10 +8,8 @@ import NavbarControls from './NavbarControls';
 
 const NAV_ITEMS = [
   { path: '/', zh: '首页', en: 'Home' },
-  { path: '/me', zh: '个人主页', en: 'Profile' },
-  { path: '/projects', zh: '项目', en: 'Projects' },
-  { path: '/cloudops', zh: '运维', en: 'Ops' },
-  { path: '/chat', zh: 'AI', en: 'AI' },
+  { path: '/portal', zh: '入口', en: 'Portal' },
+  { path: '/cloudops', zh: '助手', en: 'Assistant' },
 ];
 
 export default function Navbar() {

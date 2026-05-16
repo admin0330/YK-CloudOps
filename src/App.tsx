@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
+import PortalPage from './pages/PortalPage';
 import MePage from './pages/MePage';
 import ProjectsPage from './pages/ProjectsPage';
 import ChatPage from './pages/ChatPage';
@@ -35,10 +36,11 @@ function AppRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
+        <Route path="/portal" element={<PageWrapper><PortalPage /></PageWrapper>} />
         <Route path="/me" element={<PageWrapper><MePage /></PageWrapper>} />
         <Route path="/projects" element={<PageWrapper><ProjectsPage /></PageWrapper>} />
         <Route path="/chat" element={<PageWrapper><ChatPage /></PageWrapper>} />
-        <Route path="/ask-me" element={<Navigate to="/" replace />} />
+        <Route path="/ask-me" element={<Navigate to="/portal" replace />} />
         <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
         <Route path="/register" element={<PageWrapper><RegisterPage /></PageWrapper>} />
         <Route path="/admin-login" element={<PageWrapper><AdminLoginPage /></PageWrapper>} />
