@@ -19,22 +19,22 @@ export default function PortalPage() {
   const cards = [
     {
       icon: UserRound,
-      title: lang === 'zh' ? '????' : 'Profile',
-      desc: lang === 'zh' ? '?????????????????' : 'My profile, background, and a few notes.',
+      title: lang === 'zh' ? '个人主页' : 'Profile',
+      desc: lang === 'zh' ? '查看我的个人介绍、背景和相关记录。' : 'My profile, background, and a few notes.',
       path: '/me',
       external: false,
     },
     {
       icon: Layers3,
-      title: lang === 'zh' ? '??' : 'Projects',
-      desc: lang === 'zh' ? '??????????????????' : 'Active projects, tools, and extendable work.',
+      title: lang === 'zh' ? '项目' : 'Projects',
+      desc: lang === 'zh' ? '查看我在做的项目、工具和可扩展内容。' : 'Active projects, tools, and extendable work.',
       path: '/projects',
       external: false,
     },
     {
       icon: Github,
       title: 'GitHub',
-      desc: lang === 'zh' ? '?????????????' : 'Source code, demos, and open-source work.',
+      desc: lang === 'zh' ? '查看源码、演示和开源内容。' : 'Source code, demos, and open-source work.',
       path: 'https://github.com/admin0330',
       external: true,
     },
@@ -48,17 +48,17 @@ export default function PortalPage() {
         <div className="max-w-6xl mx-auto">
           <div className="max-w-3xl">
             <p className="text-[0.7rem] uppercase tracking-[0.35em] mb-4" style={{ color: 'var(--text-muted)' }}>
-              {lang === 'zh' ? '????' : 'Secondary Entry'}
+              {lang === 'zh' ? '次级入口' : 'Secondary Entry'}
             </p>
             <h1
               className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight"
               style={{ color: 'var(--text-primary)', lineHeight: 1.05, letterSpacing: '-0.04em' }}
             >
-              {lang === 'zh' ? '??????' : 'Profile & Projects.'}
+              {lang === 'zh' ? '个人与项目。' : 'Profile & Projects.'}
             </h1>
             <p className="mt-4 text-sm sm:text-base max-w-2xl" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
               {lang === 'zh'
-                ? '???????? GitHub ??????????????????'
+                ? '个人主页、项目和 GitHub 都收在这里，作为运维中心的补充入口。'
                 : 'Profile, projects, and GitHub live here as a companion to the ops center.'}
             </p>
           </div>
@@ -84,7 +84,7 @@ export default function PortalPage() {
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-medium text-emerald-400 bg-emerald-500/10">
-                      {lang === 'zh' ? '??' : 'Entry'}
+                      {lang === 'zh' ? '入口' : 'Entry'}
                     </span>
                     <ArrowRight size={13} style={{ color: 'var(--accent-blue)' }} />
                   </div>
@@ -98,19 +98,19 @@ export default function PortalPage() {
               <div className="p-6 sm:p-7 h-full flex flex-col justify-between gap-6">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>
-                    {lang === 'zh' ? '??????' : 'Back to Ops'}
+                    {lang === 'zh' ? '返回运维主页' : 'Back to Ops'}
                   </p>
                   <h2 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
-                    {lang === 'zh' ? '?????????' : 'Return to the ops home.'}
+                    {lang === 'zh' ? '直接回到运维主页。' : 'Return to the ops home.'}
                   </h2>
                   <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
                     {lang === 'zh'
-                      ? '???????????? AI ?????????????'
+                      ? '如果你要看服务器、权限或 AI 运维助手，直接回首页即可。'
                       : 'If you need servers, permissions, or the AI ops assistant, go straight back to the home page.'}
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--accent-blue)' }}>
-                  {lang === 'zh' ? '??' : 'Home'}
+                  {lang === 'zh' ? '首页' : 'Home'}
                   <ArrowRight size={14} />
                 </div>
               </div>

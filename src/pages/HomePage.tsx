@@ -197,14 +197,14 @@ export default function HomePage() {
             <div className="p-5 sm:p-7 lg:p-8 grid gap-5 lg:grid-cols-[1fr_auto] items-center">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
-                  {lang === 'zh' ? '??????' : 'Back to Ops Home'}
+                  {lang === 'zh' ? '返回运维主页' : 'Back to Ops Home'}
                 </div>
                 <h3 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
-                  {lang === 'zh' ? '?????????' : 'Return to the ops home.'}
+                  {lang === 'zh' ? '直接回到运维主页。' : 'Return to the ops home.'}
                 </h3>
                 <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
                   {lang === 'zh'
-                    ? '???????? GitHub ???????????'
+                    ? '个人主页、项目和 GitHub 已移动到次级入口页面。'
                     : 'Profile, projects, and GitHub now live on the secondary entry page.'}
                 </p>
               </div>
