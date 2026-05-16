@@ -193,27 +193,24 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <SectionHeading>{t(lang, 's4Title')}</SectionHeading>
           <SectionSub>{t(lang, 's4Sub')}</SectionSub>
-          <GlassCard onClick={() => navigateWithHome('/portal')} className="mt-8 sm:mt-10 overflow-hidden">
+          <GlassCard onClick={() => navigateWithHome('/')} className="mt-8 sm:mt-10 overflow-hidden">
             <div className="p-5 sm:p-7 lg:p-8 grid gap-5 lg:grid-cols-[1fr_auto] items-center">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
-                  {t(lang, 's4Title')}
+                  {lang === 'zh' ? '??????' : 'Back to Ops Home'}
                 </div>
                 <h3 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
-                  {lang === 'zh' ? '个人主页、项目和 GitHub 都收在这里。' : 'Profile, projects, and GitHub live here.'}
+                  {lang === 'zh' ? '?????????' : 'Return to the ops home.'}
                 </h3>
                 <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                  {lang === 'zh' ? '主站只保留运维焦点，其余内容进入新的补充页面。' : 'The main site stays ops-focused; everything else moves to the new companion page.'}
+                  {lang === 'zh'
+                    ? '???????? GitHub ???????????'
+                    : 'Profile, projects, and GitHub now live on the secondary entry page.'}
                 </p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="ct-nav-pill ct-nav-pill--mobile is-active">{lang === 'zh' ? '个人主页' : 'Profile'}</span>
-                  <span className="ct-nav-pill ct-nav-pill--mobile">{lang === 'zh' ? '项目' : 'Projects'}</span>
-                  <span className="ct-nav-pill ct-nav-pill--mobile">{lang === 'zh' ? 'GitHub' : 'GitHub'}</span>
-                </div>
               </div>
               <div className="flex items-center justify-start lg:justify-end">
                 <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium" style={{ color: 'var(--text-primary)', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  {t(lang, 'navPortal')}
+                  {t(lang, 'navHome')}
                   <ArrowRight size={13} />
                 </span>
               </div>
