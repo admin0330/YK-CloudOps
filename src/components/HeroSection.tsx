@@ -119,13 +119,13 @@ export default function HeroSection() {
               )}
             </motion.div>
 
-            <motion.div
-            className="mt-1.5 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-5 text-xs justify-center lg:justify-start"
-            style={{ color: 'var(--text-muted)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: isMobile ? 0.18 : 0.45, delay: isMobile ? 0.02 : 0.72 }}
-          >
+              <motion.div
+              className="mt-1.5 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-5 text-xs justify-center lg:justify-start"
+              style={{ color: 'var(--text-muted)' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: isMobile ? 0.18 : 0.45, delay: isMobile ? 0.02 : 0.72 }}
+            >
               <button
                 onClick={() => enter('/portal')}
                 className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
@@ -139,6 +139,13 @@ export default function HeroSection() {
               >
                 <Bot size={13} />
                 {lang === 'zh' ? 'AI 运维助手' : 'AI Ops Assistant'}
+              </button>
+              <button
+                onClick={() => enter('/js-study')}
+                className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles size={13} />
+                JS 学习
               </button>
               <button
                 onClick={() => window.open('https://github.com/admin0330', '_blank', 'noopener')}

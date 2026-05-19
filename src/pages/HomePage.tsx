@@ -45,6 +45,7 @@ export default function HomePage() {
     { key: 'navHome', path: '/' },
     { key: 'navPortal', path: '/portal' },
     { key: 'navCloudOps', path: '/cloudops' },
+    { key: 'navJsStudy', path: '/js-study', label: 'JS' },
   ];
   const openPath = useCallback(async (path: string) => {
     try { await api.setFromHome(); } catch {}
@@ -67,7 +68,7 @@ export default function HomePage() {
                 onClick={() => navigateWithHome(item.path)}
                 className={`ct-nav-pill ${currentPath === item.path ? 'is-active' : ''}`}
               >
-                {t(lang, item.key)}
+                {item.label ?? t(lang, item.key)}
               </button>
             ))}
             {isAdmin && (
@@ -120,7 +121,7 @@ export default function HomePage() {
                     onClick={() => { openPath(item.path); }}
                     className={`text-left px-3 py-2.5 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}
                   >
-                    {t(lang, item.key)}
+                    {item.label ?? t(lang, item.key)}
                   </button>
                 ))}
                 {isAdmin && (
