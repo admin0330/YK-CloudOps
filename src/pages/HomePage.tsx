@@ -77,6 +77,12 @@ export default function HomePage() {
                 <button onClick={() => navigateWithHome('/cloudops')} className="ct-nav-pill ct-nav-pill--accent-blue">CloudOps</button>
               </>
             )}
+            <button
+              onClick={() => navigateWithHome('/js-study')}
+              className={`ct-nav-pill ${currentPath === '/js-study' ? 'is-active' : ''}`}
+            >
+              JS
+            </button>
             <span className="ml-1.5 flex items-center gap-1.5">
               <NavbarControls />
             </span>
@@ -130,6 +136,12 @@ export default function HomePage() {
                     <button onClick={() => { openPath('/cloudops'); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue">CloudOps</button>
                   </>
                 )}
+                <button
+                  onClick={() => { openPath('/js-study'); }}
+                  className={`text-left px-3 py-2.5 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === '/js-study' ? 'is-active' : ''}`}
+                >
+                  JS
+                </button>
               </div>
             </div>
           </motion.div>
