@@ -33,7 +33,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative z-10 overflow-x-hidden px-4 sm:px-8 lg:px-16 pt-[4.9rem] sm:pt-[7.5rem] pb-10 sm:pb-24">
+    <section className="relative z-10 overflow-x-hidden px-4 sm:px-8 lg:px-16 pt-[4.4rem] sm:pt-[7.5rem] pb-8 sm:pb-24">
       <div className="max-w-7xl mx-auto w-full">
         <motion.p
           className="text-[0.68rem] uppercase tracking-[0.32em] text-[var(--text-muted)] text-center lg:text-left mb-4 sm:mb-6"
@@ -44,7 +44,7 @@ export default function HeroSection() {
           {lang === 'zh' ? '首页 / 运维' : 'Home / Ops'}
         </motion.p>
 
-        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 xl:gap-16 items-center">
+        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-8 xl:gap-16 items-center">
           <motion.div
           className="min-w-0 text-center lg:text-left"
           initial={{ opacity: 0, y: 18 }}
@@ -52,7 +52,7 @@ export default function HeroSection() {
           transition={{ duration: isMobile ? 0.24 : 0.7, delay: baseDelay + 0.02, ease: heroEase }}
         >
             <h1
-              className="text-3xl sm:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight"
+              className="text-3xl sm:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight break-keep"
             style={{ color: 'var(--text-primary)', lineHeight: 1.02, letterSpacing: '-0.04em' }}
           >
             {siteName}
@@ -120,7 +120,7 @@ export default function HeroSection() {
             </motion.div>
 
               <motion.div
-              className="mt-1.5 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-5 text-xs justify-center lg:justify-start"
+              className="mt-1.5 sm:mt-8 flex flex-wrap items-center gap-2.5 sm:gap-5 text-xs justify-center lg:justify-start"
               style={{ color: 'var(--text-muted)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -139,13 +139,6 @@ export default function HeroSection() {
               >
                 <Bot size={13} />
                 {lang === 'zh' ? 'AI 运维助手' : 'AI Ops Assistant'}
-              </button>
-              <button
-                onClick={() => enter('/js-study')}
-                className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <Sparkles size={13} />
-                JS 学习
               </button>
               <button
                 onClick={() => window.open('https://github.com/admin0330', '_blank', 'noopener')}
