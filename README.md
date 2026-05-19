@@ -601,3 +601,4 @@ npm run start
 2. 再把 `CloudOps` 页面进一步做成真正的运维助手
 3. 最后把 `Admin` 的信息密度与审计能力再补强
 
+4. 新增的 `JS` 入口会打开 JavaScript 学习页，页面内可切换自动 / MySQL / 静态三种数据源

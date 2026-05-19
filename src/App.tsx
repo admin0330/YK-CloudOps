@@ -12,6 +12,7 @@ import AdminPage from './pages/AdminPage';
 import CloudOpsPage from './pages/CloudOpsPage';
 import DashboardPage from './pages/DashboardPage';
 import ServerDetailPage from './pages/ServerDetailPage';
+import JSStudyPage from './pages/JSStudyPage';
 import { pageTransition } from './lib/motion';
 import { TransitionProvider } from './effects/TransitionContext';
 
@@ -46,6 +47,7 @@ function AppRoutes() {
         <Route path="/admin-login" element={<PageWrapper><AdminLoginPage /></PageWrapper>} />
         <Route path="/admin" element={<PageWrapper><AdminPage /></PageWrapper>} />
         <Route path="/cloudops" element={<PageWrapper><CloudOpsPage /></PageWrapper>} />
+        <Route path="/js-study" element={<PageWrapper><JSStudyPage /></PageWrapper>} />
         <Route path="/servers/:id" element={<PageWrapper><ServerDetailPage /></PageWrapper>} />
         <Route path="/dashboard" element={<PageWrapper><DashboardPage /></PageWrapper>} />
         <Route path="*" element={<Navigate to="/" replace />} />

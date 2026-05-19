@@ -1872,6 +1872,7 @@ body {
 }
 
 .ct-nav-pill.is-active,
+.ct-control.is-active,
 .home-nav button.is-active,
 .apple-pill.is-active {
   background: var(--apple-blue) !important;

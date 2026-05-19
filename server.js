@@ -16,6 +16,7 @@ import serverRoutes from './server/routes/servers.js';
 import askMeRoutes from './server/routes/askMe.js';
 import cloudOpsRoutes from './server/routes/cloudops.js';
 import weatherRoutes from './server/routes/weather.js';
+import jsStudyRoutes from './server/routes/jsStudy.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -122,6 +123,7 @@ app.use('/api', serverRoutes);
 app.use('/api', askMeRoutes);
 app.use('/api', cloudOpsRoutes);
 app.use('/api', weatherRoutes);
+app.use('/api', jsStudyRoutes);
 
 // ============================================================
 // API 404 CATCH-ALL — ensures unmatched /api/* returns JSON, never HTML
