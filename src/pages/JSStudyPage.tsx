@@ -89,6 +89,7 @@ export default function JSStudyPage() {
   }, [requestedMode]);
 
   useEffect(() => {
+    // Close the source menu when the user presses Escape or taps outside the switcher.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setMenuOpen(false);
     };
@@ -144,9 +145,10 @@ export default function JSStudyPage() {
 
       <Navbar />
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+      {/* Main study layout: hero summary, source switcher, filtered chapters, and side roadmap. */}
+      <main className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-20">
         <motion.section
-          className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-6 sm:p-8 lg:p-10 shadow-[0_24px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl"
+          className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-5 sm:p-8 lg:p-10 shadow-[0_24px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
@@ -154,7 +156,7 @@ export default function JSStudyPage() {
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(138,164,255,0.5),rgba(255,255,255,0)_70%)] blur-2xl" />
           <div className="absolute -bottom-24 right-16 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(96,240,189,0.32),rgba(255,255,255,0)_70%)] blur-2xl" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
+          <div className="relative grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
             <div className="space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
                 <Sparkles size={13} />
@@ -171,7 +173,7 @@ export default function JSStudyPage() {
                 <button
                   type="button"
                   onClick={randomChapter}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-white/20"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-white/20"
                 >
                   <RefreshCw size={15} />
                   随机章节
@@ -179,7 +181,7 @@ export default function JSStudyPage() {
                 <button
                   type="button"
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-white/20"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-white/20"
                 >
                   回到顶部
                   <ArrowRight size={15} />
@@ -203,30 +205,30 @@ export default function JSStudyPage() {
             </div>
 
             <GlassCard className="relative overflow-hidden p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
                   <div className="text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>版本切换</div>
                   <h2 className="mt-2 text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    JS · {sourceName(requestedMode)}
+                    源码 · {sourceName(requestedMode)}
                   </h2>
                   <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
                     当前请求版本是 <strong>{sourceName(requestedMode)}</strong>，实际展示结果是 <strong>{sourceName(resolvedMode)}</strong>。
                   </p>
                 </div>
 
-                <div className="relative" data-js-mode-switch>
+                <div className="relative w-full sm:w-auto" data-js-mode-switch>
                   <button
                     type="button"
                     onClick={() => setMenuOpen((v) => !v)}
-                    className="inline-flex h-11 items-center justify-center rounded-full border border-white/15 bg-gradient-to-r from-emerald-300/20 to-sky-400/15 px-4 text-sm font-semibold text-[var(--text-primary)] shadow-[0_12px_28px_rgba(0,0,0,0.18)]"
+                    className="inline-flex h-11 w-full sm:w-auto items-center justify-center rounded-full border border-white/15 bg-gradient-to-r from-emerald-300/20 to-sky-400/15 px-4 text-sm font-semibold text-[var(--text-primary)] shadow-[0_12px_28px_rgba(0,0,0,0.18)]"
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
-                    JS
+                    模式
                   </button>
 
                   {menuOpen && (
-                    <div className="absolute right-0 top-[calc(100%+10px)] z-20 w-48 rounded-2xl border border-white/10 bg-[rgba(8,10,20,0.92)] p-2 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+                    <div className="absolute right-0 top-[calc(100%+10px)] z-20 w-full sm:w-48 rounded-2xl border border-white/10 bg-[rgba(8,10,20,0.92)] p-2 shadow-[0_22px_58px_rgba(0,0,0,0.34)] backdrop-blur-xl">
                       {(['auto', 'mysql', 'static'] as SourceMode[]).map((item) => (
                         <button
                           key={item}
@@ -259,7 +261,7 @@ export default function JSStudyPage() {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="搜索函数、DOM、API..."
-                    className="w-full bg-transparent text-sm outline-none placeholder:text-[var(--text-muted)]"
+                    className="w-full bg-transparent text-base sm:text-sm outline-none placeholder:text-[var(--text-muted)]"
                     style={{ color: 'var(--text-primary)' }}
                   />
                 </label>
@@ -360,7 +362,7 @@ export default function JSStudyPage() {
             <GlassCard className="p-5">
               <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>说明</div>
               <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                页面右上角的 <strong>JS</strong> 按钮就是入口。进来以后可以在这里切换静态版与 MySQL 版，数据库不可用时会自动回退。
+                页面右上角的入口按钮会带你进入这个学习页。进来以后可以在这里切换静态版与 MySQL 版，数据库不可用时会自动回退。
               </p>
             </GlassCard>
           </div>

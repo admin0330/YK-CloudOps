@@ -11,6 +11,14 @@ import ScrollSection, { SectionHeading, SectionSub } from '../components/ScrollS
 import { t } from '../data/homeI18n';
 import { useIsMobile } from '../lib/useIsMobile';
 
+// Single source of truth for the home navigation, including the one JS study entry.
+const HOME_NAV_ITEMS = [
+  { key: 'navHome', path: '/' },
+  { key: 'navPortal', path: '/portal' },
+  { key: 'navCloudOps', path: '/cloudops' },
+  { key: 'navJsStudy', path: '/js-study', label: 'JS' },
+] as const;
+
 export default function HomePage() {
   const [user, setUser] = useState<any>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -41,12 +49,6 @@ export default function HomePage() {
 
   const isAdmin = user?.role === 'admin';
   const currentPath = location.pathname;
-  const navItems = [
-    { key: 'navHome', path: '/' },
-    { key: 'navPortal', path: '/portal' },
-    { key: 'navCloudOps', path: '/cloudops' },
-    { key: 'navJsStudy', path: '/js-study', label: 'JS' },
-  ];
   const openPath = useCallback(async (path: string) => {
     try { await api.setFromHome(); } catch {}
     setMobileNav(false);
@@ -62,7 +64,7 @@ export default function HomePage() {
           </Link>
 
           <div className="hidden md:flex items-center gap-1.5">
-            {navItems.map((item) => (
+            {HOME_NAV_ITEMS.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigateWithHome(item.path)}
@@ -77,12 +79,6 @@ export default function HomePage() {
                 <button onClick={() => navigateWithHome('/cloudops')} className="ct-nav-pill ct-nav-pill--accent-blue">CloudOps</button>
               </>
             )}
-            <button
-              onClick={() => navigateWithHome('/js-study')}
-              className={`ct-nav-pill ${currentPath === '/js-study' ? 'is-active' : ''}`}
-            >
-              JS
-            </button>
             <span className="ml-1.5 flex items-center gap-1.5">
               <NavbarControls />
             </span>
@@ -121,7 +117,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {navItems.map((item) => (
+                {HOME_NAV_ITEMS.map((item) => (
                   <button
                     key={item.path}
                     onClick={() => { openPath(item.path); }}
@@ -136,12 +132,6 @@ export default function HomePage() {
                     <button onClick={() => { openPath('/cloudops'); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue">CloudOps</button>
                   </>
                 )}
-                <button
-                  onClick={() => { openPath('/js-study'); }}
-                  className={`text-left px-3 py-2.5 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === '/js-study' ? 'is-active' : ''}`}
-                >
-                  JS
-                </button>
               </div>
             </div>
           </motion.div>
