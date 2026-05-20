@@ -2002,3 +2002,42 @@ body {
     height: 2.75rem;
   }
 }
+
+/* Mobile-only fix for the "返回运维主页" card in the portal page */
+@media (max-width: 480px) {
+  .ops-home-cta {
+    width: 90vw;
+    max-width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ops-home-cta__inner {
+    padding: 1.15rem !important;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ops-home-cta__eyebrow,
+  .ops-home-cta__title,
+  .ops-home-cta__desc,
+  .ops-home-cta__action {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ops-home-cta__title {
+    font-size: clamp(1.15rem, 4.8vw, 1.45rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  .ops-home-cta__desc {
+    font-size: 0.9rem !important;
+    line-height: 1.65 !important;
+  }
+
+  .ops-home-cta__action {
+    margin-top: 0.25rem;
+  }
+}

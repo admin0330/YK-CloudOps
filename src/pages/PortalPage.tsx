@@ -94,23 +94,23 @@ export default function PortalPage() {
           </div>
 
           <div className="mt-10">
-            <GlassCard onClick={() => enter('/')} className="overflow-hidden">
-              <div className="p-6 sm:p-7 h-full flex flex-col justify-between gap-6">
+                        <GlassCard onClick={() => enter('/')} className="ops-home-cta overflow-hidden">
+              <div className="ops-home-cta__inner p-6 sm:p-7 h-full flex flex-col justify-between gap-6">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>
-                    {lang === 'zh' ? '返回运维主页' : 'Back to Ops'}
+                  <p className="ops-home-cta__eyebrow text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>
+                    {lang === 'zh' ? '??????' : 'Back to Ops'}
                   </p>
-                  <h2 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
-                    {lang === 'zh' ? '直接回到运维主页。' : 'Return to the ops home.'}
+                  <h2 className="ops-home-cta__title mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
+                    {lang === 'zh' ? '?????????' : 'Return to the ops home.'}
                   </h2>
-                  <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
+                  <p className="ops-home-cta__desc mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
                     {lang === 'zh'
-                      ? '如果你要看服务器、权限或 AI 运维助手，直接回首页即可。'
+                      ? '???????????? AI ?????????????'
                       : 'If you need servers, permissions, or the AI ops assistant, go straight back to the home page.'}
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--accent-blue)' }}>
-                  {lang === 'zh' ? '首页' : 'Home'}
+                <div className="ops-home-cta__action inline-flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--accent-blue)' }}>
+                  {lang === 'zh' ? '??' : 'Home'}
                   <ArrowRight size={14} />
                 </div>
               </div>
