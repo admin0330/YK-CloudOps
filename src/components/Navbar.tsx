@@ -118,34 +118,69 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="md:hidden border-t px-3 py-2.5 space-y-1 ct-surface-panel"
+            className="relative md:hidden fixed left-3 right-3 top-[4.9rem] z-50 space-y-3 ct-surface-panel px-3 py-3"
             style={{
-              margin: '0.5rem 0.75rem 0.75rem',
-              boxShadow: 'none',
-              backdropFilter: 'blur(10px) saturate(120%)',
-              WebkitBackdropFilter: 'blur(10px) saturate(120%)',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.28)',
+              backdropFilter: 'blur(16px) saturate(145%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(145%)',
             }}
-            initial={{ opacity: 0, y: -6, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -4, height: 0 }}
+            initial={{ opacity: 0, y: -8, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.99 }}
             transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
           >
+            <button
+              aria-label="Close menu"
+              onClick={closeMenu}
+              className="absolute inset-0 -z-10 cursor-default bg-black/36 backdrop-blur-[6px]"
+            />
+            <div className="rounded-[1.4rem] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(138,164,255,0.12),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.04))] p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
+                    {lang === 'zh' ? '移动控制台' : 'Mobile Console'}
+                  </div>
+                  <div className="mt-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    ym1r
+                  </div>
+                </div>
+                <span className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-300">
+                  {lang === 'zh' ? '在线' : 'Online'}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'zh' ? '单手操作' : 'One-hand'}
+                </span>
+                <span className="rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'zh' ? '高可读性' : 'Readable'}
+                </span>
+              </div>
+            </div>
             {NAV_ITEMS.map((item) => (
               <button
                 key={item.path}
                 onClick={() => { openPath(item.path); }}
-                className={`ct-nav-pill ct-nav-pill--mobile ${isActive(item.path) ? 'is-active' : ''}`}
+                className={`ct-nav-pill ct-nav-pill--mobile min-h-[3.8rem] text-left ${isActive(item.path) ? 'is-active' : ''}`}
               >
                 {item[lang]}
               </button>
             ))}
             {isAdmin && (
               <>
-                <div className="border-t my-1" style={{ borderColor: 'var(--glass-border)' }} />
-                <button onClick={() => { openPath('/admin'); }} className={`ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
-                <button onClick={() => { openPath('/cloudops'); }} className={`ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
+                <div className="border-t border-white/10 my-1" />
+                <button onClick={() => { openPath('/admin'); }} className={`ct-nav-pill ct-nav-pill--mobile min-h-[3.8rem] text-left ct-nav-pill--accent ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
+                <button onClick={() => { openPath('/cloudops'); }} className={`ct-nav-pill ct-nav-pill--mobile min-h-[3.8rem] text-left ct-nav-pill--accent-blue ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
               </>
             )}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <button onClick={() => { openPath('/portal'); }} className="btn-secondary w-full justify-center h-11 text-sm">
+                {lang === 'zh' ? '门户' : 'Portal'}
+              </button>
+              <button onClick={() => { openPath('/cloudops'); }} className="btn-primary w-full justify-center h-11 text-sm">
+                {lang === 'zh' ? '助手' : 'Assistant'}
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

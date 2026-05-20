@@ -156,8 +156,41 @@ export default function JSStudyPage() {
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(138,164,255,0.5),rgba(255,255,255,0)_70%)] blur-2xl" />
           <div className="absolute -bottom-24 right-16 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(96,240,189,0.32),rgba(255,255,255,0)_70%)] blur-2xl" />
 
+          <div className="relative z-10 lg:hidden rounded-[1.75rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(138,164,255,0.18),transparent_32%),radial-gradient(circle_at_85%_0%,rgba(96,240,189,0.12),transparent_24%),rgba(255,255,255,0.04)] p-4 shadow-[0_18px_54px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+            <div className="flex items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                <Sparkles size={11} />
+                JS Study
+              </span>
+              <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-300">
+                {loading ? '加载中' : sourceName(resolvedMode)}
+              </span>
+            </div>
+            <h1 className="mt-4 text-[2.1rem] font-semibold tracking-tight" style={{ color: 'var(--text-primary)', lineHeight: 0.95, letterSpacing: '-0.05em' }}>
+              JavaScript 学习手册
+            </h1>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.72 }}>
+              这是从 zip 整理出来的学习页。手机端会优先展示最常用的信息，搜索、切换版本、复制代码都能单手完成。
+            </p>
+
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>章节</div>
+                <div className="mt-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{chapterCount}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>版本</div>
+                <div className="mt-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{sourceName(resolvedMode)}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>状态</div>
+                <div className="mt-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{loading ? '加载中' : '就绪'}</div>
+              </div>
+            </div>
+          </div>
+
           <div className="relative grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
-            <div className="space-y-5">
+            <div className="hidden lg:block space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
                 <Sparkles size={13} />
                 JavaScript Study
@@ -270,7 +303,7 @@ export default function JSStudyPage() {
           </div>
         </motion.section>
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { label: '离线可用', value: '100%' },
             { label: 'MySQL 回退', value: '自动' },
@@ -298,8 +331,8 @@ export default function JSStudyPage() {
                   <button
                     type="button"
                     onClick={() => copySection(section)}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-white/20"
-                  >
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-white/20"
+                >
                     <Copy size={13} />
                     复制代码
                   </button>

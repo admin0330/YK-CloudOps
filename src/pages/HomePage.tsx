@@ -100,15 +100,23 @@ export default function HomePage() {
         {mobileNav && (
           <motion.div
             key="mobile-menu"
-            className="md:hidden relative z-40 px-3 pt-2"
-            initial={{ opacity: 0, y: -6, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -4, height: 0 }}
+            className="md:hidden fixed inset-0 z-50 px-3 pt-[4.9rem]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
           >
+            <motion.button
+              aria-label="Close menu"
+              className="absolute inset-0 -z-10 bg-black/38 backdrop-blur-[8px]"
+              onClick={() => setMobileNav(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
             <div
-              className="ct-surface-panel p-2.5 space-y-2.5 overflow-hidden"
-              style={isMobile ? { boxShadow: 'none', backdropFilter: 'blur(10px) saturate(120%)', WebkitBackdropFilter: 'blur(10px) saturate(120%)' } : undefined}
+              className="relative mx-auto max-w-2xl ct-surface-panel p-3 space-y-3 overflow-hidden"
+              style={isMobile ? { boxShadow: '0 24px 60px rgba(0,0,0,0.24)', backdropFilter: 'blur(16px) saturate(140%)', WebkitBackdropFilter: 'blur(16px) saturate(140%)' } : undefined}
             >
               <div className="flex items-center justify-between gap-2 pb-1.5 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                 <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{lang === 'zh' ? '导航' : 'Navigation'}</span>
