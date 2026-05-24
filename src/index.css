@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  font-family: 'Almarai', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+html,
+body,
+#root {
+  background: #000000;
+}
+
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise-bg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise-bg)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
 /* ============================================================
    CSS Custom Properties — Light (default)
    ============================================================ */
@@ -2040,4 +2062,297 @@ body {
   .ops-home-cta__action {
     margin-top: 0.25rem;
   }
+}
+
+.prisma-page,
+.prisma-page * {
+  font-family: 'Almarai', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.prisma-page .font-serif {
+  font-family: 'Instrument Serif', serif;
+}
+
+.prisma-page .noise-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: auto;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+.prisma-page .bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise-bg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise-bg)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+.prisma-page {
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: #000000;
+}
+
+.prisma-page .prisma-hero-nav {
+  scrollbar-width: none;
+}
+
+.prisma-page .prisma-hero-nav::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .prisma-page .prisma-hero-title-text {
+    max-width: 9.8ch;
+    font-size: clamp(3.65rem, 17vw, 6.25rem) !important;
+  }
+
+  .prisma-page .prisma-hero-copy {
+    max-width: 24rem;
+    line-height: 1.3 !important;
+  }
+
+  .prisma-page .prisma-hero-content {
+    padding-bottom: calc(2.25rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .prisma-page .prisma-hero-nav {
+    width: max-content;
+    max-width: calc(100% - 1rem);
+  }
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+  .prisma-page .prisma-hero-content {
+    padding: 0.85rem !important;
+    padding-bottom: calc(1.35rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .prisma-page .prisma-hero-title-text {
+    font-size: clamp(3.1rem, 15vw, 5.4rem) !important;
+    line-height: 0.86 !important;
+  }
+
+  .prisma-page .prisma-hero-panel {
+    padding-bottom: 0 !important;
+    gap: 0.7rem;
+  }
+
+  .prisma-page .prisma-hero-copy {
+    font-size: 0.72rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .prisma-page .prisma-hero-action {
+    padding-top: 0.28rem !important;
+    padding-bottom: 0.28rem !important;
+    padding-left: 1rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  .prisma-page .prisma-hero-action span {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+}
+
+@media (max-width: 380px) and (max-height: 640px) {
+  .prisma-page .prisma-hero-title-text {
+    font-size: clamp(2.8rem, 14vw, 4.7rem) !important;
+  }
+
+  .prisma-page .prisma-hero-copy {
+    max-width: 19rem;
+  }
+}
+
+/* ============================================================
+   ym1r Cinematic CloudOps System
+   Shared visual language for every routed page after the hero.
+   ============================================================ */
+:root,
+[data-theme="light"],
+[data-theme="dark"] {
+  --bg: #000000;
+  --bg-soft: #080808;
+  --card: rgba(16, 16, 16, 0.92);
+  --card-strong: rgba(22, 22, 22, 0.96);
+  --text: #e1e0cc;
+  --text-main: #e1e0cc;
+  --text-primary: #e1e0cc;
+  --text-secondary: rgba(225, 224, 204, 0.76);
+  --text-muted: rgba(225, 224, 204, 0.58);
+  --text-weak: rgba(225, 224, 204, 0.38);
+  --border: rgba(222, 219, 200, 0.12);
+  --border-strong: rgba(222, 219, 200, 0.24);
+  --glass-bg: rgba(16, 16, 16, 0.72);
+  --glass-bg-strong: rgba(18, 18, 18, 0.88);
+  --glass-border: rgba(222, 219, 200, 0.14);
+  --glass-highlight: rgba(222, 219, 200, 0.12);
+  --glass-shadow: 0 24px 80px rgba(0, 0, 0, 0.46);
+  --glass-shadow-lg: 0 34px 120px rgba(0, 0, 0, 0.58);
+  --accent: #dedbc8;
+  --accent-blue: #dedbc8;
+  --accent-soft: rgba(222, 219, 200, 0.76);
+  --accent-warm: #c6a96a;
+  --danger: #ff6b64;
+  --danger-bg: rgba(255, 107, 100, 0.12);
+  --code-bg: rgba(0, 0, 0, 0.46);
+  --code-border: rgba(222, 219, 200, 0.14);
+  --btn-primary-bg: #dedbc8;
+  --btn-primary-text: #000000;
+  --btn-secondary-bg: rgba(0, 0, 0, 0.34);
+  --btn-secondary-border: rgba(222, 219, 200, 0.20);
+  --input-bg: rgba(0, 0, 0, 0.38);
+  --input-border: rgba(222, 219, 200, 0.16);
+  --input-focus-ring: rgba(222, 219, 200, 0.20);
+  --overlay-bg: rgba(0, 0, 0, 0.60);
+  --active-bg: rgba(222, 219, 200, 0.14);
+  --hover-bg: rgba(222, 219, 200, 0.08);
+  --me-bg: #000000;
+  --me-text: #e1e0cc;
+  --me-text-secondary: rgba(225, 224, 204, 0.76);
+  --me-muted: rgba(225, 224, 204, 0.56);
+  --me-border: rgba(222, 219, 200, 0.14);
+  --me-card: rgba(18, 18, 18, 0.88);
+  --me-tag-bg: rgba(222, 219, 200, 0.10);
+  --me-accent: #dedbc8;
+  --page-gradient:
+    radial-gradient(circle at 16% 8%, rgba(222, 219, 200, 0.10), transparent 24%),
+    radial-gradient(circle at 86% 16%, rgba(198, 169, 106, 0.08), transparent 28%),
+    linear-gradient(180deg, #000000 0%, #080808 46%, #000000 100%);
+}
+
+body {
+  background: #000000 !important;
+  color: var(--text) !important;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.62)),
+    radial-gradient(circle at 50% 0%, rgba(222,219,200,0.08), transparent 34%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='cinema-noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23cinema-noise)' opacity='0.34'/%3E%3C/svg%3E");
+  background-size: auto, auto, 240px 240px;
+  opacity: 0.32;
+}
+
+#root > .relative,
+.min-h-screen,
+.min-h-full {
+  background: var(--page-gradient);
+}
+
+.glass,
+.glass-light,
+.glass-panel,
+.glass-card,
+.glass-card-v2,
+.ct-surface-panel,
+.card-lift {
+  background: linear-gradient(180deg, rgba(222,219,200,0.055), rgba(222,219,200,0.025)), var(--glass-bg-strong) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  color: var(--text) !important;
+  backdrop-filter: blur(22px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(130%) !important;
+}
+
+.glass-panel,
+.glass-card,
+.glass-card-v2,
+.ct-surface-panel {
+  border-radius: 1.2rem !important;
+}
+
+.card-lift:hover,
+.glass-card:hover,
+.glass-card-v2:hover,
+.glass-panel:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong) !important;
+  box-shadow: var(--glass-shadow-lg) !important;
+}
+
+.btn-primary,
+.ct-nav-pill.is-active,
+.ct-control.is-active,
+.apple-pill.is-active {
+  background: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-text) !important;
+  border-color: transparent !important;
+  box-shadow: 0 18px 50px rgba(222, 219, 200, 0.18) !important;
+}
+
+.btn-secondary,
+.btn-glass-primary,
+.ct-control,
+.ct-nav-pill,
+.apple-pill,
+.home-nav button {
+  background: rgba(0, 0, 0, 0.34) !important;
+  color: rgba(225, 224, 204, 0.78) !important;
+  border: 1px solid var(--btn-secondary-border) !important;
+  box-shadow: none !important;
+}
+
+.btn-secondary:hover,
+.btn-glass-primary:hover,
+.ct-control:hover,
+.ct-nav-pill:hover,
+.apple-pill:hover,
+.home-nav button:hover {
+  background: rgba(222, 219, 200, 0.10) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-strong) !important;
+}
+
+input,
+textarea,
+select {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--input-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-weak) !important;
+}
+
+code,
+pre,
+.terminal-output,
+.terminal-body {
+  background: var(--code-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--code-border) !important;
+}
+
+.terminal-header {
+  background: rgba(222, 219, 200, 0.08) !important;
+  color: var(--text-muted) !important;
+}
+
+.text-apple-muted,
+.terminal-meta,
+.terminal-dim {
+  color: var(--text-muted) !important;
+}
+
+.text-apple-text {
+  color: var(--text-primary) !important;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
 }

@@ -8,9 +8,10 @@ import NavbarControls from './NavbarControls';
 import { useIsMobile } from '../lib/useIsMobile';
 
 const NAV_ITEMS = [
-  { path: '/', zh: '首页', en: 'Home' },
-  { path: '/portal', zh: '入口', en: 'Portal' },
-  { path: '/cloudops', zh: '助手', en: 'Assistant' },
+  { path: '/', zh: 'Home', en: 'Home' },
+  { path: '/portal', zh: 'Portal', en: 'Portal' },
+  { path: '/cloudops', zh: 'CloudOps', en: 'CloudOps' },
+  { path: '/js-study', zh: 'JS Study', en: 'JS Study' },
 ];
 
 export default function Navbar() {
@@ -33,7 +34,10 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path;
   const isHome = location.pathname === '/';
 
-  const navWithTransition = useCallback((path: string) => {
+  const navWithTransition = useCallback(async (path: string) => {
+    try {
+      await api.setFromHome();
+    } catch {}
     navigate(path);
   }, [navigate]);
 
@@ -59,12 +63,12 @@ export default function Navbar() {
       width: 'auto',
       maxWidth: 'min(1240px, calc(100% - 1.5rem))',
       margin: '0 auto',
-      background: isMobile ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.08)',
-      borderColor: 'rgba(255,255,255,0.14)',
-      borderRadius: isMobile ? '1.25rem' : '1.5rem',
-      boxShadow: isMobile ? '0 10px 30px rgba(0, 0, 0, 0.16)' : '0 18px 56px rgba(0, 0, 0, 0.24)',
-      backdropFilter: isMobile ? 'blur(14px) saturate(140%)' : 'blur(28px) saturate(180%)',
-      WebkitBackdropFilter: isMobile ? 'blur(14px) saturate(140%)' : 'blur(28px) saturate(180%)',
+      background: 'rgba(0,0,0,0.78)',
+      borderColor: 'rgba(222,219,200,0.18)',
+      borderRadius: isMobile ? '1.1rem' : '1.35rem',
+      boxShadow: isMobile ? '0 10px 30px rgba(0, 0, 0, 0.30)' : '0 22px 70px rgba(0, 0, 0, 0.38)',
+      backdropFilter: isMobile ? 'blur(16px) saturate(130%)' : 'blur(24px) saturate(150%)',
+      WebkitBackdropFilter: isMobile ? 'blur(16px) saturate(130%)' : 'blur(24px) saturate(150%)',
       paddingTop: 'env(safe-area-inset-top, 0px)',
     }}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">

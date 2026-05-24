@@ -1,23 +1,16 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Bot, FolderOpen, Github, Server, Shield, Sparkles } from 'lucide-react';
-import { api } from '../api/client';
+import { ArrowRight, Bot, FolderOpen, Github, Server, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getHomeLang, t } from '../data/homeI18n';
-import LiquidCapsuleSwitch from './ui/LiquidCapsuleSwitch';
+import { api } from '../api/client';
+import { getHomeLang } from '../data/homeI18n';
 import { useIsMobile } from '../lib/useIsMobile';
 
-const ease = [0.16, 1, 0.3, 1];
+const heroEase = [0.16, 1, 0.3, 1] as const;
 
 export default function HeroSection() {
   const navigate = useNavigate();
   const lang = getHomeLang();
   const isMobile = useIsMobile();
-  const siteName = t(lang, 'siteName');
-  const heroEase = [0.25, 0.1, 0.25, 1] as const;
-  const baseDelay = isMobile ? 0 : 0.1;
-  const fastDelay = isMobile ? 0 : 0.2;
-  const midDelay = isMobile ? 0 : 0.32;
-  const btnDelay = isMobile ? 0 : 0.54;
 
   const enter = async (path: string) => {
     try {
@@ -26,288 +19,113 @@ export default function HeroSection() {
     navigate(path);
   };
 
-  const stats = [
-    { title: lang === 'zh' ? '服务器在线' : 'Servers online', value: '04', note: lang === 'zh' ? '实时连接' : 'Live links', icon: Server },
-    { title: lang === 'zh' ? '待审计项' : 'Audits pending', value: '00', note: lang === 'zh' ? '当前为空' : 'None pending', icon: Shield },
-    { title: lang === 'zh' ? 'AI 运维助手' : 'AI assistant', value: lang === 'zh' ? '就绪' : 'Ready', note: lang === 'zh' ? '只做辅助' : 'Assist only', icon: Bot },
+  const copy = {
+    eyebrow: lang === 'zh' ? 'YM1R / AI CLOUD PORTFOLIO' : 'YM1R / AI CLOUD PORTFOLIO',
+    title: lang === 'zh' ? '把云端与 AI，做成我的个人操作系统。' : 'Cloud and AI, shaped into my personal operating system.',
+    description: lang === 'zh'
+      ? '一个连接作品、服务器运维与 AI 助手的个人网站。以暗色影像作为入口，把我的技术内容收束成更有质感的主页。'
+      : 'A personal site connecting projects, server operations, and an AI assistant through a darker, more cinematic front door.',
+    primary: lang === 'zh' ? '进入 CloudOps' : 'Enter CloudOps',
+    secondary: lang === 'zh' ? '浏览入口' : 'Browse Portal',
+    profile: lang === 'zh' ? '个人介绍' : 'Profile',
+    github: 'GitHub',
+    status: lang === 'zh' ? '主页已上线' : 'Homepage live',
+    stack: lang === 'zh' ? 'React / Vite / Linux' : 'React / Vite / Linux',
+  };
+
+  const details = [
+    { label: lang === 'zh' ? '方向' : 'Focus', value: lang === 'zh' ? 'AI + 云计算' : 'AI + Cloud' },
+    { label: lang === 'zh' ? '位置' : 'Base', value: lang === 'zh' ? '长沙 / 远程' : 'Changsha / Remote' },
+    { label: lang === 'zh' ? '状态' : 'Status', value: lang === 'zh' ? '持续构建中' : 'Always building' },
   ];
 
   return (
-    <section className="relative z-10 overflow-x-hidden px-4 sm:px-8 lg:px-16 pt-[4.4rem] sm:pt-[7.5rem] pb-8 sm:pb-24">
-      <div className="max-w-7xl mx-auto w-full">
-        <motion.p
-          className="text-[0.68rem] uppercase tracking-[0.32em] text-[var(--text-muted)] text-center lg:text-left mb-4 sm:mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: isMobile ? 0.22 : 0.45, delay: baseDelay, ease: heroEase }}
-        >
-          {lang === 'zh' ? '首页 / 运维' : 'Home / Ops'}
-        </motion.p>
+    <section className="relative min-h-screen overflow-hidden bg-black text-white">
+      <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0">
+        <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+      </video>
 
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,0.86)_0%,rgba(0,0,0,0.56)_38%,rgba(0,0,0,0.14)_76%),linear-gradient(180deg,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.18)_42%,rgba(0,0,0,0.84)_100%)]" />
+      <div className="absolute inset-0 z-[2] opacity-[0.08] mix-blend-screen bg-[radial-gradient(circle_at_22%_30%,rgba(255,255,255,0.55),transparent_18%),radial-gradient(circle_at_76%_18%,rgba(180,210,255,0.34),transparent_20%)]" />
+      <div className="noise-overlay z-[3]" />
+
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-end px-5 pb-12 pt-28 sm:px-8 sm:pb-16 lg:px-16 lg:pb-20">
         <motion.div
-          className="lg:hidden mx-auto max-w-xl rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(96,240,189,0.16),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(138,164,255,0.18),transparent_22%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl"
-          initial={{ opacity: 0, y: 16 }}
+          className="max-w-4xl"
+          initial={{ opacity: 0, y: isMobile ? 10 : 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.38, delay: 0.04, ease: heroEase }}
+          transition={{ duration: isMobile ? 0.38 : 0.8, ease: heroEase }}
         >
-          <div className="flex items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
-              <Sparkles size={11} />
-              {lang === 'zh' ? '移动端入口' : 'Mobile Entry'}
-            </div>
-            <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-300">
-              {lang === 'zh' ? '在线' : 'Live'}
+          <div className="mb-5 flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center rounded-full border border-white/22 bg-white/[0.06] px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-white/78 backdrop-blur-md">
+              {copy.eyebrow}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-emerald-200 backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.95)]" />
+              {copy.status}
             </span>
           </div>
 
-          <div className="mt-4">
-            <h1
-              className="text-[2.35rem] font-semibold tracking-tight break-keep sm:text-6xl"
-              style={{ color: 'var(--text-primary)', lineHeight: 0.95, letterSpacing: '-0.05em' }}
-            >
-              {siteName}
-            </h1>
-            <p className="mt-3 text-sm font-medium" style={{ color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-              {lang === 'zh'
-                ? '移动端会自动切换成更紧凑的控制台视图，让入口更清晰、手势更顺手。'
-                : 'Mobile now switches into a compact control-console layout with clearer hierarchy and easier touch targets.'}
-            </p>
-          </div>
+          <h1 className="max-w-4xl text-[clamp(2.85rem,8vw,7.6rem)] font-semibold uppercase leading-[0.88] tracking-[0.055em] text-white drop-shadow-[0_22px_70px_rgba(0,0,0,0.7)]">
+            {copy.title}
+          </h1>
 
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {stats.map((stat) => (
-              <div
-                key={stat.title}
-                className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3"
-              >
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>
-                  <stat.icon size={11} style={{ color: 'var(--accent-blue)' }} />
-                  {stat.title}
-                </div>
-                <div className="mt-2 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                  {stat.note}
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-white/74 sm:text-lg lg:text-xl">
+            {copy.description}
+          </p>
 
-          <div className="mt-4 grid grid-cols-1 gap-2">
-            <button onClick={() => enter('/cloudops')} className="btn-primary w-full justify-center h-12 text-sm gap-2.5">
-              <Server size={16} strokeWidth={2.3} />
-              {t(lang, 'ctaPrimary')}
-            </button>
-            <button onClick={() => enter('/portal')} className="btn-secondary w-full justify-center h-12 text-sm gap-2.5">
-              <FolderOpen size={16} strokeWidth={2.3} />
-              {t(lang, 'ctaSecondary')}
-            </button>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              onClick={() => enter('/portal')}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/15 px-3 py-2 text-[11px] font-medium text-[var(--text-muted)]"
-            >
-              <FolderOpen size={11} />
-              {t(lang, 'navPortal')}
-            </button>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               onClick={() => enter('/cloudops')}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/15 px-3 py-2 text-[11px] font-medium text-[var(--text-muted)]"
+              className="group inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-white/75 bg-white px-6 text-sm font-bold uppercase tracking-[0.14em] text-black transition duration-300 hover:-translate-y-0.5 hover:bg-white/88"
             >
-              <Bot size={11} />
-              {lang === 'zh' ? 'AI 运维助手' : 'AI Ops Assistant'}
+              <Server size={16} />
+              {copy.primary}
+              <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
             </button>
             <button
-              onClick={() => window.open('https://github.com/admin0330', '_blank', 'noopener')}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/15 px-3 py-2 text-[11px] font-medium text-[var(--text-muted)]"
+              onClick={() => enter('/portal')}
+              className="group inline-flex min-h-[3.2rem] items-center justify-center gap-2 rounded-full border border-white/32 bg-black/18 px-6 text-sm font-bold uppercase tracking-[0.14em] text-white backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:border-white/70 hover:bg-white/10"
             >
-              <Github size={11} />
-              {t(lang, 'linkGitHub')}
+              <FolderOpen size={16} />
+              {copy.secondary}
+              <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center gap-4 text-sm text-white/62">
+            <button onClick={() => enter('/me')} className="inline-flex items-center gap-2 transition hover:text-white">
+              <UserRound size={15} />
+              {copy.profile}
+            </button>
+            <button onClick={() => enter('/cloudops')} className="inline-flex items-center gap-2 transition hover:text-white">
+              <Bot size={15} />
+              AI Ops
+            </button>
+            <button onClick={() => window.open('https://github.com/admin0330', '_blank', 'noopener')} className="inline-flex items-center gap-2 transition hover:text-white">
+              <Github size={15} />
+              {copy.github}
             </button>
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-8 xl:gap-16 items-center">
-          <motion.div
-            className="hidden lg:block min-w-0 text-center lg:text-left"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: isMobile ? 0.24 : 0.7, delay: baseDelay + 0.02, ease: heroEase }}
-          >
-            <h1
-              className="text-3xl sm:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight break-keep"
-            style={{ color: 'var(--text-primary)', lineHeight: 1.02, letterSpacing: '-0.04em' }}
-          >
-            {siteName}
-          </h1>
-
-            <motion.h2
-              className="mt-3 sm:mt-5 text-xl sm:text-3xl lg:text-4xl font-semibold tracking-tight"
-            style={{ color: 'var(--text-primary)', lineHeight: 1.1 }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: isMobile ? 0.22 : 0.55, delay: fastDelay, ease: heroEase }}
-          >
-              {lang === 'zh' ? '运维管理中心。' : 'Server Management Center.'}
-            </motion.h2>
-
-            <motion.p
-              className="mt-3 sm:mt-5 text-sm sm:text-lg lg:text-xl max-w-xl mx-auto lg:mx-0"
-            style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: isMobile ? 0.22 : 0.55, delay: midDelay, ease: heroEase }}
-          >
-              {t(lang, 'heroSubtitle')}
-            </motion.p>
-
-            <motion.p
-              className="mt-2 sm:mt-3 text-xs sm:text-base max-w-md mx-auto lg:mx-0"
-            style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: isMobile ? 0.2 : 0.5, delay: midDelay + 0.08, ease: heroEase }}
-          >
-              {t(lang, 'heroDescription')}
-            </motion.p>
-
-            <motion.div
-              className="mt-6 sm:mt-8 flex flex-wrap gap-2.5 sm:gap-3 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: isMobile ? 0.2 : 0.5, delay: btnDelay, ease: heroEase }}
-            >
-              {isMobile ? (
-                <div className="grid grid-cols-1 gap-1.5 w-full max-w-sm">
-                  <button onClick={() => enter('/cloudops')} className="btn-primary w-full justify-center h-12 text-base gap-2.5">
-                    <Server size={18} strokeWidth={2.3} />
-                    {t(lang, 'ctaPrimary')}
-                  </button>
-                  <button onClick={() => enter('/portal')} className="btn-secondary w-full justify-center h-12 text-base gap-2.5">
-                    <FolderOpen size={18} strokeWidth={2.3} />
-                    {t(lang, 'ctaSecondary')}
-                  </button>
-                </div>
-              ) : (
-                <LiquidCapsuleSwitch
-                  options={[
-                    { id: 'ops', label: t(lang, 'ctaPrimary'), icon: Server, tone: 'var(--accent-blue)' },
-                    { id: 'portal', label: t(lang, 'ctaSecondary'), icon: FolderOpen },
-                  ]}
-                  value="ops"
-                  onChange={(id) => enter(id === 'ops' ? '/cloudops' : '/portal')}
-                  size="lg"
-                  ariaLabel="Entry selector"
-                />
-              )}
-            </motion.div>
-
-              <motion.div
-              className="mt-1.5 sm:mt-8 flex flex-wrap items-center gap-2.5 sm:gap-5 text-xs justify-center lg:justify-start"
-              style={{ color: 'var(--text-muted)' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: isMobile ? 0.18 : 0.45, delay: isMobile ? 0.02 : 0.72 }}
-            >
-              <button
-                onClick={() => enter('/portal')}
-                className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <FolderOpen size={13} />
-                {t(lang, 'navPortal')}
-              </button>
-              <button
-                onClick={() => enter('/cloudops')}
-                className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <Bot size={13} />
-                {lang === 'zh' ? 'AI 运维助手' : 'AI Ops Assistant'}
-              </button>
-              <button
-                onClick={() => window.open('https://github.com/admin0330', '_blank', 'noopener')}
-                className="hover:text-[var(--text-primary)] transition-colors duration-300 flex items-center gap-1.5 cursor-pointer"
-              >
-                <Github size={13} />
-                {t(lang, 'linkGitHub')}
-              </button>
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            className="relative hidden lg:block min-h-[30rem] xl:min-h-[32rem]"
-            initial={{ opacity: 0, x: 30, scale: 0.98 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.75, delay: 0.2, ease }}
-            aria-hidden="true"
-          >
-            <div className="absolute inset-0 rounded-[2.25rem] bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.12),transparent_55%),radial-gradient(circle_at_65%_65%,rgba(0,113,227,0.16),transparent_45%)] blur-3xl opacity-60" />
-            <div className="relative ml-auto w-full max-w-[26rem] rounded-[2rem] overflow-hidden glass-card border border-[var(--glass-border)] shadow-[0_28px_90px_rgba(0,0,0,0.26)] p-5">
-              <div className="flex items-center justify-between gap-3 pb-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
-                    {lang === 'zh' ? '运维概览' : 'Ops Snapshot'}
-                  </p>
-                  <h3 className="mt-1 text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {lang === 'zh' ? '实时状态' : 'Live Status'}
-                  </h3>
-                </div>
-                <span className="ct-nav-pill is-active text-xs">{lang === 'zh' ? '在线' : 'Online'}</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                {stats.map((stat) => (
-                  <div
-                    key={stat.title}
-                    className="rounded-2xl border border-[var(--glass-border)] bg-white/5 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                  >
-                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em]" style={{ color: 'var(--text-muted)' }}>
-                      <stat.icon size={12} style={{ color: 'var(--accent-blue)' }} />
-                      {stat.title}
-                    </div>
-                    <div className="mt-3 flex items-end justify-between gap-2">
-                      <div className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        {stat.value}
-                      </div>
-                      <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                        {stat.note}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 space-y-3">
-                <div className="rounded-2xl border border-[var(--glass-border)] bg-white/5 px-4 py-3 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                    <Sparkles size={16} style={{ color: 'var(--accent-blue)' }} />
-                    {lang === 'zh' ? '快捷入口' : 'Quick Entry'}
-                  </div>
-                  <span className="text-[10px] uppercase tracking-[0.24em]" style={{ color: 'var(--text-muted)' }}>
-                    {lang === 'zh' ? '一页完成' : 'One page'}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => enter('/portal')}
-                  className="w-full rounded-2xl border border-[var(--glass-border)] bg-white/5 px-4 py-3 flex items-center justify-between gap-3 text-left cursor-pointer transition-transform duration-300 hover:-translate-y-0.5"
-                >
-                  <div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {lang === 'zh' ? '个人与项目入口' : 'Profile & Projects'}
-                    </div>
-                    <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                      {lang === 'zh' ? '个人主页、项目和 GitHub 都在次级页面。' : 'Profile, projects, and GitHub live in the secondary page.'}
-                    </div>
-                  </div>
-                  <ArrowRight size={14} style={{ color: 'var(--accent-blue)' }} />
-                </button>
-              </div>
+        <motion.div
+          className="mt-12 grid max-w-4xl grid-cols-1 gap-px overflow-hidden border-y border-white/16 bg-white/12 text-white/78 sm:grid-cols-3"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: isMobile ? 0.32 : 0.7, delay: isMobile ? 0.06 : 0.28, ease: heroEase }}
+        >
+          {details.map((item) => (
+            <div key={item.label} className="bg-black/30 px-4 py-3 backdrop-blur-md sm:px-5 sm:py-4">
+              <div className="text-[0.62rem] uppercase tracking-[0.28em] text-white/42">{item.label}</div>
+              <div className="mt-1 text-sm font-semibold text-white">{item.value}</div>
             </div>
-          </motion.div>
-        </div>
+          ))}
+        </motion.div>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-5 right-5 z-10 hidden text-[0.65rem] uppercase tracking-[0.32em] text-white/42 sm:block">
+        {copy.stack}
       </div>
     </section>
   );

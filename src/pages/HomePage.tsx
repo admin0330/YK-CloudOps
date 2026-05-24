@@ -1,250 +1,343 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Github, Menu, X, Cpu, Shield, Server } from 'lucide-react';
+import { useRef, type MouseEvent } from 'react';
+import { motion, useInView, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import { ArrowRight, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
-import { useLanguage } from '../context/LanguageContext';
-import HeroSection from '../components/HeroSection';
-import NavbarControls from '../components/NavbarControls';
-import GlassCard from '../components/GlassCard';
-import ScrollSection, { SectionHeading, SectionSub } from '../components/ScrollSection';
-import { t } from '../data/homeI18n';
-import { useIsMobile } from '../lib/useIsMobile';
 
-// Single source of truth for the home navigation, including the one JS study entry.
-const HOME_NAV_ITEMS = [
-  { key: 'navHome', path: '/' },
-  { key: 'navPortal', path: '/portal' },
-  { key: 'navCloudOps', path: '/cloudops' },
-  { key: 'navJsStudy', path: '/js-study', label: 'JS' },
+const PRIMARY_TEXT = '#E1E0CC';
+const HERO_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4';
+const FEATURE_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4';
+const ease = [0.16, 1, 0.3, 1] as const;
+const cardEase = [0.22, 1, 0.36, 1] as const;
+const navItems = [
+  { label: 'Home', path: '/' },
+  { label: 'Portal', path: '/portal' },
+  { label: 'CloudOps', path: '/cloudops' },
+  { label: 'JS Study', path: '/js-study' },
+  { label: 'Admin', path: '/admin' },
 ] as const;
 
-export default function HomePage() {
-  const [user, setUser] = useState<any>(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileNav, setMobileNav] = useState(false);
-  const { lang } = useLanguage();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useIsMobile();
+type Segment = {
+  text: string;
+  className?: string;
+};
 
-  useEffect(() => {
-    api.getMe().then((d) => setUser(d.user)).catch(() => setUser(null));
-  }, []);
+type Word = {
+  text: string;
+  className?: string;
+};
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    setMobileNav(false);
-  }, [location.pathname]);
-
-  const navigateWithHome = useCallback(async (path: string) => {
-    try { await api.setFromHome(); } catch {}
-    navigate(path);
-  }, [navigate]);
-
-  const isAdmin = user?.role === 'admin';
-  const currentPath = location.pathname;
-  const openPath = useCallback(async (path: string) => {
-    try { await api.setFromHome(); } catch {}
-    setMobileNav(false);
-    window.requestAnimationFrame(() => navigate(path));
-  }, [navigate]);
+function WordsPullUp({ text, className = '', showAsterisk = false }: { text: string; className?: string; showAsterisk?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const words = text.split(' ');
 
   return (
-    <div className="home-root">
-      <nav className={`home-nav ${scrolled ? 'scrolled' : ''}`}>
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-12 sm:h-14 flex items-center justify-between gap-2.5">
-          <Link to="/" className="hidden sm:block text-sm font-semibold tracking-tight no-underline shrink-0" style={{ color: 'var(--text-primary)' }}>
-            {t(lang, 'siteName')}
-          </Link>
-
-          <div className="hidden md:flex items-center gap-1.5">
-            {HOME_NAV_ITEMS.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => navigateWithHome(item.path)}
-                className={`ct-nav-pill ${currentPath === item.path ? 'is-active' : ''}`}
-              >
-                {item.label ?? t(lang, item.key)}
-              </button>
-            ))}
-            {isAdmin && (
-              <>
-                <button onClick={() => navigateWithHome('/admin')} className="ct-nav-pill ct-nav-pill--accent">Admin</button>
-                <button onClick={() => navigateWithHome('/cloudops')} className="ct-nav-pill ct-nav-pill--accent-blue">CloudOps</button>
-              </>
-            )}
-            <span className="ml-1.5 flex items-center gap-1.5">
-              <NavbarControls />
-            </span>
-            <button onClick={() => navigateWithHome('/cloudops')} className="btn-primary ml-1 text-xs py-1.5 px-4 group">
-              <span>{lang === 'zh' ? '打开运维助手' : 'Open Assistant'}</span>
-              <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-1 md:hidden">
-            <button onClick={() => setMobileNav(!mobileNav)} className="ct-control ct-control--icon" aria-label="Open menu">
-              {mobileNav ? <X size={18} /> : <Menu size={18} />}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <AnimatePresence initial={false}>
-        {mobileNav && (
-          <motion.div
-            key="mobile-menu"
-            className="md:hidden fixed inset-0 z-50 px-3 pt-[4.9rem]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+    <div ref={ref} className={`inline-flex flex-wrap ${className}`}>
+      {words.map((word, index) => {
+        const isLast = index === words.length - 1;
+        return (
+          <motion.span
+            key={`${word}-${index}`}
+            className="relative inline-block overflow-visible pr-[0.08em]"
+            initial={{ y: 20, opacity: 0 }}
+            animate={isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+            transition={{ duration: 0.7, delay: index * 0.08, ease }}
           >
-            <motion.button
-              aria-label="Close menu"
-              className="absolute inset-0 -z-10 bg-black/38 backdrop-blur-[8px]"
-              onClick={() => setMobileNav(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            <div
-              className="relative mx-auto max-w-2xl ct-surface-panel p-3 space-y-3 overflow-hidden"
-              style={isMobile ? { boxShadow: '0 24px 60px rgba(0,0,0,0.24)', backdropFilter: 'blur(16px) saturate(140%)', WebkitBackdropFilter: 'blur(16px) saturate(140%)' } : undefined}
-            >
-              <div className="flex items-center justify-between gap-2 pb-1.5 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{lang === 'zh' ? '导航' : 'Navigation'}</span>
-                <div className="flex items-center gap-1.5 overflow-x-auto pr-1">
-                  <NavbarControls />
-                </div>
+            <span className="relative inline-block">
+              {word}
+              {showAsterisk && isLast && (
+                <span className="absolute top-[0.65em] -right-[0.3em] text-[0.31em] leading-none">*</span>
+              )}
+            </span>
+            {index < words.length - 1 && <span>&nbsp;</span>}
+          </motion.span>
+        );
+      })}
+    </div>
+  );
+}
+
+function WordsPullUpMultiStyle({ segments, className = '' }: { segments: Segment[]; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const words: Word[] = segments.flatMap((segment) =>
+    segment.text.trim().split(/\s+/).map((word) => ({ text: word, className: segment.className }))
+  );
+
+  return (
+    <div ref={ref} className={`inline-flex flex-wrap justify-center ${className}`}>
+      {words.map((word, index) => (
+        <motion.span
+          key={`${word.text}-${index}`}
+          className={`inline-block pr-[0.22em] ${word.className ?? ''}`}
+          initial={{ y: 20, opacity: 0 }}
+          animate={isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
+          transition={{ duration: 0.72, delay: index * 0.08, ease }}
+        >
+          {word.text}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
+function AnimatedLetter({ char, index, total, progress }: { char: string; index: number; total: number; progress: MotionValue<number> }) {
+  const charProgress = total <= 1 ? 0 : index / total;
+  const opacity = useTransform(progress, [charProgress - 0.1, charProgress + 0.05], [0.2, 1]);
+
+  return (
+    <motion.span style={{ opacity }} aria-hidden="true">
+      {char === ' ' ? '\u00A0' : char}
+    </motion.span>
+  );
+}
+
+function ScrollRevealText({ text }: { text: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.8', 'end 0.2'] });
+  const chars = Array.from(text);
+
+  return (
+    <p ref={ref} className="mx-auto mt-8 max-w-3xl text-xs leading-7 text-[#DEDBC8] sm:mt-10 sm:text-sm md:text-base md:leading-8">
+      <span className="sr-only">{text}</span>
+      {chars.map((char, index) => (
+        <AnimatedLetter key={`${char}-${index}`} char={char} index={index} total={chars.length} progress={scrollYProgress} />
+      ))}
+    </p>
+  );
+}
+
+type FeatureCardProps = {
+  index: number;
+  title?: string;
+  number?: string;
+  icon?: string;
+  items?: string[];
+  video?: string;
+  videoTitle?: string;
+  subtitle?: string;
+  path: string;
+};
+
+function FeatureCard({ index, title, number, icon, items = [], video, videoTitle, subtitle, path, onOpen }: FeatureCardProps & { onOpen: (path: string) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      className="relative min-h-[300px] overflow-hidden rounded-2xl bg-[#212121] sm:min-h-[340px] lg:h-[480px]"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.72, delay: index * 0.15, ease: cardEase }}
+    >
+      {video ? (
+        <>
+          <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover">
+            <source src={video} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
+            <h3 className="text-xl font-normal leading-none sm:text-2xl" style={{ color: PRIMARY_TEXT }}>
+              {videoTitle}
+            </h3>
+            {subtitle && <p className="mt-3 max-w-xs text-sm leading-5 text-primary/70">{subtitle}</p>}
+            <button onClick={() => onOpen(path)} className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/40 px-4 py-2 text-sm font-medium text-primary transition hover:gap-3 hover:border-primary">
+              Enter
+              <ArrowRight size={15} className="-rotate-45" />
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="flex h-full flex-col p-5 sm:p-6">
+          <img src={icon} alt="" className="h-10 w-10 rounded-xl object-cover sm:h-12 sm:w-12" />
+          <div className="mt-7 flex items-start justify-between gap-4">
+            <h3 className="max-w-[12rem] text-2xl font-normal leading-[0.95] text-primary sm:text-3xl">
+              {title}
+            </h3>
+            <span className="text-xs text-gray-500">{number}</span>
+          </div>
+
+          <div className="mt-8 space-y-3">
+            {items.map((item) => (
+              <div key={item} className="flex gap-2 text-sm leading-5 text-gray-400">
+                <Check size={15} className="mt-0.5 shrink-0 text-primary" />
+                <span>{item}</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {HOME_NAV_ITEMS.map((item) => (
-                  <button
-                    key={item.path}
-                    onClick={() => { openPath(item.path); }}
-                    className={`text-left px-3 py-2.5 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ${currentPath === item.path ? 'is-active' : ''}`}
-                  >
-                    {item.label ?? t(lang, item.key)}
-                  </button>
-                ))}
-                {isAdmin && (
-                  <>
-                    <button onClick={() => { openPath('/admin'); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent">Admin</button>
-                    <button onClick={() => { openPath('/cloudops'); }} className="text-left px-3 py-3 rounded-2xl text-sm ct-nav-pill ct-nav-pill--mobile ct-nav-pill--accent-blue">CloudOps</button>
-                  </>
-                )}
+            ))}
+          </div>
+
+          <button onClick={() => onOpen(path)} className="mt-auto inline-flex items-center gap-2 self-start pt-8 text-sm font-medium text-primary transition hover:gap-3">
+            Learn more
+            <ArrowRight size={16} className="-rotate-45" />
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+const featureCards: FeatureCardProps[] = [
+  {
+    index: 0,
+    video: FEATURE_VIDEO,
+    videoTitle: 'CloudOps command center.',
+    subtitle: '进入你的服务器运营主页，统一查看运维入口、系统状态和常用操作。',
+    path: '/cloudops',
+  },
+  {
+    index: 1,
+    title: 'Server Management.',
+    number: '01',
+    icon: 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260405_171918_4a5edc79-d78f-4637-ac8b-53c43c220606.png&w=1280&q=85',
+    items: ['集中管理服务器连接与认证信息。', '查看 CPU、内存、磁盘与运行时间。', '执行常用 Linux 命令并保留记录。', '把危险命令交给安全策略拦截。'],
+    path: '/cloudops',
+  },
+  {
+    index: 2,
+    title: 'AI Ops Assistant.',
+    number: '02',
+    icon: 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260405_171741_ed9845ab-f5b2-4018-8ce7-07cc01823522.png&w=1280&q=85',
+    items: ['用 AI 解释报错、日志和命令输出。', '支持附件上传与图片/文件分析。', '保留多轮会话，适合作为排障助手。'],
+    path: '/chat',
+  },
+  {
+    index: 3,
+    title: 'Portal & Admin.',
+    number: '03',
+    icon: 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260405_171809_f56666dc-c099-4778-ad82-9ad4f209567b.png&w=1280&q=85',
+    items: ['从 Portal 进入个人主页、项目和 JS 学习。', '后台管理用户、文件、权限和 AI 人设。', '把个人展示与运营工具放在同一站点。'],
+    path: '/portal',
+  },
+];
+
+export default function HomePage() {
+  const navigate = useNavigate();
+  const aboutText = 'ym1r CloudOps 把个人主页、项目展示、JS 学习、AI 对话、文件上传、服务器管理和后台审计收束到一个入口。首页负责给出清晰方向，CloudOps 负责承载真正高频的运营动作，Portal 则保留个人介绍与作品展示。';
+
+  const goToPath = async (path: string) => {
+    try {
+      await api.setFromHome();
+    } catch {}
+    navigate(path);
+  };
+
+  const enterOpsHome = async (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    await goToPath('/cloudops');
+  };
+
+  const openNavPath = async (event: MouseEvent<HTMLButtonElement>, path: string) => {
+    event.preventDefault();
+    await goToPath(path);
+  };
+
+  return (
+    <main className="prisma-page min-h-[100dvh] bg-black text-primary">
+      <section className="relative min-h-[100svh] p-3 sm:p-4 md:p-6">
+        <div className="relative min-h-[calc(100svh-1.5rem)] overflow-hidden rounded-2xl sm:min-h-[calc(100svh-2rem)] md:min-h-[calc(100svh-3rem)] md:rounded-[2rem]">
+          <video autoPlay loop muted playsInline className="absolute inset-0 h-full w-full object-cover">
+            <source src={HERO_VIDEO} type="video/mp4" />
+          </video>
+          <div className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.7] mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+
+          <nav className="prisma-hero-nav absolute left-1/2 top-0 z-20 max-w-[calc(100%-1rem)] -translate-x-1/2 overflow-x-auto rounded-b-2xl bg-black px-3 py-2 md:rounded-b-3xl md:px-8">
+            <div className="flex items-center gap-3 whitespace-nowrap text-[10px] sm:gap-6 sm:text-xs md:gap-12 md:text-sm lg:gap-14">
+              {navItems.map((item) => (
+                <button
+                  key={item.path}
+                  type="button"
+                  onClick={(event) => openNavPath(event, item.path)}
+                  className="transition-colors"
+                  style={{ color: 'rgba(225, 224, 204, 0.8)' }}
+                  onMouseEnter={(event) => { event.currentTarget.style.color = PRIMARY_TEXT; }}
+                  onMouseLeave={(event) => { event.currentTarget.style.color = 'rgba(225, 224, 204, 0.8)'; }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          <div className="prisma-hero-content absolute bottom-0 left-0 right-0 z-10 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:p-7 md:p-8 lg:p-10">
+            <div className="grid items-end gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-8">
+              <div className="lg:col-span-8">
+                <h1 className="prisma-hero-title" style={{ color: PRIMARY_TEXT }}>
+                  <WordsPullUp
+                    text="Ym1r's cloudOps"
+                    className="prisma-hero-title-text max-w-[11ch] text-[18vw] font-medium leading-[0.85] tracking-[-0.07em] sm:text-[16vw] md:text-[14vw] lg:text-[11vw] xl:text-[10vw] 2xl:text-[9.5vw]"
+                  />
+                </h1>
+              </div>
+
+              <div className="prisma-hero-panel space-y-4 pb-1 sm:space-y-5 sm:pb-2 lg:col-span-4 lg:pb-8">
+                <motion.p
+                  className="prisma-hero-copy max-w-md text-xs leading-[1.25] text-primary/70 sm:text-sm md:text-base"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.75, delay: 0.5, ease }}
+                >
+                  一个面向个人运营的云端控制入口：连接服务器管理、AI 运维助手、文件与用户后台、个人作品展示和 JS 学习记录。
+                </motion.p>
+
+                <motion.a
+                  href="/cloudops"
+                  onClick={enterOpsHome}
+                  className="prisma-hero-action group inline-flex items-center gap-2 rounded-full bg-primary py-1.5 pl-5 pr-1.5 text-sm font-medium text-black transition-all duration-300 hover:gap-3 sm:text-base"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.75, delay: 0.7, ease }}
+                >
+                  Enter
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black transition-transform duration-300 group-hover:scale-110 sm:h-10 sm:w-10">
+                    <ArrowRight size={18} className="text-primary" />
+                  </span>
+                </motion.a>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </section>
 
-      <HeroSection />
+      <section id="about" className="bg-black px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+        <div className="mx-auto max-w-6xl rounded-[1.75rem] bg-[#101010] px-5 py-16 text-center sm:px-8 sm:py-24 md:rounded-[2.25rem] lg:px-12">
+          <div className="text-[10px] text-primary sm:text-xs">Cloud operations</div>
+          <h2 className="mx-auto mt-7 max-w-3xl text-3xl leading-[0.95] sm:text-4xl sm:leading-[0.9] md:text-5xl lg:text-6xl xl:text-7xl" style={{ color: PRIMARY_TEXT }}>
+            <WordsPullUpMultiStyle
+              segments={[
+                { text: "This is Ym1r's", className: 'font-normal' },
+                { text: 'personal cloud console.', className: 'font-serif italic' },
+                { text: 'Built for AI assistance, server operations, study notes, and portfolio entry.', className: 'font-normal' },
+              ]}
+            />
+          </h2>
+          <ScrollRevealText text={aboutText} />
+        </div>
+      </section>
 
-      <ScrollSection className="py-16 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-5xl mx-auto">
-          <SectionHeading>{t(lang, 's2Title')}</SectionHeading>
-          <SectionSub>{t(lang, 's2Sub')}</SectionSub>
-          <div className="grid sm:grid-cols-3 gap-4 sm:gap-8 mt-8 sm:mt-12">
-            {[
-              { icon: Server, titleKey: 's2Card1Title', descKey: 's2Card1Desc', path: '/cloudops' },
-              { icon: Shield, titleKey: 's2Card2Title', descKey: 's2Card2Desc', path: '/admin' },
-              { icon: Cpu, titleKey: 's2Card3Title', descKey: 's2Card3Desc', path: '/cloudops' },
-            ].map((card, i) => (
-              <GlassCard key={i} onClick={() => navigateWithHome(card.path)}>
-                <div className="p-5 sm:p-6">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: 'rgba(138,180,255,0.1)' }}>
-                    <card.icon size={20} style={{ color: 'var(--accent-blue)' }} />
-                  </div>
-                  <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)', lineHeight: 1.6 }}>{t(lang, card.titleKey)}</h3>
-                  <p className="text-xs mb-5" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>{t(lang, card.descKey)}</p>
-                  <span className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--accent-blue)' }}>
-                    {t(lang, 's2Explore')} <ArrowRight size={11} />
-                  </span>
-                </div>
-              </GlassCard>
+      <section className="relative min-h-screen overflow-hidden bg-black px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
+        <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.15]" />
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="text-xl font-normal leading-tight sm:text-2xl md:text-3xl lg:text-4xl">
+              <WordsPullUpMultiStyle
+                segments={[
+                  { text: 'One cinematic front door for every core function.', className: 'text-primary' },
+                  { text: 'CloudOps first. Personal content one click away.', className: 'text-gray-500' },
+                ]}
+              />
+            </h2>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-3 sm:mt-16 sm:gap-2 md:grid-cols-2 md:gap-1 lg:h-[480px] lg:grid-cols-4">
+            {featureCards.map((card) => (
+              <FeatureCard key={card.index} {...card} onOpen={goToPath} />
             ))}
           </div>
         </div>
-      </ScrollSection>
-
-      <ScrollSection className="py-16 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-8 sm:gap-16 items-center">
-          <div className="space-y-4">
-            <SectionHeading>{t(lang, 's3Title')}</SectionHeading>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-              {t(lang, 's3P1')}
-            </p>
-            <p className="text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              {t(lang, 's3P2')}
-            </p>
-          </div>
-          <div className="glass-card p-6 sm:p-8 space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              <Server size={16} style={{ color: 'var(--accent-blue)' }} />
-              {lang === 'zh' ? '运维优先' : 'Ops First'}
-            </div>
-            <div className="space-y-3 text-xs sm:text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              <p>{lang === 'zh' ? '把服务器管理、日志分析、权限审计和 AI 排障放到同一个入口。' : 'Server management, log analysis, permission auditing, and AI troubleshooting live in one entry point.'}</p>
-              <p>{lang === 'zh' ? 'AI 只作为运维助手，帮你解释错误并给出修复建议。' : 'AI works only as an ops assistant, helping explain errors and suggest fixes.'}</p>
-              <p>{lang === 'zh' ? '个人主页和项目页移到次级入口，作为补充页面。' : 'Profile and project pages move to the secondary entry as a companion page.'}</p>
-            </div>
-          </div>
-        </div>
-      </ScrollSection>
-
-      <ScrollSection className="py-16 sm:py-32 px-4 sm:px-8 lg:px-16">
-        <div className="max-w-5xl mx-auto">
-          <SectionHeading>{t(lang, 's4Title')}</SectionHeading>
-          <SectionSub>{t(lang, 's4Sub')}</SectionSub>
-          <GlassCard onClick={() => navigateWithHome('/')} className="mt-8 sm:mt-10 overflow-hidden">
-            <div className="p-5 sm:p-7 lg:p-8 grid gap-5 lg:grid-cols-[1fr_auto] items-center">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.28em]" style={{ color: 'var(--text-muted)' }}>
-                  {lang === 'zh' ? '返回运维主页' : 'Back to Ops Home'}
-                </div>
-                <h3 className="mt-3 text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text-primary)', lineHeight: 1.25 }}>
-                  {lang === 'zh' ? '直接回到运维主页。' : 'Return to the ops home.'}
-                </h3>
-                <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                  {lang === 'zh'
-                    ? '个人主页、项目和 GitHub 已移动到次级入口页面。'
-                    : 'Profile, projects, and GitHub now live on the secondary entry page.'}
-                </p>
-              </div>
-              <div className="flex items-center justify-start lg:justify-end">
-                <span className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium" style={{ color: 'var(--text-primary)', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  {t(lang, 'navHome')}
-                  <ArrowRight size={13} />
-                </span>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      </ScrollSection>
-
-      <footer className="relative z-10 py-10 sm:py-16 px-4 sm:px-8 lg:px-16 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerTagline')}</p>
-          <div className="flex items-center gap-4 text-xs">
-            <button onClick={() => navigateWithHome('/portal')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'navPortal')}</button>
-            <button onClick={() => navigateWithHome('/cloudops')} className="transition-colors cursor-pointer" style={{ color: 'var(--text-muted)' }}>{t(lang, 'footerChat')}</button>
-            <a href="https://github.com/admin0330" target="_blank" rel="noopener noreferrer" className="transition-colors no-underline flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
-              <Github size={12} /> GitHub
-            </a>
-            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="transition-colors no-underline" style={{ color: 'var(--text-muted)' }}>
-              湘ICP备2026017602号
-            </a>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </section>
+    </main>
   );
 }

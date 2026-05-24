@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        primary: '#DEDBC8',
         apple: {
           bg: 'var(--bg)',
           card: 'var(--card)',
@@ -16,6 +17,9 @@ export default {
       },
       backdropBlur: {
         apple: '40px',
+      },
+      fontFamily: {
+        serif: ['"Instrument Serif"', 'serif'],
       },
     },
   },
