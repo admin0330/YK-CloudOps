@@ -1,85 +1,43 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import ChatSidebar from '../components/ChatSidebar';
-import ChatArea from '../components/ChatArea';
-import Navbar from '../components/Navbar';
+import { MessageSquare, Send, Bot, User, Sparkles, Sliders, Menu, X, Loader2, AlertCircle } from 'lucide-react';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
-import { useIsMobile } from '../lib/useIsMobile';
+
+// 动画变体：用于对话气泡交错入场
+const messageContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 }
+  }
+};
+
+const bubbleVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.98, filter: 'blur(2px)' },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1, 
+    filter: 'blur(0px)',
+    transition: { type: 'spring', stiffness: 160, damping: 22 }
+  }
+};
 
 export default function ChatPage() {
-  const navigate = useNavigate();
-  const { t } = useLanguage();
-  const isMobile = useIsMobile();
-  const [user, setUser] = useState(null);
+  const { t, lang } = useLanguage();
+  const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [conversations, setConversations] = useState([]);
-  const [activeConv, setActiveConv] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [activeConv, setActiveConv] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [model, setModel] = useState(() => localStorage.getItem('chat-model') || 'pro');
 
-  useEffect(() => {
-    api.getMe().then((d) => setUser(d.user)).catch(() => navigate('/login')).finally(() => setAuthChecked(true));
-  }, [navigate]);
-
-  useEffect(() => {
-    if (user) api.getConversations().then((d) => setConversations(d.conversations)).catch(() => {});
-  }, [user]);
-
-  const handleModelChange = useCallback((m) => { setModel(m); localStorage.setItem('chat-model', m); }, []);
-
-  const handleNew = useCallback(() => { setActiveConv(null); setMessages([]); setError(''); setSidebarOpen(false); }, []);
-  const handleSelect = useCallback(async (conv) => {
-    setActiveConv(conv); setError(''); setSidebarOpen(false);
-    try { const data = await api.getConversation(conv.id); setMessages(data.messages || []); } catch { setMessages([]); }
-  }, []);
-
-  const handleDelete = useCallback(async (id) => {
-    try {
-      await api.deleteConversation(id);
-      setConversations((prev) => prev.filter((c) => c.id !== id));
-      if (activeConv?.id === id) { setActiveConv(null); setMessages([]); }
-    } catch { /* ignore */ }
-  }, [activeConv]);
-
-  const handleSend = useCallback(async (message, attachmentIds = []) => {
-    setError('');
-    setLoading(true);
-
-    let displayContent = message || '';
-
-    const tempId = Date.now();
-    const userMsg = {
-      id: tempId,
-      conversationId: activeConv?.id,
-      role: 'user',
-      content: displayContent,
-      attachments: [],
-      createdAt: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-
-    try {
-      const data = await api.chat(activeConv?.id || null, message, model, attachmentIds);
-
-      // Reload from server to get messages with proper attachments
-      const convData = await api.getConversation(data.conversationId);
-      setMessages(convData.messages || []);
-
-      const list = await api.getConversations();
-      setConversations(list.conversations || []);
-      if (!activeConv) setActiveConv(list.conversations?.[0] || null);
-    } catch (err) {
-      setError(err.message || 'Chat failed');
-    } finally {
-      setLoading(false);
-    }
-  }, [activeConv, model]);
-
+  // AI 人设高级配置抽屉相关状态
   const [personaOpen, setPersonaOpen] = useState(false);
   const [personaEnabled, setPersonaEnabled] = useState(false);
   const [personaContent, setPersonaContent] = useState('');
@@ -88,177 +46,317 @@ export default function ChatPage() {
   const [personaMsg, setPersonaMsg] = useState('');
   const [personaMsgType, setPersonaMsgType] = useState<'ok' | 'err'>('ok');
 
-  const loadPersona = useCallback(() => {
-    api.getMyPersona().then((d) => {
-      setPersonaEnabled(d.enabled);
-      setPersonaContent(d.content || '');
-    }).catch(() => {}).finally(() => setPersonaLoaded(true));
+  const isZh = lang === 'zh';
+
+  useEffect(() => {
+    Promise.all([
+      api.getMe().then(d => setUser(d.user)).catch(() => {}),
+      api.getConversations().then(d => {
+        setConversations(d.conversations || []);
+        if (d.conversations?.length > 0) setActiveConv(d.conversations[0]);
+      }).catch(() => {})
+    ]).finally(() => setAuthChecked(true));
   }, []);
 
-  const showPersonaMsg = (text: string, type: 'ok' | 'err') => {
-    setPersonaMsg(text); setPersonaMsgType(type);
-    setTimeout(() => setPersonaMsg(''), 2400);
+  useEffect(() => {
+    if (activeConv) {
+      setLoading(true);
+      api.getMessages(activeConv.id)
+        .then(d => setMessages(d.messages || []))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }
+  }, [activeConv]);
+
+  // 加载人设配置
+  useEffect(() => {
+    if (personaOpen && !personaLoaded) {
+      api.getPersonaSettings()
+        .then(d => {
+          setPersonaEnabled(d.enabled);
+          setPersonaContent(d.content || '');
+          setPersonaLoaded(true);
+        })
+        .catch(() => {});
+    }
+  }, [personaOpen, personaLoaded]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || !activeConv || loading) return;
+    
+    const userMsg = { id: `temp-${Date.now()}`, role: 'user', content: input };
+    setMessages(prev => [...prev, userMsg]);
+    const currentInput = input;
+    setInput('');
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await api.sendMessage(activeConv.id, currentInput, model);
+      setMessages(prev => [...prev, res.reply]);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePersonaOpen = useCallback(() => {
-    setPersonaOpen(true);
-    setPersonaLoaded(false);
-    api.getMyPersona().then((d) => {
-      setPersonaEnabled(d.enabled);
-      setPersonaContent(d.content || '');
-    }).catch(() => {}).finally(() => setPersonaLoaded(true));
-  }, []);
-
-  const handlePersonaSave = useCallback(async () => {
+  const savePersona = async () => {
     setPersonaSaving(true);
+    setPersonaMsg('');
     try {
-      const data = await api.updateMyPersona(personaEnabled, personaContent);
-      setPersonaEnabled(data.enabled);
-      setPersonaContent(data.content);
-      showPersonaMsg('personaSaved', 'ok');
-    } catch {
-      showPersonaMsg('personaSaveFailed', 'err');
+      await api.savePersonaSettings({ enabled: personaEnabled, content: personaContent });
+      setPersonaMsgType('ok');
+      setPersonaMsg(isZh ? '人设保存成功' : 'Persona saved successfully');
+    } catch (err: any) {
+      setPersonaMsgType('err');
+      setPersonaMsg(err.message || 'Save failed');
     } finally {
       setPersonaSaving(false);
     }
-  }, [personaEnabled, personaContent]);
-
-  const handleLogout = useCallback(async () => { await api.logout().catch(() => {}); navigate('/login'); }, [navigate]);
+  };
 
   if (!authChecked) {
-    return <div className="h-full flex items-center justify-center bg-apple-bg"><div className="text-apple-muted text-sm animate-pulse">Loading...</div></div>;
+    return (
+      <div className="h-screen bg-[#0B0B0B] flex items-center justify-center">
+        <div className="text-apple-muted text-sm font-serif italic animate-pulse">Loading Ops Assistant...</div>
+      </div>
+    );
   }
-  if (!user) return null;
 
   return (
-    <div className="min-h-screen pt-[5.85rem] overflow-hidden" style={{ background: 'var(--bg)' }}>
-      <Navbar />
+    <div className="h-screen flex bg-[#0B0B0B] text-[#E1E0CC] relative overflow-hidden font-sans">
+      <div className="absolute inset-0 bg-noise opacity-[0.012] pointer-events-none z-50" />
 
-      <div className="flex h-[calc(100dvh-5.85rem)] min-h-0 overflow-hidden">
-        <div className={`fixed left-3 top-[5.85rem] bottom-3 z-50 w-[78vw] sm:w-72 lg:relative lg:left-auto lg:top-auto lg:bottom-auto lg:w-64 transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-          style={{ transitionDuration: isMobile ? '220ms' : '320ms', transitionTimingFunction: 'cubic-bezier(0.25, 0.1, 0.25, 1)' }}>
-          <div className="h-full min-h-0 lg:rounded-[1.75rem] lg:overflow-hidden lg:glass lg:border lg:border-[var(--border)]">
-            <ChatSidebar conversations={conversations} activeId={activeConv?.id} onSelect={handleSelect} onNew={handleNew} onDelete={handleDelete} user={user} onLogout={handleLogout} onToggle={() => setSidebarOpen(false)} onPersona={handlePersonaOpen} />
+      {/* 1. 移动端侧边栏遮罩层 */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* 2. 左侧会话侧邊栏：弹性滑动入场动画 */}
+      <motion.aside 
+        className={`fixed md:static inset-y-0 left-0 w-64 bg-[#101010] border-r border-white/5 z-40 flex flex-col justify-between transition-transform md:transform-none ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 140, damping: 22 }}
+      >
+        <div>
+          <div className="p-4 border-b border-white/5 flex items-center justify-between">
+            <div className="text-xs tracking-widest font-mono uppercase text-[#DEDBC8]/70 flex items-center gap-2">
+              <Sparkles size={13} /> Ops Terminal
+            </div>
+            <button className="md:hidden text-white/40 hover:text-white" onClick={() => setSidebarOpen(false)}>
+              <X size={16} />
+            </button>
+          </div>
+
+          <div className="p-3 space-y-1 overflow-y-auto">
+            {conversations.map(c => (
+              <button
+                key={c.id}
+                onClick={() => { setActiveConv(c); setSidebarOpen(false); }}
+                className={`w-full text-left p-3 rounded-xl transition-all border font-light text-sm flex items-center gap-2.5 ${
+                  activeConv?.id === c.id 
+                    ? 'bg-[#212121] border-[#DEDBC8]/20 text-white' 
+                    : 'bg-transparent border-transparent text-[#E1E0CC]/60 hover:bg-white/5'
+                }`}
+              >
+                <MessageSquare size={14} className={activeConv?.id === c.id ? 'text-[#DEDBC8]' : 'opacity-40'} />
+                <span className="truncate">{c.title || 'Untitled Session'}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {sidebarOpen && <div className="fixed inset-0 z-40 bg-[var(--overlay-bg)] lg:hidden" onClick={() => setSidebarOpen(false)} />}
-
-        <div className="flex-1 min-w-0 flex flex-col">
-          <ChatArea conversation={activeConv} messages={messages} onSend={handleSend} loading={loading} error={error} model={model} onModelChange={handleModelChange} onOpenSidebar={() => setSidebarOpen((v) => !v)} />
+        <div className="p-4 border-t border-white/5 text-[10px] font-mono text-[#E1E0CC]/40">
+          Model: <span className="text-[#DEDBC8] uppercase">{model}</span>
         </div>
-      </div>
+      </motion.aside>
 
-      <AnimatePresence>
-        {personaOpen && (
-          <>
-            <motion.div
-              className="fixed inset-0 z-50 bg-[var(--overlay-bg)]"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: isMobile ? 0.22 : 0.42, ease: [0.25, 0.1, 0.25, 1] }}
-              onClick={() => setPersonaOpen(false)}
-            />
-            <motion.div
-              className="fixed inset-x-4 top-[10%] z-50 max-w-md mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl"
-              initial={{ opacity: 0, y: 16, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.97 }}
-              transition={{ duration: isMobile ? 0.24 : 0.44, ease: [0.25, 0.1, 0.25, 1] }}
+      {/* 3. 右侧核心对话主区域 */}
+      <main className="flex-1 flex flex-col justify-between relative z-10 bg-gradient-to-b from-transparent to-black/20">
+        
+        <header className="p-4 border-b border-white/5 flex items-center justify-between bg-[#0B0B0B]/80 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <button className="md:hidden p-1.5 rounded-lg bg-[#101010] border border-white/5 text-[#DEDBC8]" onClick={() => setSidebarOpen(true)}>
+              <Menu size={16} />
+            </button>
+            <div>
+              <h2 className="text-sm font-medium text-white truncate max-w-[200px] sm:max-w-sm">
+                {activeConv?.title || 'Ops Agent'}
+              </h2>
+              <p className="text-[10px] font-mono text-[#E1E0CC]/40 uppercase tracking-wider mt-0.5">
+                AI Diagnostic Stream
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <select 
+              value={model} 
+              onChange={(e) => { setModel(e.target.value); localStorage.setItem('chat-model', e.target.value); }}
+              className="bg-[#101010] border border-white/5 rounded-lg px-2 py-1 text-xs text-[#DEDBC8] focus:outline-none focus:border-[#DEDBC8]/40"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-base font-semibold">{t('personalPersona')}</h2>
-                  <p className="text-apple-muted text-xs mt-0.5">{t('personalPersonaDesc')}</p>
-                </div>
-                <motion.button
-                  onClick={() => setPersonaOpen(false)}
-                  className="p-1.5 rounded-lg hover:bg-[var(--active-bg)] text-apple-muted"
-                  whileTap={{ scale: 0.85 }}
-                  style={{ transitionDuration: '240ms' }}
-                >
-                  <X size={16} />
-                </motion.button>
-              </div>
+              <option value="pro">DeepSeek Pro</option>
+              <option value="flash">DeepSeek Flash</option>
+            </select>
+            
+            <button 
+              onClick={() => setPersonaOpen(!personaOpen)}
+              className={`p-2 rounded-lg border transition-all flex items-center gap-1.5 text-xs ${
+                personaOpen ? 'bg-[#DEDBC8] text-black border-white' : 'bg-[#101010] text-[#DEDBC8] border-white/5 hover:bg-white/5'
+              }`}
+            >
+              <Sliders size={13} />
+              <span className="hidden sm:inline">{isZh ? '人设定制' : 'Persona'}</span>
+            </button>
+          </div>
+        </header>
 
-              {!personaLoaded ? (
-                <div className="text-apple-muted text-sm py-4 text-center">{t('loading')}</div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm">{t('enablePersonalPersona')}</span>
-                    <motion.button
+        {/* 核心内容区：采用两列弹性网格，使得人设面板开启时，聊天流可以丝滑平移让位（Layout Motion） */}
+        <div className="flex-1 flex overflow-hidden relative">
+          
+          {/* 聊天消息流气泡区域 */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <motion.div 
+              className="space-y-4 max-w-4xl mx-auto"
+              variants={messageContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {messages.map(m => {
+                const isBot = m.role === 'assistant' || m.role === 'system';
+                return (
+                  <motion.div
+                    key={m.id}
+                    variants={bubbleVariants}
+                    layout="position"
+                    className={`flex items-start gap-3 max-w-[85%] ${isBot ? 'mr-auto' : 'ml-auto flex-row-reverse'}`}
+                  >
+                    <div className={`p-2 rounded-xl border border-white/5 shrink-0 ${isBot ? 'bg-[#101010] text-[#DEDBC8]' : 'bg-[#212121] text-white'}`}>
+                      {isBot ? <Bot size={14} /> : <User size={14} />}
+                    </div>
+                    <div className={`p-4 rounded-2xl text-sm leading-relaxed font-light ${
+                      isBot ? 'bg-[#101010]/60 border border-white/5 text-white/90' : 'bg-[#DEDBC8]/10 border border-[#DEDBC8]/20 text-white'
+                    }`}>
+                      {m.content}
+                    </div>
+                  </motion.div>
+                );
+              })}
+
+              {loading && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 text-xs text-[#DEDBC8]/50 font-mono italic max-w-fit bg-[#101010] border border-white/5 px-3 py-2 rounded-xl">
+                  <Loader2 size={12} className="animate-spin text-[#DEDBC8]" />
+                  Agent generating analytical response...
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
+
+          {/* 右侧高级人设抽屉：高度与宽度自动撑开，带有阻尼弹性布局避让动效 */}
+          <AnimatePresence>
+            {personaOpen && (
+              <motion.div
+                initial={{ opacity: 0, width: 0, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, width: 320, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, width: 0, filter: 'blur(4px)' }}
+                transition={{ type: 'spring', stiffness: 150, damping: 22 }}
+                className="overflow-hidden border-l border-white/5 bg-[#101010] flex flex-col justify-between shrink-0"
+              >
+                <div className="p-5 space-y-4">
+                  <div className="text-xs font-mono tracking-widest text-[#DEDBC8]/50 uppercase border-b border-white/5 pb-2">Custom AI Persona</div>
+                  
+                  {/* 开关组件：丝滑平移 */}
+                  <div className="flex items-center justify-between bg-black/20 p-3 rounded-xl border border-white/5">
+                    <span className="text-xs font-light">启用系统级自定义人设</span>
+                    <button 
                       onClick={() => setPersonaEnabled(!personaEnabled)}
-                      className={`w-10 h-5 rounded-full flex items-center px-0.5 ${personaEnabled ? 'bg-apple-blue2' : 'bg-[var(--active-bg)]'}`}
-                      whileTap={{ scale: 0.95 }}
-                      style={{ transition: 'background-color 300ms linear' }}
+                      className={`w-9 h-5 rounded-full p-0.5 transition-colors relative duration-300 ${personaEnabled ? 'bg-[#DEDBC8]' : 'bg-[#212121]'}`}
                     >
-                      <motion.div
-                        className="w-4 h-4 rounded-full bg-white/90 shadow-sm"
-                        initial={false}
-                        animate={{ x: personaEnabled ? 18 : 1 }}
-                        transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+                      <motion.div 
+                        layout
+                        className={`w-4 h-4 rounded-full bg-black ${personaEnabled ? 'ml-4' : 'ml-0'}`} 
+                        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
                       />
-                    </motion.button>
+                    </button>
                   </div>
 
-                  <motion.div
-                    initial={false}
-                    animate={{ opacity: personaEnabled ? 1 : 0.4, height: personaEnabled ? 'auto' : 0 }}
-                    transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
-                    style={{ overflow: 'hidden' }}
+                  {/* 文本输入框动效高度联动 */}
+                  <motion.div 
+                    animate={{ opacity: personaEnabled ? 1 : 0.4, height: personaEnabled ? 'auto' : 60 }}
+                    className="space-y-1.5 overflow-hidden"
                   >
+                    <label className="text-[11px] font-mono text-[#E1E0CC]/50">人设 Prompt 核心注入语</label>
                     <textarea
                       value={personaContent}
                       onChange={(e) => setPersonaContent(e.target.value)}
-                      placeholder={t('personalPersonaPlaceholder')}
-                      rows={4}
-                      maxLength={4000}
                       disabled={!personaEnabled}
-                      className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-3 py-2.5 text-sm text-apple-text placeholder:text-apple-muted/50 resize-none focus:outline-none focus:border-[var(--accent)] disabled:opacity-30 mb-1"
-                      style={{ transition: 'border-color 320ms linear' }}
+                      placeholder="例如：你是一个经验极其丰富的 Linux 运维专家，说话简短冷冽，优先给出原理解析..."
+                      className="w-full h-48 bg-black/30 border border-white/5 rounded-xl p-3 text-xs text-white placeholder-white/10 focus:outline-none focus:border-[#DEDBC8]/40 resize-none font-light leading-relaxed"
                     />
-                    <div className="text-right text-apple-muted text-xs mb-3">{personaContent.length} / 4000 {t('personaCharCount')}</div>
                   </motion.div>
+                </div>
 
-                  <p className="text-apple-muted text-xs mb-3">{t('personalPersonaHint')}</p>
-
+                <div className="p-4 border-t border-white/5 space-y-3">
                   <AnimatePresence>
                     {personaMsg && (
-                      <motion.div
-                        className={`text-sm py-2 px-3 rounded-xl border text-center mb-3 ${personaMsgType === 'ok' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}
-                        initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className={`text-[11px] p-2 rounded-lg flex items-center gap-1.5 ${
+                          personaMsgType === 'ok' ? 'bg-emerald-950/20 text-emerald-400 border border-emerald-900/30' : 'bg-rose-950/20 text-rose-400 border border-rose-900/30'
+                        }`}
                       >
-                        {t(personaMsg)}
+                        <AlertCircle size={12} /> {personaMsg}
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  <button
+                    onClick={savePersona}
+                    disabled={personaSaving}
+                    className="w-full py-2 rounded-xl bg-[#DEDBC8] text-black text-xs font-medium hover:bg-white transition-all flex items-center justify-center gap-1.5"
+                  >
+                    {personaSaving && <Loader2 size={12} className="animate-spin" />}
+                    {isZh ? '保存人设资产' : 'Commit Settings'}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                  <div className="flex gap-2 justify-end">
-                    <motion.button
-                      onClick={() => { setPersonaEnabled(false); setPersonaContent(''); setPersonaOpen(false); api.updateMyPersona(false, '').catch(() => {}); }}
-                      className="btn-secondary btn-sm"
-                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                      style={{ transitionDuration: '240ms' }}
-                    >
-                      {t('reset')}
-                    </motion.button>
-                    <motion.button
-                      onClick={handlePersonaSave}
-                      disabled={personaSaving}
-                      className="btn-primary btn-sm"
-                      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                      style={{ transitionDuration: '240ms' }}
-                    >
-                      {personaSaving ? t('loading') : t('save')}
-                    </motion.button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+        {/* 底部指令与对话输入框 */}
+        <footer className="p-4 sm:p-6 border-t border-white/5 bg-[#0B0B0B]/40 backdrop-blur-md">
+          <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto relative flex items-center">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={isZh ? '向运维助手描述报错信息或询问 Linux 命令...' : 'Ask AI Ops assistant about exceptions or configurations...'}
+              className="w-full bg-[#101010] border border-white/5 rounded-xl pl-4 pr-12 py-3.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#DEDBC8]/40 transition-all font-light"
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim() || !activeConv}
+              className="absolute right-2 p-2 rounded-lg bg-[#DEDBC8] text-black hover:bg-white disabled:bg-white/5 disabled:text-white/20 transition-all"
+            >
+              <Send size={15} />
+            </button>
+          </form>
+        </footer>
+      </main>
     </div>
   );
 }
