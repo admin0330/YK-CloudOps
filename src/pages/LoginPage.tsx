@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ShieldCheck } from 'lucide-react';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -10,11 +11,16 @@ import { fadeUp, fadeIn, appleEase } from '../lib/motion';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const redirectPath = searchParams.get('redirect') || '/chat';
+  const safeRedirectPath = redirectPath.startsWith('/') && !redirectPath.startsWith('//') ? redirectPath : '/chat';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +28,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await api.login(username, password);
-      navigate('/chat');
+      if (safeRedirectPath === '/cloudops') {
+        await api.setFromHome().catch(() => {});
+      }
+      navigate(safeRedirectPath);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -37,6 +46,14 @@ export default function LoginPage() {
         <ThemeToggle />
         <LanguageSwitcher />
       </div>
+      <Link
+        to="/admin-login"
+        state={{ from: `${location.pathname}${location.search}` }}
+        className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-black/45 px-3 py-2 text-xs font-medium text-primary/70 shadow-[0_14px_42px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:border-primary/45 hover:text-primary"
+      >
+        <ShieldCheck size={14} />
+        Admin
+      </Link>
       <div className="w-full max-w-sm">
         <motion.div
           className="text-center mb-8"
@@ -104,7 +121,6 @@ export default function LoginPage() {
             variants={fadeIn} initial="hidden" animate="visible" transition={{ ...appleEase, delay: 0.5 }}
           >
             <p>{t('noAccount')} <Link to="/register" className="text-apple-blue2 hover:underline">{t('createAccount')}</Link></p>
-            <p><Link to="/admin-login" className="text-apple-muted hover:text-[var(--text)] transition-colors">{t('adminLogin')}</Link></p>
           </motion.div>
         </motion.form>
       </div>

@@ -10,8 +10,9 @@ import { useIsMobile } from '../lib/useIsMobile';
 const NAV_ITEMS = [
   { path: '/', zh: 'Home', en: 'Home' },
   { path: '/portal', zh: 'Portal', en: 'Portal' },
-  { path: '/cloudops', zh: 'CloudOps', en: 'CloudOps' },
+  { path: '/login?redirect=/cloudops', zh: 'CloudOps', en: 'CloudOps' },
   { path: '/js-study', zh: 'JS Study', en: 'JS Study' },
+  { path: '/disk', zh: 'Disk', en: 'Disk' },
 ];
 
 export default function Navbar() {
@@ -31,18 +32,28 @@ export default function Navbar() {
   }, [location.pathname]);
 
   const isAdmin = user?.role === 'admin';
-  const isActive = (path: string) => location.pathname === path;
+  const currentFullPath = `${location.pathname}${location.search}`;
+  const isActive = (path: string) => {
+    const targetPath = path.split('?')[0];
+    if (path.includes('redirect=/cloudops')) return location.pathname === '/cloudops';
+    return location.pathname === targetPath;
+  };
   const isHome = location.pathname === '/';
 
   const navWithTransition = useCallback(async (path: string) => {
     try {
       await api.setFromHome();
     } catch {}
-    navigate(path);
-  }, [navigate]);
+    navigate(path, { state: { from: currentFullPath } });
+  }, [currentFullPath, navigate]);
 
   const handleBack = () => {
-    window.history.back();
+    const historyIndex = window.history.state?.idx ?? 0;
+    if (historyIndex > 0) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
   };
 
   const handleHome = () => {
@@ -103,7 +114,7 @@ export default function Navbar() {
           {isAdmin && (
             <>
               <button onClick={() => openPath('/admin')} className={`ct-nav-pill ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
-              <button onClick={() => openPath('/cloudops')} className={`ct-nav-pill ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
+              <button onClick={() => openPath('/login?redirect=/cloudops')} className={`ct-nav-pill ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
             </>
           )}
           <span className="ml-2 flex items-center gap-1.5">
@@ -174,14 +185,14 @@ export default function Navbar() {
               <>
                 <div className="border-t border-white/10 my-1" />
                 <button onClick={() => { openPath('/admin'); }} className={`ct-nav-pill ct-nav-pill--mobile min-h-[3.8rem] text-left ct-nav-pill--accent ${isActive('/admin') ? 'is-active' : ''}`}>Admin</button>
-                <button onClick={() => { openPath('/cloudops'); }} className={`ct-nav-pill ct-nav-pill--mobile min-h-[3.8rem] text-left ct-nav-pill--accent-blue ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
+                <button onClick={() => { openPath('/login?redirect=/cloudops'); }} className={`ct-nav-pill ct-nav-pill--mobile min-h-[3.8rem] text-left ct-nav-pill--accent-blue ${isActive('/cloudops') ? 'is-active' : ''}`}>CloudOps</button>
               </>
             )}
             <div className="grid grid-cols-2 gap-2 pt-1">
               <button onClick={() => { openPath('/portal'); }} className="btn-secondary w-full justify-center h-11 text-sm">
                 {lang === 'zh' ? '门户' : 'Portal'}
               </button>
-              <button onClick={() => { openPath('/cloudops'); }} className="btn-primary w-full justify-center h-11 text-sm">
+              <button onClick={() => { openPath('/login?redirect=/cloudops'); }} className="btn-primary w-full justify-center h-11 text-sm">
                 {lang === 'zh' ? '助手' : 'Assistant'}
               </button>
             </div>

@@ -5,10 +5,15 @@ export default function BackNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const hasHistory = window.history.length > 1;
-
   const handleBack = () => {
-    if (hasHistory) {
+    const from = location.state?.from;
+    if (typeof from === 'string' && from.startsWith('/') && from !== `${location.pathname}${location.search}`) {
+      navigate(from, { replace: true });
+      return;
+    }
+
+    const historyIndex = window.history.state?.idx ?? 0;
+    if (historyIndex > 0) {
       navigate(-1);
     } else {
       navigate('/');

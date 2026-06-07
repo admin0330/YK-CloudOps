@@ -5,805 +5,663 @@ import {
   LayoutDashboard, Users, FolderOpen, LogOut, Menu, X as XIcon,
   Upload, Download, Trash2, Check, FileText, Plus, Image as ImageIcon,
   Sparkles, Terminal, Server, ExternalLink, RefreshCw, HardDrive, Monitor,
-  Edit3, Key, Clock, UserCheck, UserX, AlertTriangle,
+  Edit3, Key, Clock, UserCheck, UserX, AlertTriangle, Search,
+  Bell, ChevronDown, Settings, Grid, List, BarChart3, Activity,
+  TrendingUp, TrendingDown, Globe, Shield, Zap, Database,
+  ChevronLeft, ChevronRight, Maximize2, Download as DownloadIcon,
+  Copy, Eye, MoreHorizontal,
 } from 'lucide-react';
 import HoldToDeleteButton from '../components/ui/HoldToDeleteButton';
-import LiquidCapsuleSwitch from '../components/ui/LiquidCapsuleSwitch';
 import { api } from '../api/client';
 import { useLanguage } from '../context/LanguageContext';
 import { fadeUp, scaleIn, staggerContainer, staggerItem, appleEase } from '../lib/motion';
 import ImageViewer from '../components/ImageViewer';
 import Navbar from '../components/Navbar';
-import ErrorBoundary from '../components/ErrorBoundary';
 
+// ============================================================
+// TAB Configuration
+// ============================================================
 const TABS = [
-  { key: 'dashboard', icon: LayoutDashboard },
-  { key: 'servers', icon: Server },
-  { key: 'users', icon: Users },
-  { key: 'files', icon: FolderOpen },
-  { key: 'persona', icon: Sparkles },
-
+  { key: 'dashboard', icon: LayoutDashboard, label: { zh: '控制台', en: 'Dashboard' } },
+  { key: 'servers', icon: Server, label: { zh: '服务器', en: 'Servers' } },
+  { key: 'users', icon: Users, label: { zh: '用户', en: 'Users' } },
+  { key: 'files', icon: FolderOpen, label: { zh: '文件', en: 'Files' } },
+  { key: 'persona', icon: Sparkles, label: { zh: '人格', en: 'Persona' } },
 ];
 
+// ============================================================
+// Anime.js number counter hook
+// ============================================================
+function useAnimeCounter(target: number, deps: any[] = []) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const prevRef = useRef(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const from = prevRef.current;
+    prevRef.current = target;
+    // Use anime.js if available
+    if (typeof window !== 'undefined' && (window as any).anime) {
+      try {
+        (window as any).anime({
+          targets: el,
+          innerHTML: [from, target],
+          round: 1,
+          easing: 'easeOutExpo',
+          duration: 1200,
+          update: (a: any) => {
+            el.textContent = Math.round(a.animations[0].currentValue).toLocaleString();
+          },
+        });
+      } catch {
+        el.textContent = target.toLocaleString();
+      }
+    } else {
+      el.textContent = target.toLocaleString();
+    }
+  }, [target, ...deps]);
+
+  return ref;
+}
+
+// ============================================================
+// AnimatedMetric — number with label and trend
+// ============================================================
+function AnimatedMetric({ label, value, suffix, icon: Icon, trend, trendLabel, color }: {
+  label: string; value: number; suffix?: string; icon?: any; trend?: 'up' | 'down'; trendLabel?: string; color?: string;
+}) {
+  const counterRef = useAnimeCounter(value, [value]);
+  const colors: Record<string, { bg: string; text: string; iconBg: string }> = {
+    mint: { bg: '#ecfdf5', text: '#059669', iconBg: '#d1fae5' },
+    teal: { bg: '#f0fdfa', text: '#0f766e', iconBg: '#ccfbf1' },
+    blue: { bg: '#eff6ff', text: '#1d4ed8', iconBg: '#dbeafe' },
+    amber: { bg: '#fffbeb', text: '#b45309', iconBg: '#fef3c7' },
+    rose: { bg: '#fff1f2', text: '#be123c', iconBg: '#ffe4e6' },
+    purple: { bg: '#faf5ff', text: '#7c3aed', iconBg: '#ede9fe' },
+  };
+  const c = colors[color || 'mint'] || colors.mint;
+
+  return (
+    <div className="saas-stat" style={{ animation: 'saasSlideUp 0.5s ease-out forwards' }}>
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="stat-label">{label}</div>
+          <div className="stat-value mt-1 flex items-baseline gap-1">
+            <span ref={counterRef as any}>{value.toLocaleString()}</span>
+            {suffix && <span className="text-sm font-medium text-slate-400">{suffix}</span>}
+          </div>
+          {trend && (
+            <div className="flex items-center gap-1 mt-1.5">
+              {trend === 'up' ? (
+                <TrendingUp size={12} className="text-emerald-500" />
+              ) : (
+                <TrendingDown size={12} className="text-rose-500" />
+              )}
+              <span className={`text-xs font-medium ${trend === 'up' ? 'text-emerald-600' : 'text-rose-500'}`}>
+                {trendLabel || ''}
+              </span>
+            </div>
+          )}
+        </div>
+        {Icon && (
+          <div className="stat-icon shrink-0 ml-3" style={{ background: c.iconBg, color: c.text }}>
+            <Icon size={18} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// ProgressRing — SVG donut chart
+// ============================================================
+function ProgressRing({ percent, size = 56, strokeWidth = 4, color = '#10b981' }: { percent: number; size?: number; strokeWidth?: number; color?: string }) {
+  const r = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * r;
+  const [offset, setOffset] = useState(circumference);
+  const ref = useRef<SVGCircleElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).anime) {
+      try {
+        (window as any).anime({
+          targets: { o: circumference },
+          o: circumference - (percent / 100) * circumference,
+          round: 1,
+          easing: 'easeOutCubic',
+          duration: 1000,
+          update: (a: any) => setOffset(a.animations[0].currentValue),
+        });
+      } catch {
+        setOffset(circumference - (percent / 100) * circumference);
+      }
+    } else {
+      setTimeout(() => setOffset(circumference - (percent / 100) * circumference), 100);
+    }
+  }, [percent]);
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={strokeWidth} />
+      <circle
+        ref={ref}
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke={color} strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        style={{ transition: 'stroke-dashoffset 0.3s ease' }}
+      />
+    </svg>
+  );
+}
+
+// ============================================================
+// MAIN: AdminPage
+// ============================================================
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
-  const [admin, setAdmin] = useState(null);
+  const { t, lang } = useLanguage();
+  const [admin, setAdmin] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [tab, setTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     api.adminGetMe().then((d) => setAdmin(d.user)).catch(() => navigate('/admin-login')).finally(() => setAuthChecked(true));
   }, [navigate]);
 
   const handleLogout = async () => { await api.adminLogout().catch(() => {}); navigate('/admin-login'); };
-  const switchTab = (key) => { setTab(key); setSidebarOpen(false); };
+  const switchTab = (key: string) => { setTab(key); setMobileMenuOpen(false); };
 
   if (!authChecked) {
-    return <div className="h-full flex items-center justify-center bg-apple-bg"><div className="text-apple-muted animate-pulse">{t('loading')}</div></div>;
+    return (
+      <div className="admin-saas min-h-screen flex items-center justify-center" style={{ background: '#f8fafc' }}>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+          <span className="text-sm text-slate-400">{t('loading')}</span>
+        </div>
+      </div>
+    );
   }
   if (!admin) return null;
 
-  const TAB_LABELS = { dashboard: t('dashboard'), servers: t('serverManagement'), users: t('userManagement'), files: t('fileTransfer'), persona: t('persona') };
+  const username = admin?.username || 'Admin';
+  const initials = username.slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen flex flex-col bg-apple-bg">
-      <Navbar />
+    <div className="admin-saas min-h-screen flex flex-col" style={{ background: '#f8fafc' }}>
+      {/* ===== Top Header Bar ===== */}
+      <header className="saas-header fixed top-0 inset-x-0 z-30 h-14 flex items-center px-4 lg:px-6">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Mobile menu toggle */}
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden saas-btn saas-btn-ghost saas-btn-sm p-2 -ml-1">
+            {mobileMenuOpen ? <XIcon size={18} /> : <Menu size={18} />}
+          </button>
 
-      <div className="flex flex-1 min-h-0 pt-[5.85rem] overflow-hidden">
-        <aside
-          className={`hidden lg:flex shrink-0 min-h-0 flex-col glass border-r border-[var(--border)] transition-[width] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${sidebarExpanded ? 'w-52' : 'w-[4.75rem]'}`}
-          onFocusCapture={() => setSidebarExpanded(true)}
-          onBlurCapture={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setSidebarExpanded(false);
-          }}
-        >
-          <div className="p-4 border-b border-[var(--border)] flex items-center justify-between gap-2">
-            <Link to="/me" aria-label="Open personal blog" className="cursor-pointer hover:opacity-75 shrink-0" style={{ transition: 'opacity 280ms linear' }}>
-              <span className="text-apple-blue2 text-lg font-semibold">{'\uF8FF'}</span>
-            </Link>
-            <div className={`min-w-0 overflow-hidden transition-all duration-300 ${sidebarExpanded ? 'max-w-[10rem] opacity-100' : 'max-w-0 opacity-0'}`}>
-              <span className="text-lg font-semibold tracking-tight whitespace-nowrap">Admin</span>
+          {/* Logo */}
+          <Link to="/me" className="flex items-center gap-2 shrink-0 no-underline">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">Y</span>
             </div>
+            <span className="hidden sm:inline text-sm font-semibold text-slate-800">ym1r</span>
+          </Link>
+
+          {/* Breadcrumb */}
+          <span className="text-sm text-slate-300 hidden sm:inline">/</span>
+          <span className="text-sm text-slate-500 font-medium hidden sm:inline">{t('adminPanel')}</span>
+        </div>
+
+        {/* Search */}
+        <div className="hidden md:flex items-center relative mx-4 max-w-xs w-full">
+          <Search size={14} className="absolute left-3 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder={lang === 'zh' ? '搜索...' : 'Search...'}
+            className="saas-input !pl-9 !py-1.5 !text-sm !rounded-xl !bg-slate-50 !border-slate-200"
+          />
+        </div>
+
+        {/* Right actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button className="saas-btn saas-btn-ghost saas-btn-sm p-2 relative" title={lang === 'zh' ? '通知' : 'Notifications'}>
+            <Bell size={16} />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+          </button>
+          <button className="saas-btn saas-btn-ghost saas-btn-sm p-2 hidden sm:flex" title={lang === 'zh' ? '设置' : 'Settings'}>
+            <Settings size={16} />
+          </button>
+
+          {/* Avatar */}
+          <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
+            <div className="saas-avatar">{initials}</div>
+            <div className="hidden sm:block">
+              <div className="text-xs font-semibold text-slate-700">{username}</div>
+              <div className="text-[10px] text-slate-400">{t('admin')}</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ===== Body: Sidebar + Main ===== */}
+      <div className="flex flex-1 min-h-0 pt-14 overflow-hidden">
+        {/* Desktop Sidebar */}
+        <aside
+          className={`hidden lg:flex flex-col shrink-0 min-h-0 saas-sidebar transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${sidebarCollapsed ? 'w-16' : 'w-56'}`}
+        >
+          {/* Sidebar header */}
+          <div className={`flex items-center h-14 px-3 border-b border-slate-100 ${sidebarCollapsed ? 'justify-center' : ''}`}>
+            <span className={`text-xs font-semibold tracking-widest uppercase text-slate-400 ${sidebarCollapsed ? 'hidden' : ''}`}>
+              {lang === 'zh' ? '导航' : 'Navigation'}
+            </span>
             <button
-              type="button"
-              className="ml-auto p-2 rounded-xl hover:bg-[var(--hover-bg)] text-apple-muted"
-              aria-label={sidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-              onClick={() => setSidebarExpanded((v) => !v)}
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="saas-btn saas-btn-ghost saas-btn-sm p-1.5 ml-auto text-slate-400 hover:text-slate-600"
             >
-              <Menu size={16} />
+              {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
           </div>
+
+          {/* Nav items */}
           <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-            {TABS.map(({ key, icon: Icon }) => (
-              <motion.button
+            {TABS.map(({ key, icon: Icon, label }) => (
+              <button
                 key={key}
                 onClick={() => switchTab(key)}
-                className={`apple-pill w-full ${tab === key ? 'is-active' : ''} ${sidebarExpanded ? 'justify-start px-3' : 'justify-center px-0'}`}
-                whileHover={{ x: sidebarExpanded ? 2 : 0 }}
-                whileTap={{ scale: 0.97 }}
+                className={`saas-sidebar-item ${tab === key ? 'is-active' : ''} ${sidebarCollapsed ? '!justify-center !px-0' : ''}`}
+                title={sidebarCollapsed ? label[lang] : undefined}
               >
-                <Icon size={16} />
-                <span className={`${sidebarExpanded ? 'inline' : 'hidden'}`}>{TAB_LABELS[key]}</span>
-              </motion.button>
+                <Icon size={18} />
+                {!sidebarCollapsed && <span>{label[lang]}</span>}
+              </button>
             ))}
           </nav>
-          <div className="p-3 border-t border-[var(--border)] space-y-1.5">
-            <motion.button onClick={handleLogout} className={`flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-apple-muted hover:bg-[var(--hover-bg)] hover:text-[var(--text)] ${sidebarExpanded ? 'justify-start' : 'justify-center'}`} whileTap={{ scale: 0.97 }}>
-              <LogOut size={14} />
-              <span className={`${sidebarExpanded ? 'inline' : 'hidden'}`}>{t('signOut')}</span>
-            </motion.button>
+
+          {/* Logout */}
+          <div className="p-2 border-t border-slate-100">
+            <button
+              onClick={handleLogout}
+              className={`saas-sidebar-item text-slate-400 hover:text-rose-500 ${sidebarCollapsed ? '!justify-center !px-0' : ''}`}
+              title={sidebarCollapsed ? t('signOut') : undefined}
+            >
+              <LogOut size={18} />
+              {!sidebarCollapsed && <span>{t('signOut')}</span>}
+            </button>
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto p-4 lg:p-6 pb-8">
-          <div className="flex items-center justify-between gap-3 mb-4 lg:mb-6">
-            <motion.h1 className="text-xl font-semibold hidden lg:block" variants={fadeUp} initial="hidden" animate="visible" transition={appleEase}>{TAB_LABELS[tab]}</motion.h1>
-            <div className="lg:hidden flex-1" />
-            <div className="lg:hidden mb-0 glass rounded-2xl p-1.5 border border-[var(--border)] overflow-x-auto max-w-full">
-              <div className="flex items-center gap-2 min-w-max">
-                {TABS.map(({ key, icon: Icon }) => (
-                  <motion.button
-                    key={key}
-                    onClick={() => switchTab(key)}
-                    className={`apple-pill ${tab === key ? 'is-active' : ''}`}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <Icon size={15} />{TAB_LABELS[key]}
-                  </motion.button>
-                ))}
-              </div>
+        {/* ===== Main Content ===== */}
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto">
+          {/* Tab label for mobile */}
+          <div className="lg:hidden flex items-center justify-between px-4 pt-4 pb-2">
+            <h1 className="text-lg font-bold text-slate-800">
+              {TABS.find(t => t.key === tab)?.label[lang] || t('dashboard')}
+            </h1>
+          </div>
+
+          {/* Mobile tab bar */}
+          <div className="lg:hidden px-4 pb-3 overflow-x-auto">
+            <div className="flex items-center gap-1 bg-white rounded-xl p-1 border border-slate-200 shadow-sm min-w-max">
+              {TABS.map(({ key, icon: Icon, label }) => (
+                <button
+                  key={key}
+                  onClick={() => switchTab(key)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    tab === key
+                      ? 'bg-emerald-50 text-emerald-600 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <Icon size={14} />
+                  {label[lang]}
+                </button>
+              ))}
             </div>
           </div>
-          <AnimatePresence mode="wait">
-            <motion.div key={tab} variants={fadeUp} initial="hidden" animate="visible" exit={{ opacity: 0, y: -8 }} transition={appleEase}>
-              {tab === 'dashboard' && <DashboardTab />}
-              {tab === 'users' && <UsersTab />}
-              {tab === 'files' && <FilesTab />}
-              {tab === 'persona' && <PersonaTab />}
 
-              {tab === 'servers' && <ServersTab />}
-            </motion.div>
-          </AnimatePresence>
+          {/* Content area */}
+          <div className="px-4 lg:px-6 pb-24 lg:pb-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={tab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                {tab === 'dashboard' && <DashboardTab lang={lang} t={t} />}
+                {tab === 'users' && <UsersTab lang={lang} t={t} />}
+                {tab === 'files' && <FilesTab lang={lang} t={t} />}
+                {tab === 'persona' && <PersonaTab lang={lang} t={t} />}
+                {tab === 'servers' && <ServersTab lang={lang} t={t} />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
+      </div>
+
+      {/* Mobile bottom nav */}
+      <nav className="saas-bottom-nav lg:hidden">
+        {TABS.map(({ key, icon: Icon, label }) => (
+          <button
+            key={key}
+            onClick={() => switchTab(key)}
+            className={`${tab === key ? 'is-active' : ''}`}
+          >
+            <Icon size={18} />
+            <span>{label[lang]}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+// ============================================================
+// DASHBOARD TAB
+// ============================================================
+function DashboardTab({ lang, t }: { lang: string; t: any }) {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [sysStatus, setSysStatus] = useState<any>(null);
+
+  useEffect(() => {
+    api.getStats().then((d) => setStats(d.stats)).catch(() => {}).finally(() => setLoading(false));
+    api.getSystemStatus().then((d) => setSysStatus(d)).catch(() => {});
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-6 h-6 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" />
+          <span className="text-xs text-slate-400">{t('loading')}</span>
+        </div>
+      </div>
+    );
+  }
+
+  const metrics = [
+    { label: t('totalUsers'), value: stats?.totalUsers || 0, icon: Users, color: 'mint', trend: stats?.activeUsers > 0 ? 'up' : undefined, trendLabel: `${stats?.activeUsers || 0} ${lang === 'zh' ? '活跃' : 'active'}` },
+    { label: t('activeUsers'), value: stats?.activeUsers || 0, icon: Activity, color: 'teal', suffix: '%' },
+    { label: lang === 'zh' ? '待审核' : 'Pending', value: stats?.pendingUsers || 0, icon: UserCheck, color: 'amber' },
+    { label: t('conversations'), value: stats?.totalConversations || 0, icon: MessageSquare, color: 'blue', trend: 'up', trendLabel: stats?.totalMessages || '0 msgs' },
+    { label: lang === 'zh' ? '消息总数' : 'Messages', value: stats?.totalMessages || 0, icon: Activity, color: 'purple' },
+    { label: t('uploads'), value: stats?.totalUploads || 0, icon: Upload, color: 'rose' },
+  ];
+
+  return (
+    <div>
+      {/* Welcome row */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-slate-800">
+          {lang === 'zh' ? '概览' : 'Overview'}
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">
+          {lang === 'zh' ? '查看您的平台运行状态和数据统计' : 'View your platform status and analytics'}
+        </p>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+        {metrics.map((m, i) => (
+          <div key={m.label} className="saas-stat" style={{ animationDelay: `${i * 0.06}s` }}>
+            <AnimatedMetric {...m} />
+          </div>
+        ))}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid lg:grid-cols-2 gap-6 mb-8">
+        {/* System Status Card */}
+        <div className="saas-card-elevated p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-700">
+              {lang === 'zh' ? '系统状态' : 'System Status'}
+            </h3>
+            {sysStatus && (
+              <span className="saas-badge saas-badge-mint">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />
+                {sysStatus.hostname || '-'}
+              </span>
+            )}
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+                  <Server size={16} />
+                </div>
+                <div>
+                  <div className="text-xs text-slate-500">{lang === 'zh' ? 'CPU 负载' : 'CPU Load'}</div>
+                  <div className="text-sm font-semibold text-slate-800">{sysStatus?.cpu?.loadAvg1?.toFixed(2) || '-'}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-slate-400">{sysStatus?.cpu?.cores || '-'} {lang === 'zh' ? '核心' : 'cores'}</div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-slate-500">{lang === 'zh' ? '内存' : 'Memory'}</span>
+                <span className="text-xs font-medium text-slate-700">
+                  {sysStatus?.memory?.usagePercent?.toFixed(1) || '-'}%
+                </span>
+              </div>
+              <div className="saas-progress">
+                <div className="saas-progress-bar" style={{ width: `${sysStatus?.memory?.usagePercent || 0}%` }} />
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-[10px] text-slate-400">{lang === 'zh' ? '已用' : 'Used'}</span>
+                <span className="text-[10px] text-slate-400">
+                  {sysStatus?.memory ? `${(sysStatus.memory.used / 1073741824).toFixed(1)}GB / ${(sysStatus.memory.total / 1073741824).toFixed(1)}GB` : '-'}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-slate-500">{lang === 'zh' ? '磁盘' : 'Disk'}</span>
+                <span className="text-xs font-medium text-slate-700">{sysStatus?.disk?.usagePercent || '-'}</span>
+              </div>
+              <div className="saas-progress">
+                <div className="saas-progress-bar" style={{ width: `${parseInt(sysStatus?.disk?.usagePercent || '0')}%`, background: parseInt(sysStatus?.disk?.usagePercent || '0') > 80 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : undefined }} />
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-[10px] text-slate-400">{lang === 'zh' ? '已用' : 'Used'}</span>
+                <span className="text-[10px] text-slate-400">{sysStatus?.disk?.used || '-'} / {sysStatus?.disk?.total || '-'}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <Clock size={13} className="text-slate-400" />
+              <span className="text-xs text-slate-500">
+                {lang === 'zh' ? '运行时间' : 'Uptime'}: {sysStatus?.uptimeFormatted || '-'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions / Info */}
+        <div className="saas-card-elevated p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-700">
+              {lang === 'zh' ? '快捷操作' : 'Quick Actions'}
+            </h3>
+            <Zap size={16} className="text-slate-400" />
+          </div>
+          <div className="space-y-2">
+            <Link to="/disk" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors no-underline text-slate-700">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center text-teal-500">
+                <HardDrive size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{lang === 'zh' ? '网盘管理' : 'Disk Manager'}</div>
+                <div className="text-xs text-slate-400">{lang === 'zh' ? '管理文件和上传' : 'Manage files & uploads'}</div>
+              </div>
+              <ChevronRight size={14} className="text-slate-300 shrink-0" />
+            </Link>
+
+            <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors no-underline text-slate-700">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+                <BarChart3 size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{lang === 'zh' ? '运维面板' : 'CloudOps'}</div>
+                <div className="text-xs text-slate-400">{lang === 'zh' ? '服务器监控和运维' : 'Server monitoring & ops'}</div>
+              </div>
+              <ChevronRight size={14} className="text-slate-300 shrink-0" />
+            </Link>
+
+            <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors w-full text-left text-slate-700" onClick={() => {}}>
+              <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
+                <RefreshCw size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{lang === 'zh' ? '刷新数据' : 'Refresh Data'}</div>
+                <div className="text-xs text-slate-400">{lang === 'zh' ? '更新当前统计信息' : 'Update current statistics'}</div>
+              </div>
+              <ChevronRight size={14} className="text-slate-300 shrink-0" />
+            </button>
+
+            <Link to="/admin-login" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors no-underline text-slate-700">
+              <div className="w-9 h-9 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
+                <Shield size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{lang === 'zh' ? '安全设置' : 'Security'}</div>
+                <div className="text-xs text-slate-400">{lang === 'zh' ? '账户和访问管理' : 'Account & access'}</div>
+              </div>
+              <ChevronRight size={14} className="text-slate-300 shrink-0" />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value }) {
-  return (
-    <motion.div className="glass rounded-2xl p-5 sm:p-5 card-lift" variants={staggerItem} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-      <div className="text-apple-muted text-xs uppercase tracking-wide">{label}</div>
-      <div className="text-2xl font-semibold mt-1">{value}</div>
-    </motion.div>
-  );
-}
-
-function DashboardTab() {
-  const { t } = useLanguage();
-  const [stats, setStats] = useState(null);
-  useEffect(() => { api.getStats().then((d) => setStats(d.stats)).catch(() => {}); }, []);
-  if (!stats) return <div className="text-apple-muted">{t('loading')}</div>;
-
-  return (
-    <motion.div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5" variants={staggerContainer} initial="hidden" animate="visible">
-      <StatCard label={t('totalUsers')} value={stats.totalUsers} />
-      <StatCard label={t('activeUsers')} value={stats.activeUsers} />
-      <StatCard label={t('pendingUsers')} value={stats.pendingUsers} />
-      <StatCard label={t('conversations')} value={stats.totalConversations} />
-      <StatCard label={t('messages')} value={stats.totalMessages} />
-      <StatCard label={t('uploads')} value={stats.totalUploads} />
-    </motion.div>
-  );
-}
-
-function UsersTab() {
-  const { t, lang } = useLanguage();
-  const [users, setUsers] = useState([]);
+// ============================================================
+// USERS TAB
+// ============================================================
+function UsersTab({ lang, t }: { lang: string; t: any }) {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const [passwordUser, setPasswordUser] = useState(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [passwordUser, setPasswordUser] = useState<any>(null);
 
-  const loadUsers = useCallback(() => { api.getUsers().then((d) => setUsers(d.users)).catch(() => {}); }, []);
+  const loadUsers = useCallback(() => { api.getUsers().then((d) => setUsers(d.users)).catch(() => {}).finally(() => setLoading(false)); }, []);
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
-  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2800); };
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2800); };
 
-  const handleStatusChange = async (id, status) => {
-    try { await api.updateUserStatus(id, status); loadUsers(); showToast(t('userStatusUpdated')); } catch (err) { setError(err.message); }
+  const handleStatusChange = async (id: number, status: string) => {
+    try { await api.updateUserStatus(id, status); loadUsers(); showToast(t('userStatusUpdated')); } catch (err: any) { setError(err.message); }
   };
-  const handleDelete = async (id) => {
-    try { await api.deleteUser(id); loadUsers(); showToast(t('deleted')); } catch (err) { setError(err.message); }
-  };
-
-  const statusColor = (s) => {
-    if (s === 'active') return 'bg-green-500/20 text-green-400';
-    if (s === 'pending') return 'bg-yellow-500/20 text-yellow-400';
-    return 'bg-red-500/20 text-red-400';
+  const handleDelete = async (id: number) => {
+    try { await api.deleteUser(id); loadUsers(); showToast(t('deleted')); } catch (err: any) { setError(err.message); }
   };
 
-  const statusLabel = (s) => {
-    if (s === 'active') return t('active');
-    if (s === 'pending') return t('pending');
-    return t('disabled');
+  const statusBadge = (s: string) => {
+    const map: Record<string, string> = { active: 'saas-badge-mint', pending: 'saas-badge-amber', disabled: 'saas-badge-rose' };
+    return map[s] || 'saas-badge-gray';
   };
+  const statusLabel = (s: string) => t(s === 'active' ? 'active' : s === 'pending' ? 'pending' : 'disabled');
 
-  const isPrimaryAdmin = (u) => u.role === 'admin';
+  if (loading) {
+    return <div className="flex items-center justify-center py-16"><div className="w-5 h-5 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" /></div>;
+  }
 
   return (
     <div>
-      {/* Error / Toast */}
-      <AnimatePresence>
-        {error && (
-          <motion.div className="mb-4 text-red-400 text-sm py-2 px-3 bg-red-500/10 rounded-xl border border-red-500/20 flex items-start gap-2" variants={fadeUp} initial="hidden" animate="visible" exit="hidden">
-            <AlertTriangle size={14} className="shrink-0 mt-0.5" />
-            <span>{error}</span>
-            <button onClick={() => setError('')} className="ml-auto shrink-0 text-xs opacity-60 hover:opacity-100">✕</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+      {/* Toast */}
       <AnimatePresence>
         {toast && (
-          <motion.div
-            className="fixed bottom-6 right-4 sm:bottom-20 z-[100] px-4 py-3 rounded-xl shadow-2xl border text-sm font-medium bg-green-500/90 text-white border-green-400/30"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <div className="flex items-center gap-2"><Check size={15} />{toast}</div>
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <Check size={14} className="shrink-0" />
+            {toast}
           </motion.div>
         )}
-      </AnimatePresence>
-
-      <div className="flex justify-end mb-3">
-        <motion.button onClick={() => setShowCreate(!showCreate)} className="btn-secondary btn-sm flex items-center gap-1.5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}><Plus size={14} /> {t('newUser')}</motion.button>
-      </div>
-
-      <AnimatePresence>{showCreate && <CreateUserForm onDone={() => { setShowCreate(false); loadUsers(); }} onCancel={() => setShowCreate(false)} />}</AnimatePresence>
-
-      {/* Edit username modal */}
-      <AnimatePresence>
-        {editingUser && (
-          <EditUsernameModal user={editingUser} t={t} onDone={(msg) => { setEditingUser(null); loadUsers(); showToast(msg); }} onCancel={() => setEditingUser(null)} setError={setError} />
-        )}
-      </AnimatePresence>
-
-      {/* Change password modal */}
-      <AnimatePresence>
-        {passwordUser && (
-          <ChangePasswordModal user={passwordUser} t={t} onDone={(msg) => { setPasswordUser(null); loadUsers(); showToast(msg); }} onCancel={() => setPasswordUser(null)} setError={setError} />
-        )}
-      </AnimatePresence>
-
-      {/* Mobile cards */}
-      <motion.div className="sm:hidden space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
-        {users.map((u, i) => (
-          <motion.div key={u.id} className="glass rounded-2xl p-4 space-y-3.5 card-lift" variants={staggerItem} custom={i}>
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-sm">{u.username}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-blue-500/20 text-blue-400' : 'bg-[var(--active-bg)] text-apple-muted'}`}>{u.role === 'admin' ? t('admin') : t('user')}</span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <span className={`px-2 py-0.5 rounded-full ${statusColor(u.status)}`}>{statusLabel(u.status)}</span>
-              <span className="text-apple-muted">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : '-'}</span>
-            </div>
-
-            {/* Status toggle */}
-            <div className="flex items-center gap-1 flex-wrap">
-              {!isPrimaryAdmin(u) && (
-                <LiquidCapsuleSwitch
-                  options={[
-                    { id: 'active', label: t('active'), icon: UserCheck, tone: 'var(--accent-green)' },
-                    { id: 'pending', label: t('pending'), icon: Clock, tone: '#fbbf24' },
-                    { id: 'disabled', label: t('disabled'), icon: UserX, tone: 'var(--danger)' },
-                  ]}
-                  value={u.status}
-                  onChange={(status) => handleStatusChange(u.id, status)}
-                  size="sm"
-                  ariaLabel={t('status')}
-                />
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1">
-              <motion.button onClick={() => setEditingUser(u)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }} title={t('editUsername')}><Edit3 size={14} /></motion.button>
-              <motion.button onClick={() => setPasswordUser(u)} className="p-1.5 rounded-lg hover:bg-purple-500/20 text-purple-400" whileTap={{ scale: 0.85 }} title={t('changePassword')}><Key size={14} /></motion.button>
-              {!isPrimaryAdmin(u) && (
-                <HoldToDeleteButton
-                  size="sm"
-                  label=""
-                  confirmLabel=""
-                  completedLabel=""
-                  duration={1000}
-                  onConfirm={() => handleDelete(u.id)}
-                  ariaLabel={t('deleteUser')}
-                />
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Desktop table */}
-      <motion.div className="hidden sm:block glass rounded-2xl overflow-x-auto" variants={fadeUp} initial="hidden" animate="visible">
-        <table className="w-full text-sm min-w-[700px]">
-          <thead><tr className="border-b border-[var(--border)]">
-            <th className="text-left p-3 text-apple-muted font-medium">{t('username')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium">{t('role')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium">{t('status')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium hidden md:table-cell">{t('createdAt')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium hidden md:table-cell">{t('lastLogin')}</th>
-            <th className="text-right p-3 text-apple-muted font-medium">{t('actions')}</th>
-          </tr></thead>
-          <tbody>
-            {users.map((u) => (
-              <motion.tr key={u.id} className="border-b border-[var(--border)] hover:bg-[var(--hover-bg)]" variants={fadeUp}>
-                <td className="p-3">
-                  <span>{u.username}</span>
-                  <button onClick={() => setEditingUser(u)} className="ml-2 p-1 rounded hover:bg-blue-500/15 text-blue-400 inline-block align-middle opacity-60 hover:opacity-100" title={t('editUsername')}><Edit3 size={12} /></button>
-                </td>
-                <td className="p-3"><span className={`text-xs px-2 py-0.5 rounded-full ${u.role === 'admin' ? 'bg-blue-500/20 text-blue-400' : 'bg-[var(--active-bg)] text-apple-muted'}`}>{u.role === 'admin' ? t('admin') : t('user')}</span></td>
-                <td className="p-3">
-                  {isPrimaryAdmin(u) ? (
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor(u.status)}`}>{statusLabel(u.status)}</span>
-                  ) : (
-                    <LiquidCapsuleSwitch
-                      options={[
-                        { id: 'active', label: t('active'), icon: UserCheck, tone: 'var(--accent-green)' },
-                        { id: 'pending', label: t('pending'), icon: Clock, tone: '#fbbf24' },
-                        { id: 'disabled', label: t('disabled'), icon: UserX, tone: 'var(--danger)' },
-                      ]}
-                      value={u.status}
-                      onChange={(status) => handleStatusChange(u.id, status)}
-                      size="sm"
-                      ariaLabel={t('status')}
-                    />
-                  )}
-                </td>
-                <td className="p-3 text-apple-muted text-xs hidden md:table-cell">{u.createdAt}</td>
-                <td className="p-3 text-apple-muted text-xs hidden md:table-cell">{u.lastLoginAt || '-'}</td>
-                <td className="p-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <motion.button onClick={() => setPasswordUser(u)} className="p-1.5 rounded-lg hover:bg-purple-500/20 text-purple-400" whileTap={{ scale: 0.85 }} title={t('changePassword')}><Key size={14} /></motion.button>
-                    {!isPrimaryAdmin(u) && (
-                      <HoldToDeleteButton
-                        size="sm"
-                        label=""
-                        confirmLabel=""
-                        completedLabel=""
-                        duration={1000}
-                        onConfirm={() => handleDelete(u.id)}
-                        ariaLabel={t('deleteUser')}
-                      />
-                    )}
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-    </div>
-  );
-}
-
-/* ── Edit Username Modal ─────────────────────────────────── */
-function EditUsernameModal({ user, t, onDone, onCancel, setError }) {
-  const [value, setValue] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    const trimmed = value.trim();
-    if (!trimmed || trimmed.length < 3) return;
-    setSaving(true);
-    try {
-      const data = await api.updateUserUsername(user.id, trimmed);
-      onDone(data.message || t('usernameUpdated'));
-    } catch (err) {
-      setError(err.message);
-      onCancel();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <>
-      <motion.div className="fixed inset-0 z-50 bg-[var(--overlay-bg)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} />
-      <motion.div className="fixed inset-x-4 top-24 z-50 max-w-sm mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl max-h-[calc(100dvh-8rem)] overflow-y-auto" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
-        <h3 className="text-sm font-medium mb-1">{t('editUsername')}</h3>
-        <p className="text-xs text-apple-muted mb-4">{user.username} → ?</p>
-        <input value={value} onChange={(e) => setValue(e.target.value)} placeholder={t('enterNewUsername')} className="mb-3" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSave()} />
-        <div className="flex gap-2 justify-end">
-          <motion.button onClick={onCancel} className="btn-secondary btn-sm" whileTap={{ scale: 0.95 }}>{t('cancel')}</motion.button>
-          <motion.button onClick={handleSave} disabled={saving || !value.trim() || value.trim().length < 3} className="btn-primary btn-sm" whileTap={{ scale: 0.95 }}>{saving ? t('loading') : t('save')}</motion.button>
-        </div>
-      </motion.div>
-    </>
-  );
-}
-
-/* ── Change Password Modal ───────────────────────────────── */
-function ChangePasswordModal({ user, t, onDone, onCancel, setError }) {
-  const [value, setValue] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (!value || value.length < 6) return;
-    setSaving(true);
-    try {
-      await api.updateUserPassword(user.id, value);
-      onDone(t('passwordUpdated'));
-    } catch (err) {
-      setError(err.message);
-      onCancel();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <>
-      <motion.div className="fixed inset-0 z-50 bg-[var(--overlay-bg)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} />
-      <motion.div className="fixed inset-x-4 top-24 z-50 max-w-sm mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl max-h-[calc(100dvh-8rem)] overflow-y-auto" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
-        <h3 className="text-sm font-medium mb-1">{t('changePassword')}</h3>
-        <p className="text-xs text-apple-muted mb-4">{user.username}</p>
-        <input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder={t('enterNewPassword')} className="mb-3" autoFocus onKeyDown={(e) => e.key === 'Enter' && handleSave()} />
-        <div className="flex gap-2 justify-end">
-          <motion.button onClick={onCancel} className="btn-secondary btn-sm" whileTap={{ scale: 0.95 }}>{t('cancel')}</motion.button>
-          <motion.button onClick={handleSave} disabled={saving || value.length < 6} className="btn-primary btn-sm" whileTap={{ scale: 0.95 }}>{saving ? t('loading') : t('save')}</motion.button>
-        </div>
-      </motion.div>
-    </>
-  );
-}
-
-function CreateUserForm({ onDone, onCancel }) {
-  const { t } = useLanguage();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault(); setError(''); setLoading(true);
-    try { await api.createUser(username, password, role); onDone(); } catch (err) { setError(err.message); } finally { setLoading(false); }
-  };
-
-  return (
-    <motion.form onSubmit={handleSubmit} className="glass rounded-2xl p-5 mb-5 space-y-4" variants={scaleIn} initial="hidden" animate="visible" exit="hidden">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t('username')} className="flex-1" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('password')} className="flex-1" required />
-        <select value={role} onChange={(e) => setRole(e.target.value)} className="bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-3 py-2 text-sm text-apple-text sm:w-24">
-          <option value="user">{t('user')}</option>
-          <option value="admin">{t('admin')}</option>
-        </select>
-      </div>
-      {error && <div className="text-red-400 text-sm py-1.5 px-3 bg-red-500/10 rounded-lg border border-red-500/20">{error}</div>}
-      <div className="flex gap-2 justify-end">
-        <motion.button type="button" onClick={onCancel} className="btn-secondary btn-sm" whileTap={{ scale: 0.95 }}>{t('cancel')}</motion.button>
-        <motion.button type="submit" className="btn-primary btn-sm" disabled={loading} whileTap={{ scale: 0.95 }}>{loading ? t('loading') : t('save')}</motion.button>
-      </div>
-    </motion.form>
-  );
-}
-
-function PersonaTab() {
-  const { t } = useLanguage();
-  const [enabled, setEnabled] = useState(false);
-  const [content, setContent] = useState('');
-  const [loaded, setLoaded] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [msgType, setMsgType] = useState<'ok' | 'err'>('ok');
-
-  useEffect(() => {
-    api.getAdminPersona().then((d) => {
-      setEnabled(d.enabled);
-      setContent(d.content || '');
-    }).catch(() => {}).finally(() => setLoaded(true));
-  }, []);
-
-  const showMsg = (text: string, type: 'ok' | 'err') => {
-    setMsg(text); setMsgType(type);
-    setTimeout(() => setMsg(''), 2400);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const data = await api.updateAdminPersona(enabled, content);
-      setEnabled(data.enabled);
-      setContent(data.content);
-      showMsg(t('personaSaved'), 'ok');
-    } catch (err) {
-      showMsg(t('personaSaveFailed'), 'err');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleReset = async () => {
-    await api.updateAdminPersona(false, '');
-    setEnabled(false);
-    setContent('');
-    showMsg(t('personaSaved'), 'ok');
-  };
-
-  if (!loaded) return <div className="text-apple-muted">{t('loading')}</div>;
-
-  return (
-    <motion.div className="max-w-2xl" variants={fadeUp} initial="hidden" animate="visible" transition={{ ...appleEase, duration: 0.6 }}>
-      <div className="glass rounded-2xl p-6 space-y-5 border border-[var(--border)]">
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-medium">{t('globalPersona')}</h3>
-            <p className="text-apple-muted text-xs mt-0.5">{t('personaDesc')}</p>
-          </div>
-          <motion.button
-            onClick={() => setEnabled(!enabled)}
-            className={`w-10 h-5 rounded-full flex items-center px-0.5 ${enabled ? 'bg-apple-blue2' : 'bg-[var(--active-bg)]'}`}
-            whileTap={{ scale: 0.95 }}
-            style={{ transition: 'background-color 300ms linear' }}
-          >
-            <motion.div
-              className="w-4 h-4 rounded-full bg-white/90 shadow-sm"
-              initial={false}
-              animate={{ x: enabled ? 18 : 1 }}
-              transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
-            />
-          </motion.button>
-        </div>
-
-        <motion.div
-          initial={false}
-          animate={{ opacity: enabled ? 1 : 0.4, height: enabled ? 'auto' : 0 }}
-          transition={{ duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{ overflow: 'hidden' }}
-        >
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={t('personaPlaceholder')}
-            rows={5}
-            maxLength={4000}
-            disabled={!enabled}
-            className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-3 py-2.5 text-sm text-apple-text placeholder:text-apple-muted/50 resize-none focus:outline-none focus:border-[var(--accent)] disabled:opacity-30"
-            style={{ transition: 'border-color 320ms linear' }}
-          />
-          <div className="text-right text-apple-muted text-xs mt-1">{content.length} / 4000 {t('personaCharCount')}</div>
-        </motion.div>
-
-        <div className="flex items-center gap-2 justify-end">
-          <motion.button
-            onClick={handleReset}
-            className="btn-secondary btn-sm"
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-            style={{ transitionDuration: '240ms' }}
-          >
-            {t('reset')}
-          </motion.button>
-          <motion.button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn-primary btn-sm"
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-            style={{ transitionDuration: '240ms' }}
-          >
-            {saving ? t('loading') : t('savePersona')}
-          </motion.button>
-        </div>
-
-        <AnimatePresence>
-          {msg && (
-            <motion.div
-              className={`text-sm py-2 px-3 rounded-xl border text-center ${msgType === 'ok' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}
-              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              {msg}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
-
-function FilesTab() {
-  const { t } = useLanguage();
-  const [files, setFiles] = useState([]);
-  const [error, setError] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [previewSrc, setPreviewSrc] = useState('');
-  const fileInputRef = useRef(null);
-
-  const loadFiles = useCallback(() => { api.getFiles().then((d) => setFiles(d.files)).catch(() => {}); }, []);
-  useEffect(() => { loadFiles(); }, [loadFiles]);
-
-  const handleUpload = async (e) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setError(''); setUploading(true); setUploadProgress(0);
-    const timer = setInterval(() => setUploadProgress(p => Math.min(p + 0.15, 0.9)), 180);
-    try {
-      const formData = new FormData(); formData.append('file', file);
-      const data = await api.uploadFile(formData);
-      clearInterval(timer); setUploadProgress(1);
-      if (data.error) throw new Error(data.error);
-      setTimeout(() => { setUploadProgress(0); loadFiles(); }, 350);
-    } catch (err) { clearInterval(timer); setUploadProgress(0); setError(err.message); } finally {
-      setUploading(false); if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDelete = async (id) => { try { await api.deleteFile(id); loadFiles(); } catch (err) { setError(err.message); } };
-
-  const formatSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  return (
-    <div>
-      <AnimatePresence>{error && <motion.div className="mb-4 text-red-400 text-sm py-2 px-3 bg-red-500/10 rounded-xl border border-red-500/20" variants={fadeUp} initial="hidden" animate="visible" exit="hidden">{error}</motion.div>}</AnimatePresence>
-
-      <div className="flex justify-end mb-3">
-        <input ref={fileInputRef} type="file" onChange={handleUpload} className="hidden" accept=".png,.jpg,.jpeg,.webp,.gif,.zip,.txt,.md,.json,.pdf,.docx,.xlsx,.csv" />
-        <motion.button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="btn-secondary btn-sm flex items-center gap-1.5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-          <Upload size={14} />{uploading ? t('uploading') : t('uploadFile')}
-        </motion.button>
-      </div>
-
-      <AnimatePresence>
-        {uploadProgress > 0 && (
-          <motion.div className="mb-5 glass rounded-2xl p-1 overflow-hidden" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-            <motion.div className="h-1.5 rounded-lg bg-apple-blue2" initial={{ width: '0%' }} animate={{ width: `${uploadProgress * 100}%` }} transition={{ duration: 0.28 }} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Mobile cards */}
-      <motion.div className="sm:hidden space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
-        {files.length === 0 && <motion.div className="glass rounded-xl p-8 text-center text-apple-muted" variants={staggerItem}><FileText size={24} className="mx-auto mb-2 opacity-30" />{t('noFilesYet')}</motion.div>}
-        {files.map((f, i) => (
-          <motion.div key={f.id} className="glass rounded-2xl p-4 space-y-2.5 card-lift" variants={staggerItem} custom={i}>
-            {(f.mimeType || '').startsWith('image/') && (
-              <img src={api.getFilePreviewUrl(f.id)} alt={f.originalName} className="img-thumb w-full max-h-40 object-cover cursor-pointer mb-2" onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} />
-            )}
-            <div className="font-medium text-sm truncate">{f.originalName}</div>
-            <div className="flex items-center justify-between text-xs text-apple-muted"><span>{formatSize(f.size)}</span><span>{f.createdAt}</span></div>
-            <div className="flex items-center gap-1 justify-end">
-              {(f.mimeType || '').startsWith('image/') && <motion.button onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }}><ImageIcon size={14} /></motion.button>}
-              <motion.a href={api.getFileDownloadUrl(f.id)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }}><Download size={14} /></motion.a>
-              <HoldToDeleteButton
-                size="sm"
-                label=""
-                confirmLabel=""
-                completedLabel=""
-                duration={900}
-                onConfirm={() => handleDelete(f.id)}
-                ariaLabel={t('deleteFile')}
-              />
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Desktop table */}
-      <motion.div className="hidden sm:block glass rounded-2xl overflow-x-auto" variants={fadeUp} initial="hidden" animate="visible">
-        <table className="w-full text-sm min-w-[500px]">
-          <thead><tr className="border-b border-[var(--border)]">
-            <th className="text-left p-3 text-apple-muted font-medium">{t('fileName')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium hidden md:table-cell">{t('fileType')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium">{t('fileSize')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium hidden md:table-cell">{t('uploadedAt')}</th>
-            <th className="text-right p-3 text-apple-muted font-medium">{t('actions')}</th>
-          </tr></thead>
-          <tbody>
-            {files.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-apple-muted"><FileText size={24} className="mx-auto mb-2 opacity-30" />{t('noFilesYet')}</td></tr>}
-            {files.map((f) => (
-              <motion.tr key={f.id} className="border-b border-[var(--border)] hover:bg-[var(--hover-bg)]" variants={fadeUp}>
-                <td className="p-3 text-sm truncate max-w-[200px]">
-                  {(f.mimeType || '').startsWith('image/') ? (
-                    <button onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} className="text-apple-blue2 hover:underline text-left">{f.originalName}</button>
-                  ) : f.originalName}
-                </td>
-                <td className="p-3 text-apple-muted text-xs hidden md:table-cell">{f.mimeType}</td>
-                <td className="p-3 text-apple-muted text-xs">{formatSize(f.size)}</td>
-                <td className="p-3 text-apple-muted text-xs hidden md:table-cell">{f.createdAt}</td>
-                <td className="p-3 text-right"><div className="flex items-center justify-end gap-1">
-                  {(f.mimeType || '').startsWith('image/') && <motion.button onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }}><ImageIcon size={14} /></motion.button>}
-                  <motion.a href={api.getFileDownloadUrl(f.id)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }}><Download size={14} /></motion.a>
-                  <HoldToDeleteButton
-                    size="sm"
-                    label=""
-                    confirmLabel=""
-                    completedLabel=""
-                    duration={900}
-                    onConfirm={() => handleDelete(f.id)}
-                    ariaLabel={t('deleteFile')}
-                  />
-                </div></td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-
-      <ImageViewer src={previewSrc} alt={t('imagePreview')} onClose={() => setPreviewSrc('')} />
-    </div>
-  );
-}
-
-function ServersTab() {
-  const { t, lang } = useLanguage();
-  const [servers, setServers] = useState([]);
-  const [error, setError] = useState('');
-  const [showAdd, setShowAdd] = useState(false);
-  const [editing, setEditing] = useState(null);
-
-  const loadServers = useCallback(() => {
-    api.getServers().then(d => setServers(d.servers || [])).catch(() => {});
-  }, []);
-  useEffect(() => { loadServers(); }, [loadServers]);
-
-  const handleDelete = async (id) => {
-    try { await api.deleteServer(id); loadServers(); } catch (err) { setError(err.message); }
-  };
-
-  return (
-    <div>
-      <AnimatePresence>
         {error && (
-          <motion.div className="mb-4 text-red-400 text-sm py-2 px-3 bg-red-500/10 rounded-xl border border-red-500/20 flex items-center gap-2" variants={fadeUp} initial="hidden" animate="visible" exit="hidden">
-            <AlertTriangle size={14} /> {error}
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-4 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <AlertTriangle size={14} className="shrink-0" />
+            {error}
             <button onClick={() => setError('')} className="ml-auto text-xs opacity-60 hover:opacity-100">✕</button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex justify-end mb-3">
-        <motion.button onClick={() => setShowAdd(true)} className="btn-primary btn-sm flex items-center gap-1.5" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-          <Plus size={14} /> {t('addServer')}
-        </motion.button>
-      </div>
-
-      <AnimatePresence>
-        {showAdd && <ServerFormModal server={null} t={t} onDone={() => { setShowAdd(false); loadServers(); }} onCancel={() => setShowAdd(false)} setError={setError} />}
-        {editing && <ServerFormModal server={editing} t={t} onDone={() => { setEditing(null); loadServers(); }} onCancel={() => setEditing(null)} setError={setError} />}
-      </AnimatePresence>
-
-      {/* Mobile cards */}
-      <div className="sm:hidden space-y-3">
-        {servers.map((s) => (
-          <div key={s.id} className="glass rounded-2xl p-4 space-y-2.5 card-lift">
-            <div className="flex items-center justify-between">
-              <Link to={`/servers/${s.id}`} className="font-medium text-sm no-underline hover:text-[var(--accent)]" style={{ color: 'inherit', transition: 'color 200ms' }}>{s.name}</Link>
-              <span className="text-xs text-apple-muted">{s.username}@{s.ip}:{s.port}</span>
-            </div>
-            {s.authNote && <p className="text-xs text-apple-muted truncate">{s.authNote}</p>}
-            <div className="flex gap-1">
-              <motion.button onClick={() => setEditing(s)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }}><Edit3 size={14} /></motion.button>
-              <HoldToDeleteButton
-                size="sm"
-                label=""
-                confirmLabel=""
-                completedLabel=""
-                duration={1000}
-                onConfirm={() => handleDelete(s.id)}
-                ariaLabel={t('delete')}
-              />
-            </div>
+      {/* Toolbar */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input className="saas-input !pl-9 !py-2 !text-sm !w-56" placeholder={lang === 'zh' ? '搜索用户...' : 'Search users...'} />
           </div>
-        ))}
+        </div>
+        <button onClick={() => setShowCreate(true)} className="saas-btn saas-btn-primary saas-btn-sm">
+          <Plus size={14} />
+          {t('addUser')}
+        </button>
       </div>
 
       {/* Desktop table */}
-      <div className="hidden sm:block glass rounded-2xl overflow-x-auto">
-        <table className="w-full text-sm min-w-[600px]">
-          <thead><tr className="border-b border-[var(--border)]">
-            <th className="text-left p-3 text-apple-muted font-medium">{t('serverName')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium">{t('serverIP')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium hidden md:table-cell">{t('serverUser')}</th>
-            <th className="text-left p-3 text-apple-muted font-medium hidden md:table-cell">{t('authNote')}</th>
-            <th className="text-right p-3 text-apple-muted font-medium">{t('actions')}</th>
-          </tr></thead>
+      <div className="hidden sm:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <table className="saas-table">
+          <thead>
+            <tr>
+              <th>{t('username')}</th>
+              <th>{t('role')}</th>
+              <th>{t('status')}</th>
+              <th className="hidden md:table-cell">{t('createdAt')}</th>
+              <th className="text-right">{t('actions')}</th>
+            </tr>
+          </thead>
           <tbody>
-            {servers.length === 0 ? (
-              <tr><td colSpan={5} className="p-8 text-center text-apple-muted">{t('noServers')}</td></tr>
-            ) : servers.map((s) => (
-              <tr key={s.id} className="border-b border-[var(--border)] hover:bg-[var(--hover-bg)]">
-                <td className="p-3">
-                  <Link to={`/servers/${s.id}`} className="text-sm no-underline hover:text-[var(--accent)]" style={{ color: 'inherit', transition: 'color 200ms' }}>{s.name}</Link>
+            {users.length === 0 ? (
+              <tr><td colSpan={5} className="text-center py-12 text-slate-400">{t('noUsers')}</td></tr>
+            ) : users.map((u) => (
+              <tr key={u.id}>
+                <td className="font-medium">{u.username}</td>
+                <td>
+                  <span className={`saas-badge ${u.role === 'admin' ? 'saas-badge-teal' : 'saas-badge-blue'}`}>
+                    {u.role === 'admin' ? 'Admin' : t('user')}
+                  </span>
                 </td>
-                <td className="p-3 text-xs font-mono">{s.ip}:{s.port}</td>
-                <td className="p-3 text-xs hidden md:table-cell">{s.username}</td>
-                <td className="p-3 text-xs text-apple-muted hidden md:table-cell truncate max-w-[200px]">{s.authNote || '-'}</td>
-                <td className="p-3 text-right">
+                <td>
+                  <span className={`saas-badge ${statusBadge(u.status)}`}>{statusLabel(u.status)}</span>
+                </td>
+                <td className="hidden md:table-cell text-slate-400 text-xs">{u.createdAt || '-'}</td>
+                <td className="text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <Link to={`/servers/${s.id}`} className="p-1.5 rounded-lg hover:bg-green-500/20 text-green-400 inline-flex" title={t('execCommand')}><Monitor size={14} /></Link>
-                    <motion.button onClick={() => setEditing(s)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-blue-400" whileTap={{ scale: 0.85 }} title={t('editServer')}><Edit3 size={14} /></motion.button>
+                    <button onClick={() => setEditingUser(u)} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5" title={t('edit')}>
+                      <Edit3 size={14} />
+                    </button>
+                    <button onClick={() => setPasswordUser(u)} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5" title={t('changePassword')}>
+                      <Key size={14} />
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(u.id, u.status === 'active' ? 'disabled' : 'active')}
+                      className="saas-btn saas-btn-ghost saas-btn-sm p-1.5"
+                      title={u.status === 'active' ? t('disable') : t('enable')}
+                    >
+                      {u.status === 'active' ? <UserX size={14} className="text-amber-500" /> : <UserCheck size={14} className="text-emerald-500" />}
+                    </button>
                     <HoldToDeleteButton
                       size="sm"
                       label=""
                       confirmLabel=""
                       completedLabel=""
-                      duration={1000}
-                      onConfirm={() => handleDelete(s.id)}
+                      duration={900}
+                      onConfirm={() => handleDelete(u.id)}
                       ariaLabel={t('delete')}
                     />
                   </div>
@@ -813,11 +671,486 @@ function ServersTab() {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile cards */}
+      <div className="sm:hidden space-y-3">
+        {users.length === 0 ? (
+          <div className="text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200">{t('noUsers')}</div>
+        ) : users.map((u) => (
+          <div key={u.id} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-sm">{u.username}</span>
+              <span className={`saas-badge ${u.role === 'admin' ? 'saas-badge-teal' : 'saas-badge-blue'}`}>
+                {u.role === 'admin' ? 'Admin' : t('user')}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className={`saas-badge ${statusBadge(u.status)}`}>{statusLabel(u.status)}</span>
+              <div className="flex gap-1">
+                <button onClick={() => setEditingUser(u)} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5"><Edit3 size={14} /></button>
+                <HoldToDeleteButton size="sm" label="" confirmLabel="" completedLabel="" duration={900} onConfirm={() => handleDelete(u.id)} ariaLabel={t('delete')} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modals */}
+      {showCreate && <UserFormModal mode="create" t={t} lang={lang} onDone={() => { setShowCreate(false); loadUsers(); }} onCancel={() => setShowCreate(false)} setError={setError} />}
+      {editingUser && <UserFormModal mode="edit" user={editingUser} t={t} lang={lang} onDone={() => { setEditingUser(null); loadUsers(); }} onCancel={() => setEditingUser(null)} setError={setError} />}
+      {passwordUser && <PasswordModal user={passwordUser} t={t} lang={lang} onDone={() => { setPasswordUser(null); }} onCancel={() => setPasswordUser(null)} setError={setError} />}
     </div>
   );
 }
 
-function ServerFormModal({ server, t, onDone, onCancel, setError }) {
+// ============================================================
+// User Form Modal
+// ============================================================
+function UserFormModal({ mode, user, t, lang, onDone, onCancel, setError }: {
+  mode: 'create' | 'edit'; user?: any; t: any; lang: string; onDone: () => void; onCancel: () => void; setError: (e: string) => void;
+}) {
+  const [username, setUsername] = useState(user?.username || '');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState(user?.role || 'user');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!username.trim()) return;
+    if (mode === 'create' && !password.trim()) return;
+    setSaving(true);
+    try {
+      if (mode === 'edit' && user) {
+        await api.updateUser(user.id, { role });
+      } else {
+        await api.createUser(username.trim(), password, role);
+      }
+      onDone();
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <>
+      <div className="saas-modal-overlay" onClick={onCancel} />
+      <div className="saas-modal" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-bold text-slate-800 mb-4">
+          {mode === 'create' ? t('addUser') : t('editUser')}
+        </h3>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('username')}</label>
+            <input className="saas-input" value={username} onChange={e => setUsername(e.target.value)} placeholder="username" autoFocus />
+          </div>
+          {mode === 'create' && (
+            <div>
+              <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('password')}</label>
+              <input className="saas-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+            </div>
+          )}
+          <div>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('role')}</label>
+            <select className="saas-input saas-select" value={role} onChange={e => setRole(e.target.value)}>
+              <option value="user">{t('user')}</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end mt-6">
+          <button onClick={onCancel} className="saas-btn saas-btn-secondary">{t('cancel')}</button>
+          <button onClick={handleSave} disabled={saving || !username.trim() || (mode === 'create' && !password.trim())} className="saas-btn saas-btn-primary">
+            {saving ? t('loading') : t('save')}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ============================================================
+// Password Modal
+// ============================================================
+function PasswordModal({ user, t, lang, onDone, onCancel, setError }: {
+  user: any; t: any; lang: string; onDone: () => void; onCancel: () => void; setError: (e: string) => void;
+}) {
+  const [password, setPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!password.trim()) return;
+    setSaving(true);
+    try {
+      await api.updateUserPassword(user.id, password);
+      onDone();
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <>
+      <div className="saas-modal-overlay" onClick={onCancel} />
+      <div className="saas-modal" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-bold text-slate-800 mb-1">{t('changePassword')}</h3>
+        <p className="text-sm text-slate-500 mb-4">{user?.username}</p>
+        <div>
+          <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('newPassword')}</label>
+          <input className="saas-input" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" autoFocus />
+        </div>
+        <div className="flex gap-2 justify-end mt-6">
+          <button onClick={onCancel} className="saas-btn saas-btn-secondary">{t('cancel')}</button>
+          <button onClick={handleSave} disabled={saving || !password.trim()} className="saas-btn saas-btn-primary">
+            {saving ? t('loading') : t('save')}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ============================================================
+// FILES TAB
+// ============================================================
+function FilesTab({ lang, t }: { lang: string; t: any }) {
+  const [files, setFiles] = useState<any[]>([]);
+  const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewSrc, setPreviewSrc] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadFiles = useCallback(() => { api.getFiles().then((d) => setFiles(d.files)).catch(() => {}); }, []);
+  useEffect(() => { loadFiles(); }, [loadFiles]);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    setError(''); setUploading(true); setUploadProgress(0);
+    const timer = setInterval(() => setUploadProgress(p => Math.min(p + 0.15, 0.9)), 180);
+    try {
+      const formData = new FormData(); formData.append('file', file);
+      const data = await api.uploadFile(formData);
+      clearInterval(timer); setUploadProgress(1);
+      if (data.error) throw new Error(data.error);
+      setTimeout(() => { setUploadProgress(0); loadFiles(); }, 350);
+    } catch (err: any) { clearInterval(timer); setUploadProgress(0); setError(err.message); }
+    finally { setUploading(false); if (fileInputRef.current) fileInputRef.current.value = ''; }
+  };
+
+  const handleDelete = async (id: number) => { try { await api.deleteFile(id); loadFiles(); } catch (err: any) { setError(err.message); } };
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  return (
+    <div>
+      <AnimatePresence>
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-4 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <AlertTriangle size={14} className="shrink-0" />{error}
+            <button onClick={() => setError('')} className="ml-auto text-xs opacity-60 hover:opacity-100">✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <div className="bg-white rounded-lg border border-slate-200 flex p-0.5">
+            <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-slate-100 text-slate-700' : 'text-slate-400'}`}>
+              <Grid size={16} />
+            </button>
+            <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-slate-100 text-slate-700' : 'text-slate-400'}`}>
+              <List size={16} />
+            </button>
+          </div>
+          <span className="text-xs text-slate-400">{files.length} {lang === 'zh' ? '个文件' : 'files'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <input ref={fileInputRef} type="file" onChange={handleUpload} className="hidden" accept=".png,.jpg,.jpeg,.webp,.gif,.zip,.txt,.md,.json,.pdf,.docx,.xlsx,.csv" />
+          <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="saas-btn saas-btn-primary saas-btn-sm">
+            <Upload size={14} />
+            {uploading ? t('uploading') : t('uploadFile')}
+          </button>
+        </div>
+      </div>
+
+      {/* Upload progress */}
+      <AnimatePresence>
+        {uploadProgress > 0 && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-4">
+            <div className="saas-progress">
+              <div className="saas-progress-bar" style={{ width: `${uploadProgress * 100}%` }} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* File grid */}
+      <div className={`${viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3' : 'space-y-2'}`}>
+        {files.length === 0 && (
+          <div className="col-span-full flex flex-col items-center justify-center py-16 text-slate-400">
+            <FileText size={32} className="mb-3 opacity-40" />
+            <span className="text-sm">{t('noFilesYet')}</span>
+          </div>
+        )}
+        {files.map((f) => (
+          viewMode === 'grid' ? (
+            <div key={f.id} className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+              {(f.mimeType || '').startsWith('image/') ? (
+                <img src={api.getFilePreviewUrl(f.id)} alt={f.originalName} className="w-full h-28 object-cover rounded-lg mb-2 cursor-pointer" onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} />
+              ) : (
+                <div className="w-full h-28 rounded-lg mb-2 bg-slate-50 flex items-center justify-center">
+                  <FileText size={28} className="text-slate-300" />
+                </div>
+              )}
+              <div className="text-xs font-medium truncate text-slate-700 mb-1">{f.originalName}</div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-400">{formatSize(f.size)}</span>
+                <div className="flex gap-0.5">
+                  {(f.mimeType || '').startsWith('image/') && (
+                    <button onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} className="p-1 rounded-md hover:bg-slate-100 text-slate-400"><Eye size={12} /></button>
+                  )}
+                  <a href={api.getFileDownloadUrl(f.id)} className="p-1 rounded-md hover:bg-slate-100 text-slate-400 inline-flex"><DownloadIcon size={12} /></a>
+                  <HoldToDeleteButton size="sm" label="" confirmLabel="" completedLabel="" duration={900} onConfirm={() => handleDelete(f.id)} ariaLabel={t('deleteFile')} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div key={f.id} className="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex items-center gap-3 hover:shadow-md transition-all duration-200">
+              {(f.mimeType || '').startsWith('image/') ? (
+                <img src={api.getFilePreviewUrl(f.id)} alt={f.originalName} className="w-10 h-10 rounded-lg object-cover cursor-pointer shrink-0" onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} />
+              ) : (
+                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center shrink-0"><FileText size={18} className="text-slate-400" /></div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate text-slate-700">{f.originalName}</div>
+                <div className="text-xs text-slate-400">{formatSize(f.size)}</div>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                {(f.mimeType || '').startsWith('image/') && <button onClick={() => setPreviewSrc(api.getFilePreviewUrl(f.id))} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5"><Eye size={14} /></button>}
+                <a href={api.getFileDownloadUrl(f.id)} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5 inline-flex"><DownloadIcon size={14} /></a>
+                <HoldToDeleteButton size="sm" label="" confirmLabel="" completedLabel="" duration={900} onConfirm={() => handleDelete(f.id)} ariaLabel={t('deleteFile')} />
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+
+      <ImageViewer src={previewSrc} alt={t('imagePreview')} onClose={() => setPreviewSrc('')} />
+    </div>
+  );
+}
+
+// ============================================================
+// PERSONA TAB
+// ============================================================
+function PersonaTab({ lang, t }: { lang: string; t: any }) {
+  const [persona, setPersona] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [enabled, setEnabled] = useState(false);
+  const [content, setContent] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'ok' | 'err'>('ok');
+
+  useEffect(() => {
+    api.getAdminPersona().then((d) => {
+      setPersona(d.persona);
+      setEnabled(d.persona?.enabled ?? false);
+      setContent(d.persona?.content || '');
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true); setMessage('');
+    try {
+      await api.updateAdminPersona(enabled, content);
+      setMessage(t('personaUpdated')); setMessageType('ok');
+    } catch (err: any) { setMessage(err.message); setMessageType('err'); }
+    finally { setSaving(false); }
+  };
+
+  const handleReset = () => {
+    if (persona) {
+      setEnabled(persona.enabled ?? false);
+      setContent(persona.content || '');
+    }
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-16"><div className="w-5 h-5 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" /></div>;
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-700 mb-4">{t('persona')}</h3>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-slate-700">{t('enablePersona')}</div>
+              <div className="text-xs text-slate-400 mt-0.5">{lang === 'zh' ? '启用后将影响 AI 助手的回复风格' : 'Affects AI assistant response style'}</div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={enabled} onChange={e => setEnabled(e.target.checked)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-slate-200 rounded-full peer peer-checked:bg-emerald-400 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
+            </label>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('personaContent')}</label>
+            <textarea
+              className="saas-input !min-h-[200px] resize-y"
+              value={content}
+              onChange={e => setContent(e.target.value)}
+              placeholder={lang === 'zh' ? '输入 AI 助手的人格设定…' : 'Enter AI assistant persona...'}
+            />
+            <div className="text-[10px] text-slate-400 mt-1">{lang === 'zh' ? '支持 Markdown 格式' : 'Markdown supported'}</div>
+          </div>
+
+          <div className="flex items-center gap-2 justify-end">
+            <button onClick={handleReset} className="saas-btn saas-btn-secondary saas-btn-sm">{t('reset')}</button>
+            <button onClick={handleSave} disabled={saving} className="saas-btn saas-btn-primary saas-btn-sm">
+              {saving ? t('loading') : t('savePersona')}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {message && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className={`text-sm py-2 px-3 rounded-xl border text-center ${
+                  messageType === 'ok' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
+                }`}
+              >
+                {message}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SERVERS TAB
+// ============================================================
+function ServersTab({ lang, t }: { lang: string; t: any }) {
+  const [servers, setServers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
+
+  const loadServers = useCallback(() => {
+    api.getServers().then(d => setServers(d.servers || [])).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+  useEffect(() => { loadServers(); }, [loadServers]);
+
+  const handleDelete = async (id: number) => {
+    try { await api.deleteServer(id); loadServers(); } catch (err: any) { setError(err.message); }
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-16"><div className="w-5 h-5 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin" /></div>;
+  }
+
+  return (
+    <div>
+      <AnimatePresence>
+        {error && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-4 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <AlertTriangle size={14} /> {error}
+            <button onClick={() => setError('')} className="ml-auto text-xs opacity-60 hover:opacity-100">✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input className="saas-input !pl-9 !py-2 !text-sm !w-56" placeholder={lang === 'zh' ? '搜索服务器...' : 'Search servers...'} />
+          </div>
+        </div>
+        <button onClick={() => setShowAdd(true)} className="saas-btn saas-btn-primary saas-btn-sm">
+          <Plus size={14} />
+          {t('addServer')}
+        </button>
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden sm:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <table className="saas-table">
+          <thead>
+            <tr>
+              <th>{t('serverName')}</th>
+              <th>{t('serverIP')}</th>
+              <th className="hidden md:table-cell">{t('serverUser')}</th>
+              <th className="hidden md:table-cell">{t('authNote')}</th>
+              <th className="text-right">{t('actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {servers.length === 0 ? (
+              <tr><td colSpan={5} className="text-center py-12 text-slate-400">{t('noServers')}</td></tr>
+            ) : servers.map((s) => (
+              <tr key={s.id}>
+                <td>
+                  <Link to={`/servers/${s.id}`} className="font-medium text-slate-700 hover:text-emerald-600 no-underline">{s.name}</Link>
+                </td>
+                <td className="font-mono text-xs">{s.ip}:{s.port}</td>
+                <td className="hidden md:table-cell text-xs text-slate-500">{s.username}</td>
+                <td className="hidden md:table-cell text-xs text-slate-400 truncate max-w-[200px]">{s.authNote || '-'}</td>
+                <td className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <Link to={`/servers/${s.id}`} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5 inline-flex" title={t('execCommand')}>
+                      <Terminal size={14} />
+                    </Link>
+                    <button onClick={() => setEditing(s)} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5" title={t('editServer')}>
+                      <Edit3 size={14} />
+                    </button>
+                    <HoldToDeleteButton size="sm" label="" confirmLabel="" completedLabel="" duration={1000} onConfirm={() => handleDelete(s.id)} ariaLabel={t('delete')} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="sm:hidden space-y-3">
+        {servers.length === 0 ? (
+          <div className="text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200">{t('noServers')}</div>
+        ) : servers.map((s) => (
+          <div key={s.id} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <Link to={`/servers/${s.id}`} className="font-medium text-sm text-slate-700 no-underline">{s.name}</Link>
+              <span className="text-xs text-slate-400">{s.username}@{s.ip}:{s.port}</span>
+            </div>
+            {s.authNote && <p className="text-xs text-slate-400 truncate mb-2">{s.authNote}</p>}
+            <div className="flex gap-1">
+              <button onClick={() => setEditing(s)} className="saas-btn saas-btn-ghost saas-btn-sm p-1.5"><Edit3 size={14} /></button>
+              <HoldToDeleteButton size="sm" label="" confirmLabel="" completedLabel="" duration={1000} onConfirm={() => handleDelete(s.id)} ariaLabel={t('delete')} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Modals */}
+      {showAdd && <ServerFormModal server={null} t={t} lang={lang} onDone={() => { setShowAdd(false); loadServers(); }} onCancel={() => setShowAdd(false)} setError={setError} />}
+      {editing && <ServerFormModal server={editing} t={t} lang={lang} onDone={() => { setEditing(null); loadServers(); }} onCancel={() => setEditing(null)} setError={setError} />}
+    </div>
+  );
+}
+
+function ServerFormModal({ server, t, lang, onDone, onCancel, setError }: {
+  server: any; t: any; lang: string; onDone: () => void; onCancel: () => void; setError: (e: string) => void;
+}) {
   const [name, setName] = useState(server?.name || '');
   const [ip, setIp] = useState(server?.ip || '');
   const [port, setPort] = useState(server?.port || 22);
@@ -830,52 +1163,52 @@ function ServerFormModal({ server, t, onDone, onCancel, setError }) {
     setSaving(true);
     try {
       if (server) {
-        await api.updateServer(server.id, { name: name.trim(), ip: ip.trim(), port: parseInt(port) || 22, username: username.trim() || 'root', authNote: authNote.trim() });
+        await api.updateServer(server.id, { name: name.trim(), ip: ip.trim(), port: parseInt(String(port)) || 22, username: username.trim() || 'root', authNote: authNote.trim() });
       } else {
-        await api.createServer({ name: name.trim(), ip: ip.trim(), port: parseInt(port) || 22, username: username.trim() || 'root', authNote: authNote.trim() });
+        await api.createServer({ name: name.trim(), ip: ip.trim(), port: parseInt(String(port)) || 22, username: username.trim() || 'root', authNote: authNote.trim() });
       }
       onDone();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setSaving(false); }
   };
 
   return (
     <>
-      <motion.div className="fixed inset-0 z-50 bg-[var(--overlay-bg)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} />
-      <motion.div className="fixed inset-x-4 top-24 z-50 max-w-md mx-auto glass rounded-2xl p-5 border border-[var(--border)] shadow-2xl max-h-[calc(100dvh-8rem)] overflow-y-auto" initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.97 }} transition={{ duration: 0.32 }}>
-        <h3 className="text-sm font-medium mb-4">{server ? t('editServer') : t('addServer')}</h3>
+      <div className="saas-modal-overlay" onClick={onCancel} />
+      <div className="saas-modal" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-bold text-slate-800 mb-4">{server ? t('editServer') : t('addServer')}</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-apple-muted block mb-1">{t('serverName')}</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Web Server 1" autoFocus />
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('serverName')}</label>
+            <input className="saas-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Web Server 1" autoFocus />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-apple-muted block mb-1">{t('serverIP')}</label>
-              <input value={ip} onChange={e => setIp(e.target.value)} placeholder="192.168.1.1" />
+              <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('serverIP')}</label>
+              <input className="saas-input" value={ip} onChange={e => setIp(e.target.value)} placeholder="192.168.1.1" />
             </div>
             <div>
-              <label className="text-xs text-apple-muted block mb-1">{t('serverPort')}</label>
-              <input value={port} onChange={e => setPort(e.target.value)} placeholder="22" type="number" />
+              <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('serverPort')}</label>
+              <input className="saas-input" value={port} onChange={e => setPort(e.target.value)} placeholder="22" type="number" />
             </div>
           </div>
           <div>
-            <label className="text-xs text-apple-muted block mb-1">{t('serverUser')}</label>
-            <input value={username} onChange={e => setUsername(e.target.value)} placeholder="root" />
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('serverUser')}</label>
+            <input className="saas-input" value={username} onChange={e => setUsername(e.target.value)} placeholder="root" />
           </div>
           <div>
-            <label className="text-xs text-apple-muted block mb-1">{t('authNote')}</label>
-            <input value={authNote} onChange={e => setAuthNote(e.target.value)} placeholder={t('authNote') + ' (SSH key, password, etc.)'} />
+            <label className="text-xs font-medium text-slate-500 block mb-1.5">{t('authNote')}</label>
+            <input className="saas-input" value={authNote} onChange={e => setAuthNote(e.target.value)} placeholder={t('authNote') + ' (SSH key, password, etc.)'} />
           </div>
         </div>
-        <div className="flex gap-2 justify-end mt-4">
-          <motion.button onClick={onCancel} className="btn-secondary btn-sm" whileTap={{ scale: 0.95 }}>{t('cancel')}</motion.button>
-          <motion.button onClick={handleSave} disabled={saving || !name.trim() || !ip.trim()} className="btn-primary btn-sm" whileTap={{ scale: 0.95 }}>{saving ? t('loading') : t('save')}</motion.button>
+        <div className="flex gap-2 justify-end mt-6">
+          <button onClick={onCancel} className="saas-btn saas-btn-secondary">{t('cancel')}</button>
+          <button onClick={handleSave} disabled={saving || !name.trim() || !ip.trim()} className="saas-btn saas-btn-primary">{saving ? t('loading') : t('save')}</button>
         </div>
-      </motion.div>
+      </div>
     </>
   );
 }
+
+// We need MessageSquare icon - re-import
+import { MessageSquare } from 'lucide-react';

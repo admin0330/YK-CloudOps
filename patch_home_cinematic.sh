@@ -1,3 +1,17 @@
+#!/bin/bash
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${YELLOW}开始重构主页 HomePage 电影感卡片与多维过渡动效...${NC}"
+
+# 1. 备份原主页
+if [ -f "src/pages/HomePage.tsx" ]; then
+    cp src/pages/HomePage.tsx src/pages/HomePage.tsx.bak
+fi
+
+# 2. 完全重写 HomePage.tsx，注入全套大范围 Framer-Motion 联动动画
+cat << 'HOME_EOF' > src/pages/HomePage.tsx
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Server, MessageSquare, ShieldAlert } from 'lucide-react';
@@ -150,3 +164,14 @@ export default function HomePage() {
     </div>
   );
 }
+HOME_EOF
+
+echo -e "${YELLOW}正在重新编译项目打包以使重构生效...${NC}"
+npm run build
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}🎉 主页全套电影感卡片阵列动画重构成功！${NC}"
+else
+    echo -e "${RED}编译失败，正在回滚主页文件...${NC}"
+    cp src/pages/HomePage.tsx.bak src/pages/HomePage.tsx
+fi
