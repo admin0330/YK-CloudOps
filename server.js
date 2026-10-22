@@ -4,7 +4,7 @@ import session from 'express-session';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -23,6 +23,7 @@ import askMeRoutes from './server/routes/askMe.js';
 import cloudOpsRoutes from './server/routes/cloudops.js';
 import weatherRoutes from './server/routes/weather.js';
 import jsStudyRoutes from './server/routes/jsStudy.js';
+import { createRateLimiter } from './server/middleware/rateLimit.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execFileAsync = promisify(execFile);
@@ -270,6 +271,15 @@ async function getOfficePreviewPdf(resolved) {
   }
 }
 
+function safeEqual(a, b) {
+  // 先哈希再比较，保证长度一致且耗时恒定
+  const ha = createHash('sha256').update(a).digest();
+  const hb = createHash('sha256').update(b).digest();
+  return timingSafeEqual(ha, hb);
+}
+
+const diskUnlockLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: 'disk-unlock' });
+
 function requireDiskAdmin(req, res, next) {
   const expectedPassword = process.env.DISK_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD;
   const providedPassword = req.get('x-disk-password') || req.body?.adminPassword || '';
@@ -278,7 +288,7 @@ function requireDiskAdmin(req, res, next) {
     return res.status(500).json({ error: 'Disk password is not configured' });
   }
 
-  if (providedPassword !== expectedPassword) {
+  if (!safeEqual(String(providedPassword), expectedPassword)) {
     return res.status(401).json({ error: 'Invalid admin password' });
   }
 
@@ -317,8 +327,17 @@ app.set('trust proxy', 1);
 // ============================================================
 // SESSION MIDDLEWARE — must come before all routes
 // ============================================================
+const sessionSecret = process.env.SESSION_SECRET;
+const isPlaceholderSecret = sessionSecret === 'change_this_to_a_long_random_secret' || sessionSecret === 'dev-secret-change-me';
+if ((!sessionSecret || isPlaceholderSecret) && process.env.NODE_ENV === 'production') {
+  throw new Error('SESSION_SECRET must be set to a long random value in production');
+}
+if (!sessionSecret) {
+  console.warn('[warn] SESSION_SECRET is not set; using an insecure development secret');
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  secret: sessionSecret || 'dev-secret-change-me',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -404,7 +423,7 @@ app.get('/api/disk/session', (req, res) => {
   res.json({ unlocked: req.session?.diskUnlocked === true });
 });
 
-app.post('/api/disk/unlock', requireDiskAdmin, (req, res) => {
+app.post('/api/disk/unlock', diskUnlockLimiter, requireDiskAdmin, (req, res) => {
   req.session.save((err) => {
     if (err) return res.status(500).json({ error: 'Session error' });
     res.json({ ok: true, unlocked: true });
