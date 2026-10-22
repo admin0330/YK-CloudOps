@@ -4,7 +4,7 @@ import session from 'express-session';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -23,6 +23,7 @@ import askMeRoutes from './server/routes/askMe.js';
 import cloudOpsRoutes from './server/routes/cloudops.js';
 import weatherRoutes from './server/routes/weather.js';
 import jsStudyRoutes from './server/routes/jsStudy.js';
+import { createRateLimiter } from './server/middleware/rateLimit.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execFileAsync = promisify(execFile);
@@ -88,9 +89,21 @@ function resolveDiskPath(name = '') {
   return { safeName, filePath };
 }
 
+// uploadId 只会由服务端用 randomUUID() 生成，因此只接受 UUID 形式。
+// 否则 ".." 之类的值会让后面的递归删除落到上传临时目录之外。
+const UPLOAD_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function parseUploadId(value) {
+  const id = String(value || '');
+  return UPLOAD_ID_PATTERN.test(id) ? id : '';
+}
+
 function getDiskUploadDir(uploadId) {
-  const safeId = sanitizeDiskSegment(uploadId);
-  return path.resolve(diskTempRoot, safeId);
+  const safeId = parseUploadId(uploadId);
+  if (!safeId) throw new Error('Invalid uploadId');
+  const dir = path.resolve(diskTempRoot, safeId);
+  if (!dir.startsWith(`${diskTempRoot}${path.sep}`)) throw new Error('Invalid uploadId');
+  return dir;
 }
 
 function getDiskUploadMetaPath(uploadId) {
@@ -270,6 +283,15 @@ async function getOfficePreviewPdf(resolved) {
   }
 }
 
+function safeEqual(a, b) {
+  // 先哈希再比较，保证长度一致且耗时恒定
+  const ha = createHash('sha256').update(a).digest();
+  const hb = createHash('sha256').update(b).digest();
+  return timingSafeEqual(ha, hb);
+}
+
+const diskUnlockLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: 'disk-unlock' });
+
 function requireDiskAdmin(req, res, next) {
   const expectedPassword = process.env.DISK_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD;
   const providedPassword = req.get('x-disk-password') || req.body?.adminPassword || '';
@@ -278,7 +300,7 @@ function requireDiskAdmin(req, res, next) {
     return res.status(500).json({ error: 'Disk password is not configured' });
   }
 
-  if (providedPassword !== expectedPassword) {
+  if (!safeEqual(String(providedPassword), expectedPassword)) {
     return res.status(401).json({ error: 'Invalid admin password' });
   }
 
@@ -313,12 +335,30 @@ const diskUpload = multer({
 
 // Trust proxy for reverse proxy setups
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+// 基础安全响应头（不设 CSP，避免影响 Spline/内嵌预览；预览路由自带 sandbox CSP）
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
 // ============================================================
 // SESSION MIDDLEWARE — must come before all routes
 // ============================================================
+const sessionSecret = process.env.SESSION_SECRET;
+const isPlaceholderSecret = sessionSecret === 'change_this_to_a_long_random_secret' || sessionSecret === 'dev-secret-change-me';
+if ((!sessionSecret || isPlaceholderSecret) && process.env.NODE_ENV === 'production') {
+  throw new Error('SESSION_SECRET must be set to a long random value in production');
+}
+if (!sessionSecret) {
+  console.warn('[warn] SESSION_SECRET is not set; using an insecure development secret');
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  secret: sessionSecret || 'dev-secret-change-me',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -404,7 +444,7 @@ app.get('/api/disk/session', (req, res) => {
   res.json({ unlocked: req.session?.diskUnlocked === true });
 });
 
-app.post('/api/disk/unlock', requireDiskAdmin, (req, res) => {
+app.post('/api/disk/unlock', diskUnlockLimiter, requireDiskAdmin, (req, res) => {
   req.session.save((err) => {
     if (err) return res.status(500).json({ error: 'Session error' });
     res.json({ ok: true, unlocked: true });
@@ -558,8 +598,8 @@ app.post('/api/disk/upload/start', requireDiskUnlocked, express.json({ limit: '2
 });
 
 app.get('/api/disk/upload/status', requireDiskUnlocked, (req, res) => {
-  const uploadId = String(req.query.uploadId || '');
-  if (!uploadId) return res.status(400).json({ error: 'uploadId is required' });
+  const uploadId = parseUploadId(req.query.uploadId);
+  if (!uploadId) return res.status(400).json({ error: 'A valid uploadId is required' });
   if (completingDiskUploads.has(uploadId)) return res.status(409).json({ error: 'Upload is being finalized' });
 
   const meta = readDiskUploadMeta(uploadId);
@@ -577,8 +617,8 @@ app.get('/api/disk/upload/status', requireDiskUnlocked, (req, res) => {
 });
 
 app.post('/api/disk/upload/cancel', requireDiskUnlocked, express.json({ limit: '64kb' }), (req, res) => {
-  const uploadId = String(req.body?.uploadId || '');
-  if (!uploadId) return res.status(400).json({ error: 'uploadId is required' });
+  const uploadId = parseUploadId(req.body?.uploadId);
+  if (!uploadId) return res.status(400).json({ error: 'A valid uploadId is required' });
   if (completingDiskUploads.has(uploadId)) {
     return res.status(409).json({ error: 'Upload is already being finalized and can no longer be cancelled' });
   }
@@ -590,11 +630,11 @@ app.post('/api/disk/upload/cancel', requireDiskUnlocked, express.json({ limit: '
 });
 
 app.put('/api/disk/upload/chunk', requireDiskUnlocked, express.raw({ type: 'application/octet-stream', limit: diskChunkBodyLimit }), (req, res) => {
-  const uploadId = String(req.query.uploadId || '');
+  const uploadId = parseUploadId(req.query.uploadId);
   const chunkIndex = Number(req.query.chunkIndex);
   const totalChunks = Number(req.query.totalChunks || 0);
 
-  if (!uploadId) return res.status(400).json({ error: 'uploadId is required' });
+  if (!uploadId) return res.status(400).json({ error: 'A valid uploadId is required' });
   if (cancelledDiskUploads.has(uploadId)) return res.status(410).json({ error: 'Upload session was cancelled' });
   if (completingDiskUploads.has(uploadId)) return res.status(409).json({ error: 'Upload is being finalized' });
   if (!Number.isInteger(chunkIndex) || chunkIndex < 0) {
@@ -654,8 +694,8 @@ app.put('/api/disk/upload/chunk', requireDiskUnlocked, express.raw({ type: 'appl
 });
 
 app.post('/api/disk/upload/complete', requireDiskUnlocked, express.json({ limit: '2mb' }), async (req, res, next) => {
-  const uploadId = String(req.body?.uploadId || '');
-  if (!uploadId) return res.status(400).json({ error: 'uploadId is required' });
+  const uploadId = parseUploadId(req.body?.uploadId);
+  if (!uploadId) return res.status(400).json({ error: 'A valid uploadId is required' });
   if (cancelledDiskUploads.has(uploadId)) return res.status(410).json({ error: 'Upload session was cancelled' });
   if (completingDiskUploads.has(uploadId)) return res.status(409).json({ error: 'Upload is already being finalized' });
 
@@ -831,7 +871,7 @@ app.delete('/api/disk/files', requireDiskUnlocked, (req, res) => {
 
 app.delete('/api/disk/files/:name', requireDiskUnlocked, (req, res) => {
   const resolved = resolveDiskPath(req.params.name);
-  if (!resolved || !fs.existsSync(resolved.filePath)) {
+  if (!resolved || !fs.existsSync(resolved.filePath) || resolved.filePath === diskRoot) {
     return res.status(404).json({ error: 'File not found' });
   }
 

@@ -6,11 +6,15 @@ import {
   insertUser,
   updateUserLastLogin,
 } from '../db.js';
+import { createRateLimiter } from '../middleware/rateLimit.js';
 
 const router = Router();
 
+const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: 'login' });
+const registerLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 10, keyPrefix: 'register' });
+
 // POST /api/auth/register
-router.post('/auth/register', async (req, res) => {
+router.post('/auth/register', registerLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -46,7 +50,7 @@ router.post('/auth/register', async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/auth/login', async (req, res) => {
+router.post('/auth/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
 

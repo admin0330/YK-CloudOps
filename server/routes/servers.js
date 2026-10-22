@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Client } from 'ssh2';
+import fs from 'node:fs';
 import os from 'node:os';
 import { execSync } from 'node:child_process';
 import {
@@ -50,6 +51,28 @@ function isDangerous(command) {
 }
 
 // ── SSH execution helper ────────────────────────────────────
+const MAX_SSH_OUTPUT_BYTES = Number(process.env.SSH_MAX_OUTPUT_BYTES || 1024 * 1024);
+
+function appendCapped(current, chunk) {
+  if (current.length >= MAX_SSH_OUTPUT_BYTES) return current;
+  const next = current + chunk.toString();
+  return next.length > MAX_SSH_OUTPUT_BYTES
+    ? `${next.slice(0, MAX_SSH_OUTPUT_BYTES)}\n[output truncated]`
+    : next;
+}
+
+// 认证方式通过环境变量配置：SSH_PRIVATE_KEY_PATH（可选 SSH_PRIVATE_KEY_PASSPHRASE）或 SSH_AUTH_SOCK（agent）
+function buildSshAuthOptions() {
+  const options = {};
+  const keyPath = process.env.SSH_PRIVATE_KEY_PATH;
+  if (keyPath) {
+    options.privateKey = fs.readFileSync(keyPath);
+    if (process.env.SSH_PRIVATE_KEY_PASSPHRASE) options.passphrase = process.env.SSH_PRIVATE_KEY_PASSPHRASE;
+  } else if (process.env.SSH_AUTH_SOCK) {
+    options.agent = process.env.SSH_AUTH_SOCK;
+  }
+  return options;
+}
 function execSSH(server, command, timeout = 30000) {
   return new Promise((resolve) => {
     const client = new Client();
@@ -67,8 +90,8 @@ function execSSH(server, command, timeout = 30000) {
           resolve({ ...result, error: err.message, exitCode: -1 });
           return;
         }
-        stream.on('data', (data) => { result.stdout += data.toString(); });
-        stream.stderr.on('data', (data) => { result.stderr += data.toString(); });
+        stream.on('data', (data) => { result.stdout = appendCapped(result.stdout, data); });
+        stream.stderr.on('data', (data) => { result.stderr = appendCapped(result.stderr, data); });
         stream.on('close', (code) => {
           clearTimeout(timer);
           result.exitCode = code;
@@ -83,11 +106,21 @@ function execSSH(server, command, timeout = 30000) {
       resolve({ ...result, error: err.message, exitCode: -1 });
     });
 
+    let authOptions;
+    try {
+      authOptions = buildSshAuthOptions();
+    } catch (err) {
+      clearTimeout(timer);
+      resolve({ ...result, error: `SSH credentials unavailable: ${err.message}`, exitCode: -1 });
+      return;
+    }
+
     client.connect({
       host: server.ip,
       port: server.port || 22,
       username: server.username || 'root',
       readyTimeout: 10000,
+      ...authOptions,
     });
   });
 }

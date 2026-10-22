@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRateLimiter } from '../middleware/rateLimit.js';
 import {
   findUserByUsername,
   findUserById,
@@ -33,8 +34,10 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+const adminLoginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: 'admin-login' });
+
 // POST /api/admin/login
-router.post('/admin/login', async (req, res) => {
+router.post('/admin/login', adminLoginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
 
